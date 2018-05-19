@@ -6,6 +6,7 @@ package cl.inacap.cdn.controllers;
  * and open the template in the editor.
  */
 
+import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,10 +47,18 @@ public class LoginServlet extends HttpServlet {
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
                 EntityManager em = emf.createEntityManager();
                 Usuario usuario = em.find(Usuario.class, rut);
-                if(usuario!= null){
+                if(usuario != null){
                     if(usuario.getClave().equals(request.getParameter("clave"))){
-                        out.print("Se iniciado Sesión con exito");
-                        out.print(usuario.getNombre());
+                        switch( usuario.getTipoUsuarioId().getId().intValue() ){
+                            case 1:
+                                request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                                break;
+                            case 2:
+                                break;
+                            case 3:
+                                break;
+                        }
+                        out.print("Se iniciado Sesión con exito "+usuario.getNombre());
                     }else{
                         out.print("Clave Incorrecta");
                     }
@@ -57,6 +66,7 @@ public class LoginServlet extends HttpServlet {
                     out.print("Usuario Invalido");
                 }
                 em.close();
+                emf.close();
             }
         }
     }
