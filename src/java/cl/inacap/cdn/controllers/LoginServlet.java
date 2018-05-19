@@ -51,7 +51,8 @@ public class LoginServlet extends HttpServlet {
                     if(usuario.getClave().equals(request.getParameter("clave"))){
                         switch( usuario.getTipoUsuarioId().getId().intValue() ){
                             case 1:
-                                request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                                out.print("Redireccionando...");
+                                response.sendRedirect("Proyect.do");
                                 break;
                             case 2:
                                 break;
