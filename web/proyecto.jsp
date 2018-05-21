@@ -4,6 +4,8 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Collection"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
 <%@page import="cl.inacap.cdn.entities.Proyecto"%>
@@ -88,7 +90,10 @@
       </ol>
 
       <!-- CARTA -->
-      <% Proyecto proyecto = (Proyecto)request.getAttribute("proyectos"); %>
+      <% 
+          Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");
+          SimpleDateFormat dateFormato = new SimpleDateFormat("dd/MM");
+      %>
       <div class="row">
         <div class="col-lg-7 col-sm-8">
           <div class="card">
@@ -96,33 +101,24 @@
                 <i class="fa fa-table"></i> <% out.print(proyecto.getNombre()); %>
             </div>
             <div class=" row card-body">
-              <div class="row col-md-9 col-sm-12">
-                <div class="col-md-12 col-sm-12">
-                  <table width="75%">
-                    <tr>
-                      <th>Codigo de Proyecto:</th>
-                      <td><% out.print(proyecto.getCodigo()); %></td>
-                    </tr>
-                    <tr>
-                      <th>N° Cuenta Corriente:</th>
-                      <td><% out.print(proyecto.getNumCuenta()); %></td>
-                    </tr>
-                    <tr>
-                      <th>Banco:</th>
-                      <td><% out.print(proyecto.getBanco()); %></td>
-                    </tr>
-                    <tr>
-                      <th>Fecha Inicio Proyecto:</th>
-                      <td><% out.print(proyecto.getFechaIni()); %></td>
-                    </tr>
-                    <tr>
-                      <th>Fecha Termino Proyecto:</th>
-                      <td><% out.print(proyecto.getFechaFin()); %></td>
-                    </tr>
-                </table>
-                </div>
+              <div class="row col-md-9 col-sm-8">
+                  <div class="col-md-12 col-sm-12">
+                      <p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
+                  </div>
+                  <div class="col-md-12 col-sm-12">
+                      <p>N° Cuenta Corriente: <strong><% out.print(proyecto.getNumCuenta()); %></strong></p>
+                  </div>
+                  <div class="col-md-12 col-sm-12">
+                      <p>Banco: <strong><% out.print(proyecto.getBanco()); %></strong></p>
+                  </div>
+                  <div class="col-md-12 col-sm-12">
+                      <p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
+                  </div>
+                  <div class="col-md-12 col-sm-12">
+                      <p>Fecha Termino Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaFin())); %></strong></p>
+                  </div>              
               </div>
-              <div class="col-md-3 col-sm-12">
+              <div class="col-md-3 col-sm-2">
                   <a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p></a>
               </div>
             </div>
@@ -134,12 +130,12 @@
       </div>
       <br>
       <%
-        ArrayList<AnhoProyect> anhos = (ArrayList)proyecto.getAnhoProyectCollection();
+        Collection<AnhoProyect> anhos = proyecto.getAnhoProyectCollection();
         if(anhos.size() > 0){
       %>
             <div class="card mb-3">
                 <div class="card-header">
-                    <i class="fa fa-table"></i> Data Table Example
+                    <i class="fa fa-table"></i> Años De Proyecto
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
