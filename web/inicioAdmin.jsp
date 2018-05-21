@@ -4,6 +4,8 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.ArrayList"%>
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -89,22 +91,33 @@
       </div>
       <!-- Icon Cards-->
       <div class="row">
-        <div class="col-xl-3 col-sm-6 mb-3">
-          <div class="card text-white bg-primary o-hidden h-100">
-            <div class="card-body">
-              <div class="card-body-icon">
-                <i class="fa fa-fw fa-university"></i>
-              </div>
-              <div class="mr-5">Nombre Proyecto</div>
-            </div>
-            <a class="card-footer text-white clearfix small z-1" href="#">
-              <span class="float-left">Ver Más</span>
-              <span class="float-right">
-                <i class="fa fa-angle-right"></i>
-              </span>
-            </a>
-          </div>
-        </div>
+        <%
+            ArrayList<Proyecto> proyectos = (ArrayList)request.getAttribute("proyectos");
+            if(proyectos.size() > 0){
+                for(Proyecto proyecto:proyectos){
+        %>
+                    <div class="col-xl-3 col-sm-6 mb-3">
+                        <div class="card text-white bg-primary o-hidden h-100">
+                            <div class="card-body">
+                                <div class="card-body-icon">
+                                    <i class="fa fa-fw fa-university"></i>
+                                </div>
+                                <div class="mr-5"><% out.print(proyecto.getNombre());%></div>
+                            </div>
+                            <a class="card-footer text-white clearfix small z-1" href="Proyect.do?idProyect=<% out.print(proyecto.getId()); %>&accion=mostrarProyecto">
+                                <span class="float-left">Ver Más</span>
+                                <span class="float-right">
+                                    <i class="fa fa-angle-right"></i>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+        <%
+                }
+            }else{
+                out.print("<div class='col-xl-12 col-sm-12 mb-12'>No se a encontrado ningun proyecto registrado</div>");
+            }
+        %>
       </div>
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>

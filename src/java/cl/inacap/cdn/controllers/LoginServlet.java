@@ -50,8 +50,7 @@ public class LoginServlet extends HttpServlet {
                 if(usuario != null){
                     if(usuario.getClave().equals(request.getParameter("clave"))){
                         switch( usuario.getTipoUsuarioId().getId().intValue() ){
-                            case 1:
-                                out.print("Redireccionando...");
+                            case 1:             
                                 response.sendRedirect("Proyect.do");
                                 break;
                             case 2:

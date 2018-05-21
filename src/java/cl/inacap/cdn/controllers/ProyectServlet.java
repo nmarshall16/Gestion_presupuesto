@@ -5,8 +5,16 @@
  */
 package cl.inacap.cdn.controllers;
 
+import cl.inacap.cdn.entities.Proyecto;
+import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +40,34 @@ public class ProyectServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+            String action = request.getParameter("accion");
+            if(action != null){
+                switch(action){
+                    case "mostrarProyecto":
+                        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                        EntityManager em = emf.createEntityManager();
+                        BigDecimal idProyecto = new BigDecimal(Integer.parseInt(request.getParameter("idProyect")));
+                        Proyecto proyecto = em.find(Proyecto.class, idProyecto);
+                        request.setAttribute("proyecto", proyecto);
+                        em.close();
+                        emf.close();
+                        request.getRequestDispatcher("proyecto.jsp").forward(request, response);
+                    break;
+                }
+            }else{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                TypedQuery<Proyecto> proyectosActivos = em.createQuery("select p from Proyecto p where p.estado=:estado", Proyecto.class);
+                proyectosActivos.setParameter("estado", '1');
+                ArrayList<Proyecto> proyectos = new ArrayList<>();
+                proyectosActivos.getResultList().forEach((proyecto) -> {
+                    proyectos.add(proyecto);
+                });
+                request.setAttribute("proyectos", proyectos);
+                em.close();
+                emf.close();
+                request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+            }
         }
     }
 
