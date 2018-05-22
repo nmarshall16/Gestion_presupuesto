@@ -1,3 +1,5 @@
+<%@page import="java.math.BigInteger"%>
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -27,7 +29,7 @@
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand" href="index.html">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -76,34 +78,44 @@
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
+    
+      <% Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");  
+          String anho = (String)request.getAttribute("anho"); %>
+      
       <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="Proyect.do">Proyectos</a></li>
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+            <a href="Proyect.do?idProyect=<%=proyecto.getId()%>&accion=mostrarProyecto"><%=proyecto.getNombre()%></a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item active">Nuevo Año</li>
       </ol>
 
+    <%  if (request.getAttribute("ctas") != null) { %> 
       <!-- CARTA -->
-      <form action="NewYear.do" method="post">
+      <form action="Year.do" method="post">
         <div class="row">
           <div class="col-lg-4">
             <h3>Añadir Nuevo Año</h3>
-            <p>Rango Año Proyecto</p>
+            <p>Rango Para Nuevo Año De Proyecto</p>
             <div class="input-group mb-3">
               <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1"><i class="fa fa-table"></i></span>
               </div>
               <input type="text" name="fechas" class="form-control" id="daterange" placeholder="Select value">            
-              <input type="hidden" name="op" value="2"> 
+              <input type="hidden" name="op" value="2">               
+              <input type="hidden" name="pro" value="<%=proyecto.getId()%>"> 
             </div>
           </div>
           <div class=" row col-lg-8" >
             <div class="col-lg-8">
-
+                <div class="mt-4">
+                    <h5>Proyecto : <span style="font-size: 15px"><%=proyecto.getNombre()%></span></h5>
+                    <h5>Número de año : <span style="font-size: 15px"><%=anho %></span></h5>
+                </div>
             </div>
             <div class="col-lg-4" align="center">
-                <button type="submit" class="btn btn-primary"><p><i class="fa fa-plus-square fa-2x"></i>
-            <br>Guardar Año</p></button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-plus-square fa-2x"></i>
+            <br>Guardar Año</button>
             </div>
               
           </div>
@@ -147,7 +159,13 @@
           </table>
         </div>
       </form>
-
+      <% }else{ %>
+      <div class="row">
+          <div class="col-12 text-center mt-5 mb-5">
+            <h2 class="text-danger">Aún No Existen Cuentas Para Crear Nuevo Año</h2>
+          </div>
+      </div>
+      <% } %>
       <div class="col-md-2" align="center">
           <a href="#" style="text-decoration: none;">
           <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>

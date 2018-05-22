@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.persistence.*;
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -66,6 +67,33 @@ public class Presupuesto implements Serializable {
         this.anhoProyectId = anhoProyectId;
         this.cuentaId = cuentaId;
         this.fuenteFId = fuenteFId;
+    }
+    
+    public static Presupuesto insPresupuesto(Presupuesto presupuesto){
+        
+        System.out.println("");
+        System.out.println("--------------- Ingreso a insertar Presupuesto ---------------");
+        
+        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em            = emf.createEntityManager();
+        
+        try {
+            em.getTransaction().begin();
+            em.persist(presupuesto);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            
+        } catch (ConstraintViolationException e) {
+            System.out.println("Error en Insertar Presupuesto");
+            System.out.println("Clase de error "+e.getClass());
+            System.out.println("Causa de error "+e.getCause());
+            System.out.println("No se!"+e.initCause(e.getCause()));           
+        }
+        System.out.println("--------------- Fin de inserta Presupuesto ---------------");
+        System.out.println("");
+        
+        return presupuesto;
     }
 
     public BigDecimal getId() {

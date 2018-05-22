@@ -37,13 +37,17 @@ function calculateFF(ff){
        
     var ctas   = $('#cuentas tbody tr');
     var inputs = $("#cuentas tbody tr td input[name="+ff+"]");
-    var total = 0;
+    var total  = 0;
+    var cont   = 0;
     
     for (i = 0; i <= ctas.length-1 ; i++ ) {
         switch(ff){
             case 'sercotec':     total += parseInt(inputs[i].value); break;
             case 'inacap':       total += parseInt(inputs[i].value); break;
             case 'pecuniarios':  total += parseInt(inputs[i].value); break;
+        }
+        if(inputs[i].value === 0){
+            cont++;
         }
     }
     

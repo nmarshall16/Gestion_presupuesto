@@ -9,8 +9,8 @@
         <servlet-class>cl.inacap.cdn.controllers.ProyectServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>NewYearServlet</servlet-name>
-        <servlet-class>cl.inacap.cdn.controllers.NewYearServlet</servlet-class>
+        <servlet-name>YearServlet</servlet-name>
+        <servlet-class>cl.inacap.cdn.controllers.YearServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -21,8 +21,8 @@
         <url-pattern>/Proyect.do</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>NewYearServlet</servlet-name>
-        <url-pattern>/NewYear.do</url-pattern>
+        <servlet-name>YearServlet</servlet-name>
+        <url-pattern>/Year.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -88,7 +88,29 @@
         </li>
         <li class="breadcrumb-item active">Tables</li>
       </ol>
-
+      
+      <%    String mensaje = (String)request.getAttribute("mensaje");
+          if (mensaje != null) { %>
+      
+      <div id="mensaje" class="row">
+        <div class="col-12 pt-1 pb-1">
+            <div class="card card-outline-danger text-center">
+                <div class="row">
+                    <div class="col-11">
+                        <div class="card-block">
+                            <h3 class="text-center <% if(mensaje.contains("No")){out.print("text-danger");}else{out.print("text-info");} %> text-info"><%=(String)request.getAttribute("mensaje") %></h3>
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <div class="text-right">
+                            <span class="right clickable close-icon pr-2" data-effect="fadeOut" ><i class="fa fa-times"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <% } %>
       <!-- CARTA -->
       <% 
           Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");
@@ -125,7 +147,7 @@
           </div>
         </div>
         <div class="col-lg-5 col-sm-4">
-          <a href="NewYear.do" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
+            <a href="Year.do?pro=<%=proyecto.getId()%>" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
         </div>
       </div>
       <br>
@@ -242,6 +264,8 @@
     <script src="js/sb-admin.min.js"></script>
     <!-- Custom scripts for this page-->
     <script src="js/sb-admin-datatables.min.js"></script>
+    <script src="js/card.js"></script>
+
   </div>
 </body>
 
