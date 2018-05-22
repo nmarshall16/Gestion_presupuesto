@@ -8,14 +8,7 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -39,6 +32,8 @@ public class Permisos implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERMISOS_SEQ")
+    @SequenceGenerator(sequenceName = "PERMISOS_ID_SEQ", allocationSize = 1, name = "PERMISOS_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Size(max = 150)

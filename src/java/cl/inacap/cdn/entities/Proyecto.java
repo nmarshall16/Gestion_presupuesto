@@ -10,20 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -53,6 +40,8 @@ public class Proyecto implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROYECTO_SEQ")
+    @SequenceGenerator(sequenceName = "PROYECTO_ID_SEQ", allocationSize = 1, name = "PROYECTO_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Size(max = 150)
@@ -87,6 +76,19 @@ public class Proyecto implements Serializable {
 
     public Proyecto(BigDecimal id) {
         this.id = id;
+    }
+    
+    public static Proyecto findById(BigDecimal id){
+        Proyecto pro;
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        
+        pro = em.find(Proyecto.class, id);
+        
+        em.close();
+        emf.close();
+        return pro;
     }
 
     public BigDecimal getId() {

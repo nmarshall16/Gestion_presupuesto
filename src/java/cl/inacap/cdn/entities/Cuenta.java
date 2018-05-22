@@ -8,15 +8,8 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.List;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -41,6 +34,8 @@ public class Cuenta implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CUENTA_SEQ")
+    @SequenceGenerator(sequenceName = "CUENTA_ID_SEQ", allocationSize = 1, name = "CUENTA_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Size(max = 100)
@@ -59,6 +54,25 @@ public class Cuenta implements Serializable {
 
     public Cuenta(BigDecimal id) {
         this.id = id;
+    }
+    
+    public static List<Cuenta> findAll(){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de Cuentas  ----------");
+        List<Cuenta> cuentas;
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        
+        TypedQuery<Cuenta> result =  em.createNamedQuery("Cuenta.findAll", Cuenta.class);
+        cuentas = result.getResultList();
+        
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de Cuentas  ----------");
+        System.out.println("");
+        return cuentas;
     }
 
     public BigDecimal getId() {

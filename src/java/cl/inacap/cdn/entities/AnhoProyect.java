@@ -10,19 +10,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
+import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -41,7 +30,8 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "AnhoProyect.findByInicio", query = "SELECT a FROM AnhoProyect a WHERE a.inicio = :inicio")
     , @NamedQuery(name = "AnhoProyect.findByTermino", query = "SELECT a FROM AnhoProyect a WHERE a.termino = :termino")
     , @NamedQuery(name = "AnhoProyect.findByTotalDis", query = "SELECT a FROM AnhoProyect a WHERE a.totalDis = :totalDis")
-    , @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")})
+    , @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")
+    , @NamedQuery(name = "AnhoProyect.findAllOfProyect", query = "SELECT a FROM AnhoProyect a WHERE a.proyectoId = :proyectoId")})
 public class AnhoProyect implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,6 +39,8 @@ public class AnhoProyect implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ANHO_SEQ")
+    @SequenceGenerator(sequenceName = "ANHO_PROYECT_ID_SEQ", allocationSize = 1, name = "ANHO_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Column(name = "NUM")
@@ -74,6 +66,85 @@ public class AnhoProyect implements Serializable {
 
     public AnhoProyect(BigDecimal id) {
         this.id = id;
+    }
+    
+    public AnhoProyect(BigInteger num, Date fIni, Date fTer, BigInteger tDisp, BigInteger total, Proyecto proId) {
+        this.num = num;
+        this.inicio = fIni;
+        this.termino = fTer;
+        this.totalDis = tDisp;
+        this.total = total;
+        this.proyectoId = proId;
+    }
+    
+    public static AnhoProyect findById(int id){
+        AnhoProyect anho;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        
+        TypedQuery<AnhoProyect> result = em.createNamedQuery("AnhoProyect.findById", AnhoProyect.class);
+        result.setParameter("id", id);
+        
+        anho = result.getSingleResult();
+        
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        return anho;
+    }
+    
+    public static AnhoProyect insAnho(AnhoProyect anho){
+        
+        System.out.println("");
+        System.out.println("--------------- Ingreso a insertarAnho ---------------");
+        
+        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em            = emf.createEntityManager();
+        
+        try {
+            em.getTransaction().begin();
+            em.persist(anho);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            
+        } catch (ConstraintViolationException e) {
+            System.out.println("Error en Insertar Anho");
+            System.out.println("Clase de error "+e.getClass());
+            System.out.println("Causa de error "+e.getCause());
+            System.out.println("No se!"+e.initCause(e.getCause()));           
+        }
+        System.out.println("--------------- Fin de insertarAnho ---------------");
+        System.out.println("");
+
+        return anho;
+    }
+    
+    public static int countYearsOfProyect(Proyecto pro){
+        int cant = 0;
+        System.out.println("");
+        System.out.println("--------------- Ingreso a countYearsOfProyect ---------------");
+        
+        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em            = emf.createEntityManager();
+        
+        try {
+            TypedQuery<AnhoProyect> results = em.createNamedQuery("AnhoProyect.findAllOfProyect", AnhoProyect.class);
+            results.setParameter("proyectoId", pro);
+            cant = results.getResultList().size();
+            em.close();
+            emf.close();
+            
+        } catch (Exception e) {
+            System.out.println("Clase de error "+e.getClass());
+            System.out.println("Causa de error "+e.getCause());
+            System.out.println("No se!"+e.initCause(e.getCause()));
+        }
+        System.out.println("--------------- Fin de countYearsOfProyect ---------------");
+        System.out.println("");
+        
+        return cant+1;
     }
 
     public BigDecimal getId() {

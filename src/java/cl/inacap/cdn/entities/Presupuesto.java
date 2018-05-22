@@ -8,15 +8,7 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -40,6 +32,8 @@ public class Presupuesto implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PRESUPUESTO_SEQ")
+    @SequenceGenerator(sequenceName = "PRESUPUESTO_ID_SEQ", allocationSize = 1, name = "PRESUPUESTO_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Column(name = "MONTO_DIS")
@@ -63,6 +57,15 @@ public class Presupuesto implements Serializable {
 
     public Presupuesto(BigDecimal id) {
         this.id = id;
+    }
+    
+    public Presupuesto(BigInteger montoDis, BigInteger montoTot, BigInteger totalGasta, AnhoProyect anhoProyectId, Cuenta cuentaId, FuenteF fuenteFId) {
+        this.montoDis = montoDis;
+        this.montoTot = montoTot;
+        this.totalGasta = totalGasta;
+        this.anhoProyectId = anhoProyectId;
+        this.cuentaId = cuentaId;
+        this.fuenteFId = fuenteFId;
     }
 
     public BigDecimal getId() {

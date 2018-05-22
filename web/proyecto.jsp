@@ -125,7 +125,7 @@
           </div>
         </div>
         <div class="col-lg-5 col-sm-4">
-          <a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
+          <a href="NewYear.do" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
         </div>
       </div>
       <br>

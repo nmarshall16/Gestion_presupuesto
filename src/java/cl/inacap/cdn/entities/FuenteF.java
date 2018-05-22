@@ -8,15 +8,8 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.List;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -41,6 +34,8 @@ public class FuenteF implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FUENTE_SEQ")
+    @SequenceGenerator(sequenceName = "FUENTE_F_ID_SEQ", allocationSize = 1, name = "FUENTE_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Size(max = 150)
@@ -59,6 +54,32 @@ public class FuenteF implements Serializable {
 
     public FuenteF(BigDecimal id) {
         this.id = id;
+    }   
+    
+    public FuenteF(String nombre, String codigo, Collection<Presupuesto> presupuestoCollection, Collection<GastoMes> gastoMesCollection) {
+        this.nombre = nombre;
+        this.codigo = codigo;
+        this.presupuestoCollection = presupuestoCollection;
+        this.gastoMesCollection = gastoMesCollection;
+    }
+    
+    public static List<FuenteF> findAll(){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de FuenteF  ----------");
+        List<FuenteF> ff;
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        
+        TypedQuery<FuenteF> result =  em.createNamedQuery("FuenteF.findAll", FuenteF.class);
+        ff = result.getResultList();
+        
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de FuenteF  ----------");
+        System.out.println("");
+        return ff;
     }
 
     public BigDecimal getId() {

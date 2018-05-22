@@ -1,3 +1,6 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,16 +11,16 @@
   <meta name="author" content="">
   <title>Proyecto</title>
   <!-- Bootstrap core CSS-->
-  <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
-  <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
   <!-- Page level plugin CSS-->
-  <link href="../vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
   <!-- Custom styles for this template-->
-  <link href="../css/sb-admin.css" rel="stylesheet">
+  <link href="css/sb-admin.css" rel="stylesheet">
 
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
-  <link rel="stylesheet" type="text/css" href="../vendor/datetimepicker/css/daterangepicker.css" />
+  <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/css/daterangepicker.css" />
 
 </head>
 
@@ -57,7 +60,7 @@
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
           <a class="nav-link" href="#collapseExamplePages">
             <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Cerrar SesiÃ³n</span>
+            <span class="nav-link-text">Cerrar Sesión</span>
           </a>
         </li>
       </ul>
@@ -81,92 +84,70 @@
       </ol>
 
       <!-- CARTA -->
-      <div class="row">
-        <div class="col-lg-4">
-          <h3>AÃ±adir Nuevo AÃ±o</h3>
-          <p>Rango AÃ±o Proyecto</p>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="basic-addon1"><i class="fa fa-table"></i></span>
+      <form action="NewYear.do" method="post">
+        <div class="row">
+          <div class="col-lg-4">
+            <h3>Añadir Nuevo Año</h3>
+            <p>Rango Año Proyecto</p>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1"><i class="fa fa-table"></i></span>
+              </div>
+              <input type="text" name="fechas" class="form-control" id="daterange" placeholder="Select value">            
+              <input type="hidden" name="op" value="2"> 
             </div>
-            <input type="text" class="form-control" id="daterange" placeholder="Select value">
+          </div>
+          <div class=" row col-lg-8" >
+            <div class="col-lg-8">
+
+            </div>
+            <div class="col-lg-4" align="center">
+                <button type="submit" class="btn btn-primary"><p><i class="fa fa-plus-square fa-2x"></i>
+            <br>Guardar Año</p></button>
+            </div>
+              
           </div>
         </div>
-        <div class=" row col-lg-8" >
-          <div class="col-lg-8">
-            
-          </div>
-          <div class="col-lg-4" align="center">
-            <a href="#" style="text-decoration: none;"><i class="fa fa-plus-square fa-2x"></i>
-          <br><p>Guardar AÃ±o</p></a>
-          </div>
-          
+        <br>
+        <!-- Example DataTables Card-->
+        <div class="card mb-3">
+          <table id="cuentas" class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Cuentas</th>
+                <th scope="col">Sercotec</th>
+                <th scope="col">Inacap</th>
+                <th scope="col">Aporte No Pecuniario</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <td>Total:</td>
+                <td id="Tsercotec">$0</td>
+                <td id="Tinacap">$0</td>
+                <td id="Tpecuniarios">$0</td>
+              </tr>
+               <tr>
+                <td>Total General:</td>
+                <td id="total" colspan="3">$0</td>
+              </tr>
+            </tfoot>
+            <tbody>
+
+              <c:forEach items="${requestScope.ctas}" var="cta">
+                  <tr>
+                      <th scope="row">${cta.id}</th>
+                      <td><input type="number" name="sercotec" class="form-control" value="0"></td>
+                      <td><input type="number" name="inacap" class="form-control" value="0"></td>
+                      <td><input type="number" name="pecuniarios" class="form-control" value="0"></td>
+                  </tr>
+              </c:forEach>
+
+            </tbody>
+          </table>
         </div>
-      </div>
-      <br>
-      <!-- Example DataTables Card-->
-      <div class="card mb-3">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Cuentas</th>
-              <th scope="col">Sercotec</th>
-              <th scope="col">Inacap</th>
-              <th scope="col">Aporte No Pecuniario</th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <td>Total:</td>
-              <td>$0</td>
-              <td>$0</td>
-              <td>$0</td>
-            </tr>
-             <tr>
-              <td>Total General:</td>
-              <td colspan="3">$0</td>
-            </tr>
-          </tfoot>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">4</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">5</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">6</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      </form>
+
       <div class="col-md-2" align="center">
           <a href="#" style="text-decoration: none;">
           <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
@@ -178,7 +159,7 @@
     <footer class="sticky-footer">
       <div class="container">
         <div class="text-center">
-          <small>Copyright Â© Your Website 2018</small>
+          <small>Copyright © Your Website 2018</small>
         </div>
       </div>
     </footer>
@@ -205,21 +186,22 @@
       </div>
     </div>
     <!-- Bootstrap core JavaScript-->
-    <script src="../vendor/jquery/jquery.min.js"></script>
-    <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript-->
-    <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <!-- Page level plugin JavaScript-->
-    <script src="../vendor/datatables/jquery.dataTables.js"></script>
-    <script src="../vendor/datatables/dataTables.bootstrap4.js"></script>
+    <script src="vendor/datatables/jquery.dataTables.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
     <!-- Custom scripts for all pages-->
-    <script src="../js/sb-admin.min.js"></script>
+    <script src="js/sb-admin.min.js"></script>
     <!-- Custom scripts for this page-->
-    <script src="../js/sb-admin-datatables.min.js"></script>
+    <script src="js/sb-admin-datatables.min.js"></script>
 
-    <script type="text/javascript" src="../vendor/datetimepicker/js/moment.min.js"></script>
-    <script type="text/javascript" src="../vendor/datetimepicker/js/daterangepicker.js"></script>
-    <script type="text/javascript" src="../vendor/datetimepicker/js/demo.js"></script>
+    <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
+    <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
+    <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+    <script type="text/javascript" src="vendor/calculador/calculador.js"></script>
 
   </div>
 </body>
