@@ -92,25 +92,25 @@
       <%    String mensaje = (String)request.getAttribute("mensaje");
           if (mensaje != null) { %>
       
-      <div id="mensaje" class="row">
-        <div class="col-12 pt-1 pb-1">
-            <div class="card card-outline-danger text-center">
-                <div class="row">
-                    <div class="col-11">
-                        <div class="card-block">
-                            <h3 class="text-center <% if(mensaje.contains("No")){out.print("text-danger");}else{out.print("text-info");} %> text-info"><%=(String)request.getAttribute("mensaje") %></h3>
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div class="text-right">
-                            <span class="right clickable close-icon pr-2" data-effect="fadeOut" ><i class="fa fa-times"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div id="mensaje" class="row">
+          <div class="col-12 pt-1 pb-1">
+              <div class="card card-outline-danger text-center">
+                  <div class="row">
+                      <div class="col-11">
+                          <div class="card-block">
+                              <h3 class="text-center <% if(mensaje.contains("No")){out.print("text-danger");}else{out.print("text-info");} %> text-info"><%=(String)request.getAttribute("mensaje") %></h3>
+                          </div>
+                      </div>
+                      <div class="col-1">
+                          <div class="text-right">
+                              <span class="right clickable close-icon pr-2" data-effect="fadeOut" ><i class="fa fa-times"></i></span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
         </div>
-      </div>
-      <% } %>
+     <% }else{out.print("NO SE QUE WEA!");} %>
       <!-- CARTA -->
       <% 
           Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");

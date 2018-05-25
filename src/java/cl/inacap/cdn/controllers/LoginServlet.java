@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -50,7 +51,7 @@ public class LoginServlet extends HttpServlet {
                 if(usuario != null){
                     if(usuario.getClave().equals(request.getParameter("clave"))){
                         switch( usuario.getTipoUsuarioId().getId().intValue() ){
-                            case 1:             
+                            case 1:
                                 response.sendRedirect("Proyect.do");
                                 break;
                             case 2:

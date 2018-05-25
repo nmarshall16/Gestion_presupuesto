@@ -114,8 +114,10 @@
                 </div>
             </div>
             <div class="col-lg-4" align="center">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-plus-square fa-2x"></i>
-            <br>Guardar Año</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmacion">
+                    <i class="fa fa-plus-square fa-2x"></i>
+                    <br>Guardar Año
+                </button>
             </div>
               
           </div>
@@ -158,6 +160,28 @@
             </tbody>
           </table>
         </div>
+        
+        <!-- Confirmación Modal -->
+        <div class="modal fade" id="confirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">¿Guardar Nuevo Año?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar Nuevo Año</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
       </form>
       <% }else{ %>
       <div class="row">
@@ -203,6 +227,8 @@
         </div>
       </div>
     </div>
+    
+    
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
