@@ -265,7 +265,8 @@
     <!-- Custom scripts for this page-->
     <script src="js/sb-admin-datatables.min.js"></script>
     <script src="js/card.js"></script>
-
+    <script src="vendor/rut/rut.min.js"></script>
+    <script src="js/main.js"></script>
   </div>
 </body>
 
