@@ -14,7 +14,7 @@ $(document).ready(function() {
     $(".selectAnho").on('click', function(){
         var fila = $(this).parent().parent();
         var meses = $(fila).children(".meses").children(); // Se optiene el select con los meses del año que se haya selecionado
-        $(location).attr('href', 'Proyect.do?idAnho='+$(this).val()+'&mes='+$(meses).val());
+        $(location).attr('href', 'Year.do?idAnho='+$(this).val()+'&mes='+$(meses).val()+'&op=3');
     });
 });
 

@@ -47,10 +47,7 @@ public class ProyectServlet extends HttpServlet {
                 /*
                 Acciones del switch 
                     - mostrarProyecto: Busca un proyecto determinado y carga la
-                      vista mismo con todos sus datos y funcionalidades como ver
-                      años de proyecto, agregar nuevos años, modificar presupuesto,
-                      modificar informacion de proyecto, etc.
-                
+                      vista con todos sus datos y funcionalidades.
                     - 
                 */
                 switch(action){
