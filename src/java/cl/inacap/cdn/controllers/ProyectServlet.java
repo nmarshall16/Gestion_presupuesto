@@ -41,7 +41,18 @@ public class ProyectServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             String action = request.getParameter("accion");
+            /* Se recibe el parametro accion enviado desde el jsp si el paremetro
+            es null se cargara el inicio del administrador con todos los proyectos activos */
             if(action != null){
+                /*
+                Acciones del switch 
+                    - mostrarProyecto: Busca un proyecto determinado y carga la
+                      vista mismo con todos sus datos y funcionalidades como ver
+                      años de proyecto, agregar nuevos años, modificar presupuesto,
+                      modificar informacion de proyecto, etc.
+                
+                    - 
+                */
                 switch(action){
                     case "mostrarProyecto":
                         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
