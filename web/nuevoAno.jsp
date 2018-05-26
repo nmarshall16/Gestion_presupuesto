@@ -183,18 +183,26 @@
         </div>
         
       </form>
-      <% }else{ %>
-      <div class="row">
-          <div class="col-12 text-center mt-5 mb-5">
-            <h2 class="text-danger">Aún No Existen Cuentas Para Crear Nuevo Año</h2>
-          </div>
-      </div>
-      <% } %>
       <div class="col-md-2" align="center">
           <a href="#" style="text-decoration: none;">
           <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
           </a>
       </div>
+      <% }else{  %>
+      <div class="row">
+          <div class="col-12 text-center mt-5 mb-5">
+            <h2 class="text-danger">Aún No Existen Cuentas Para Crear Nuevo Año</h2>
+          </div>
+          <div class="col-12 text-center mt-5 mb-5">
+            <button class="btn btn-dark">Registrar Cuentas</button>
+          </div>
+      </div>
+      <div class="col-md-2" align="center">
+          <a href="#" style="text-decoration: none;">
+          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver</strong>
+          </a>
+      </div>
+      <% } %>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

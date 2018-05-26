@@ -37,52 +37,33 @@ public class YearServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             int op = 1;
-            
             if (request.getParameter("op") != null ) {
-                if(request.getParameter("op").equals("2")){
-                    op = 2;
-                }
+                op = Integer.parseInt(request.getParameter("op"));
             }
-            
             switch(op){
                 case 1: 
-                    
                     // CARGAR VISTA PARA CREACIÓN DE NUEVO AÑO
-                    if (Cuenta.findAll() != null) {
-                        
-                        // Obteniendo cuentas
+                    // Obteniendo cuentas
                         request.setAttribute("ctas", Cuenta.findAll());
-                        
-                        // Obteniendo id de proyecto
-                        BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro")));
-                        
-                        // Setear datos obtenidos y construir vista
+                    // Obteniendo id de proyecto
+                        BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro"))); 
+                    // Setear datos obtenidos y construir vista
                         request.setAttribute("proyecto", Proyecto.findById(idPro));
                         request.setAttribute("anho", String.valueOf(AnhoProyect.countYearsOfProyect(Proyecto.findById(idPro))));
                         request.getRequestDispatcher("nuevoAno.jsp").forward(request, response);
-                    }
                     break;
                 case 2: 
                     // GUARDAR NUEVO AÑO DE PROYECTO
                     try {
-                        /*
-                        * RECOPILACIÓN DE DATOS DE AÑO DE PROYECTO
-                        */
-                        
-                        // Guardar Nuevo Año de proyecto
+                    // Guardar Nuevo Año de proyecto
                         AnhoProyect anho = saveYear(request, response);
-                        
-                        // GUARDAR PRESUPUESTOS
+                    // GUARDAR PRESUPUESTOS
                         savePresupuestos(request, response, anho);
-                        
                         response.sendRedirect("Proyect.do?idProyect="+anho.getProyectoId().getId()+"&accion=mostrarProyecto");
-                        
                     } catch (NullPointerException | IOException | ServletException e) {
-                        // AGREGAR SENTENCIAS EN CASO DE ERROR!
-                        
+                    // AGREGAR SENTENCIAS EN CASO DE ERROR!
                         out.print(e.getClass()+"<br>");
-                        
-                        // Imprimiendo detalle de error
+                    // Imprimiendo detalle de error
                         StackTraceElement[] stack = e.getStackTrace();
                         String trace = "";
                         for(StackTraceElement linea : stack){
@@ -92,7 +73,6 @@ public class YearServlet extends HttpServlet {
                         out.print(e.initCause(e.getCause()));
                         out.print("<br>");
                     }
-
                     break;
                 case 3: 
                     break;

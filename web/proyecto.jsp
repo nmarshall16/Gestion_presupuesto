@@ -84,36 +84,37 @@
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="Proyect.do">Inicio</a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item active">Proyecto</li>
       </ol>
-      
-      <%    String mensaje = (String)request.getAttribute("mensaje");
+      <%  String mensaje = (String)request.getAttribute("mensaje");
           if (mensaje != null) { %>
-      
-        <div id="mensaje" class="row">
-          <div class="col-12 pt-1 pb-1">
-              <div class="card card-outline-danger text-center">
-                  <div class="row">
-                      <div class="col-11">
-                          <div class="card-block">
-                              <h3 class="text-center <% if(mensaje.contains("No")){out.print("text-danger");}else{out.print("text-info");} %> text-info"><%=(String)request.getAttribute("mensaje") %></h3>
-                          </div>
-                      </div>
-                      <div class="col-1">
-                          <div class="text-right">
-                              <span class="right clickable close-icon pr-2" data-effect="fadeOut" ><i class="fa fa-times"></i></span>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
+          
+      <div id="mensaje" class="row">
+        <div class="col-12 pt-1 pb-1">
+            <div class="card card-outline-danger text-center">
+                <div class="row">
+                    <div class="col-11">
+                        <div class="card-block">
+                            <h3 class="text-center <% if(mensaje.contains("No")){out.print("text-danger");}else{out.print("text-info");} %> text-info"><%=(String)request.getAttribute("mensaje") %></h3>
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <div class="text-right">
+                            <span class="right clickable close-icon pr-2" data-effect="fadeOut" ><i class="fa fa-times"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-     <% }else{out.print("NO SE QUE WEA!");} %>
-      <!-- CARTA -->
+      </div>
+      <% } %>
+      <!-- Se obtene el proyecto enviado desde el Servlet y se cargan los datos
+      y años de proyecto del mismo siempre y cuando se reciba un proyecto valido -->
       <% 
           Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");
+          if(proyecto!= null){
           SimpleDateFormat dateFormato = new SimpleDateFormat("dd/MM");
       %>
       <div class="row">
@@ -147,7 +148,7 @@
           </div>
         </div>
         <div class="col-lg-5 col-sm-4">
-            <a href="Year.do?pro=<%=proyecto.getId()%>" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
+          <a href="Year.do?pro=<%=proyecto.getId()%>" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Año</p></a>
         </div>
       </div>
       <br>
@@ -184,8 +185,8 @@
                             %>
                                 <tr>
                                     <td><% out.print(anho.getNum()); %></td>
-                                    <td><button type="button" class="btn btn-secondary btn-block">Presupuesto</button></td>
-                                    <td>
+                                    <td><a href="Presupuesto.do" class="btn btn-secondary btn-block" role="button">Presupuesto</a></td>
+                                    <td class="meses">
                                         <select class="custom-select">
                                             <option selected value="Enero">Enero</option>
                                             <option value="Febrero">Febrero</option>
@@ -201,7 +202,7 @@
                                             <option value="Diciembre">Diciembre</option>
                                         </select>
                                     </td>
-                                    <td><button type="button" class="btn btn-primary btn-block">Seleccionar</button></td>
+                                    <td><button type="button" class="btn btn-primary btn-block selectAnho" value="<% out.print(anho.getId()); %>">Seleccionar</button></td>
                                 </tr>
                             <%
                             }
@@ -210,13 +211,19 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
             </div>
       <%
+        }else{
+        out.print("<h2>No se encuentra ningun Año de proyecto disponible</h2>");
         }
+    }else{
       %>
+      <div class="col-xl-12 col-sm-12 mb-12">
+          <h2>Proyecto no disponible</h2>
+      </div>
+    <% } %>
       <div class="col-md-1" align="center">
-          <a href="#" style="text-decoration: none;">
+          <a href="Proyect.do" style="text-decoration: none;">
           <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver</strong>
           </a>
       </div>
@@ -265,7 +272,8 @@
     <!-- Custom scripts for this page-->
     <script src="js/sb-admin-datatables.min.js"></script>
     <script src="js/card.js"></script>
-
+    <script src="vendor/rut/rut.min.js"></script>
+    <script src="js/main.js"></script>
   </div>
 </body>
 
