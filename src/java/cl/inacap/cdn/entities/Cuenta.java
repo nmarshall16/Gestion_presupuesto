@@ -72,7 +72,12 @@ public class Cuenta implements Serializable {
         emf.close();
         System.out.println("----------  Fin de Busqueda de Cuentas  ----------");
         System.out.println("");
-        return cuentas;
+        
+        if(cuentas.isEmpty()){
+            return null;
+        }else{
+            return cuentas;
+        }
     }
 
     public BigDecimal getId() {
