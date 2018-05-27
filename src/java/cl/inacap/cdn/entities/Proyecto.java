@@ -7,7 +7,6 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -48,8 +47,6 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Proyecto.findById", query = "SELECT p FROM Proyecto p WHERE p.id = :id")
     , @NamedQuery(name = "Proyecto.findByNombre", query = "SELECT p FROM Proyecto p WHERE p.nombre = :nombre")
     , @NamedQuery(name = "Proyecto.findByCodigo", query = "SELECT p FROM Proyecto p WHERE p.codigo = :codigo")
-    , @NamedQuery(name = "Proyecto.findByNumCuenta", query = "SELECT p FROM Proyecto p WHERE p.numCuenta = :numCuenta")
-    , @NamedQuery(name = "Proyecto.findByBanco", query = "SELECT p FROM Proyecto p WHERE p.banco = :banco")
     , @NamedQuery(name = "Proyecto.findByFechaIni", query = "SELECT p FROM Proyecto p WHERE p.fechaIni = :fechaIni")
     , @NamedQuery(name = "Proyecto.findByFechaFin", query = "SELECT p FROM Proyecto p WHERE p.fechaFin = :fechaFin")
     , @NamedQuery(name = "Proyecto.findByEstado", query = "SELECT p FROM Proyecto p WHERE p.estado = :estado")})
@@ -70,11 +67,6 @@ public class Proyecto implements Serializable {
     @Size(max = 100)
     @Column(name = "CODIGO")
     private String codigo;
-    @Column(name = "NUM_CUENTA")
-    private BigInteger numCuenta;
-    @Size(max = 150)
-    @Column(name = "BANCO")
-    private String banco;
     @Column(name = "FECHA_INI")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaIni;
@@ -101,7 +93,7 @@ public class Proyecto implements Serializable {
         this.id = id;
     }
     
-    public static Proyecto findById(BigDecimal id){
+     public static Proyecto findById(BigDecimal id){
         Proyecto pro;
         
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
@@ -136,22 +128,6 @@ public class Proyecto implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
-    }
-
-    public BigInteger getNumCuenta() {
-        return numCuenta;
-    }
-
-    public void setNumCuenta(BigInteger numCuenta) {
-        this.numCuenta = numCuenta;
-    }
-
-    public String getBanco() {
-        return banco;
-    }
-
-    public void setBanco(String banco) {
-        this.banco = banco;
     }
 
     public Date getFechaIni() {
