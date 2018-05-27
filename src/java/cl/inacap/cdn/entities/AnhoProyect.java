@@ -10,7 +10,26 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,8 +49,7 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "AnhoProyect.findByInicio", query = "SELECT a FROM AnhoProyect a WHERE a.inicio = :inicio")
     , @NamedQuery(name = "AnhoProyect.findByTermino", query = "SELECT a FROM AnhoProyect a WHERE a.termino = :termino")
     , @NamedQuery(name = "AnhoProyect.findByTotalDis", query = "SELECT a FROM AnhoProyect a WHERE a.totalDis = :totalDis")
-    , @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")
-    , @NamedQuery(name = "AnhoProyect.findAllOfProyect", query = "SELECT a FROM AnhoProyect a WHERE a.proyectoId = :proyectoId")})
+    , @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")})
 public class AnhoProyect implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -146,7 +164,7 @@ public class AnhoProyect implements Serializable {
         
         return cant+1;
     }
-
+    
     public BigDecimal getId() {
         return id;
     }

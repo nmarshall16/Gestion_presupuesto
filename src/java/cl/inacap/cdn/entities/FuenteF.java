@@ -9,7 +9,22 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -48,13 +63,15 @@ public class FuenteF implements Serializable {
     private Collection<Presupuesto> presupuestoCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFId")
     private Collection<GastoMes> gastoMesCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFId")
+    private Collection<Cuenta> cuentaCollection;
 
     public FuenteF() {
     }
 
     public FuenteF(BigDecimal id) {
         this.id = id;
-    }   
+    }
     
     public FuenteF(String nombre, String codigo, Collection<Presupuesto> presupuestoCollection, Collection<GastoMes> gastoMesCollection) {
         this.nombre = nombre;
@@ -81,7 +98,7 @@ public class FuenteF implements Serializable {
         System.out.println("");
         return ff;
     }
-
+    
     public BigDecimal getId() {
         return id;
     }
@@ -122,6 +139,15 @@ public class FuenteF implements Serializable {
 
     public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
         this.gastoMesCollection = gastoMesCollection;
+    }
+
+    @XmlTransient
+    public Collection<Cuenta> getCuentaCollection() {
+        return cuentaCollection;
+    }
+
+    public void setCuentaCollection(Collection<Cuenta> cuentaCollection) {
+        this.cuentaCollection = cuentaCollection;
     }
 
     @Override

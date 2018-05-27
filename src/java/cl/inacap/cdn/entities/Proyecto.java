@@ -10,7 +10,27 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -68,6 +88,9 @@ public class Proyecto implements Serializable {
         @JoinColumn(name = "USUARIO_RUT", referencedColumnName = "RUT")})
     @ManyToMany
     private Collection<Usuario> usuarioCollection;
+    @JoinColumn(name = "BANCO_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Banco bancoId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "proyectoId")
     private Collection<AnhoProyect> anhoProyectCollection;
 
@@ -80,7 +103,7 @@ public class Proyecto implements Serializable {
     
     public static Proyecto findById(BigDecimal id){
         Proyecto pro;
-
+        
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();
         
@@ -90,7 +113,7 @@ public class Proyecto implements Serializable {
         emf.close();
         return pro;
     }
-
+    
     public BigDecimal getId() {
         return id;
     }
@@ -162,6 +185,14 @@ public class Proyecto implements Serializable {
 
     public void setUsuarioCollection(Collection<Usuario> usuarioCollection) {
         this.usuarioCollection = usuarioCollection;
+    }
+
+    public Banco getBancoId() {
+        return bancoId;
+    }
+
+    public void setBancoId(Banco bancoId) {
+        this.bancoId = bancoId;
     }
 
     @XmlTransient

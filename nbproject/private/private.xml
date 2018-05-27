@@ -5,15 +5,8 @@
         <group>
             <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/proyecto.jsp</file>
             <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/ProyectServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/PresupuestoServlet.java</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/YearServlet.java</file>
             <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/js/main.js</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/inicioAdmin.jsp</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/AnhoProyect.java</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/proyecto.jsp</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/controllers/ProyectServlet.java</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/Presupuesto.java</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/nuevoAno.jsp</file>
-            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/controllers/YearServlet.java</file>
         </group>
     </open-files>
 </project-private>

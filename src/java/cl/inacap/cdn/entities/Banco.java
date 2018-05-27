@@ -7,18 +7,16 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -30,33 +28,34 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Nicolas
  */
 @Entity
-@Table(name = "GASTO")
+@Table(name = "BANCO")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Gasto.findAll", query = "SELECT g FROM Gasto g")
-    , @NamedQuery(name = "Gasto.findById", query = "SELECT g FROM Gasto g WHERE g.id = :id")
-    , @NamedQuery(name = "Gasto.findByNombre", query = "SELECT g FROM Gasto g WHERE g.nombre = :nombre")})
-public class Gasto implements Serializable {
+    @NamedQuery(name = "Banco.findAll", query = "SELECT b FROM Banco b")
+    , @NamedQuery(name = "Banco.findById", query = "SELECT b FROM Banco b WHERE b.id = :id")
+    , @NamedQuery(name = "Banco.findByNombre", query = "SELECT b FROM Banco b WHERE b.nombre = :nombre")
+    , @NamedQuery(name = "Banco.findByNumCuenta", query = "SELECT b FROM Banco b WHERE b.numCuenta = :numCuenta")})
+public class Banco implements Serializable {
 
     private static final long serialVersionUID = 1L;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Id
     @Basic(optional = false)
     @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GASTO_SEQ")
-    @SequenceGenerator(sequenceName = "GASTO_ID_SEQ", allocationSize = 1, name = "GASTO_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
     @Size(max = 150)
     @Column(name = "NOMBRE")
     private String nombre;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gastoId")
-    private Collection<GastoMes> gastoMesCollection;
+    @Column(name = "NUM_CUENTA")
+    private BigInteger numCuenta;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bancoId")
+    private Collection<Proyecto> proyectoCollection;
 
-    public Gasto() {
+    public Banco() {
     }
 
-    public Gasto(BigDecimal id) {
+    public Banco(BigDecimal id) {
         this.id = id;
     }
 
@@ -76,13 +75,21 @@ public class Gasto implements Serializable {
         this.nombre = nombre;
     }
 
-    @XmlTransient
-    public Collection<GastoMes> getGastoMesCollection() {
-        return gastoMesCollection;
+    public BigInteger getNumCuenta() {
+        return numCuenta;
     }
 
-    public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
-        this.gastoMesCollection = gastoMesCollection;
+    public void setNumCuenta(BigInteger numCuenta) {
+        this.numCuenta = numCuenta;
+    }
+
+    @XmlTransient
+    public Collection<Proyecto> getProyectoCollection() {
+        return proyectoCollection;
+    }
+
+    public void setProyectoCollection(Collection<Proyecto> proyectoCollection) {
+        this.proyectoCollection = proyectoCollection;
     }
 
     @Override
@@ -95,10 +102,10 @@ public class Gasto implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Gasto)) {
+        if (!(object instanceof Banco)) {
             return false;
         }
-        Gasto other = (Gasto) object;
+        Banco other = (Banco) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -107,7 +114,7 @@ public class Gasto implements Serializable {
 
     @Override
     public String toString() {
-        return "cl.inacap.cdn.entities.Gasto[ id=" + id + " ]";
+        return "cl.inacap.cdn.entities.Banco[ id=" + id + " ]";
     }
     
 }

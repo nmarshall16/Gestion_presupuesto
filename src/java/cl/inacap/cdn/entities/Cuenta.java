@@ -9,7 +9,24 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -48,6 +65,9 @@ public class Cuenta implements Serializable {
     private Collection<Presupuesto> presupuestoCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuentaId")
     private Collection<GastoMes> gastoMesCollection;
+    @JoinColumn(name = "FUENTE_F_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private FuenteF fuenteFId;
 
     public Cuenta() {
     }
@@ -79,7 +99,7 @@ public class Cuenta implements Serializable {
             return cuentas;
         }
     }
-
+    
     public BigDecimal getId() {
         return id;
     }
@@ -120,6 +140,14 @@ public class Cuenta implements Serializable {
 
     public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
         this.gastoMesCollection = gastoMesCollection;
+    }
+
+    public FuenteF getFuenteFId() {
+        return fuenteFId;
+    }
+
+    public void setFuenteFId(FuenteF fuenteFId) {
+        this.fuenteFId = fuenteFId;
     }
 
     @Override

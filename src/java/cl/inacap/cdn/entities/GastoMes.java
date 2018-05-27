@@ -9,7 +9,20 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,7 +41,13 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "GastoMes.findByMes", query = "SELECT g FROM GastoMes g WHERE g.mes = :mes")
     , @NamedQuery(name = "GastoMes.findByEstado", query = "SELECT g FROM GastoMes g WHERE g.estado = :estado")
     , @NamedQuery(name = "GastoMes.findByNumFac", query = "SELECT g FROM GastoMes g WHERE g.numFac = :numFac")
-    , @NamedQuery(name = "GastoMes.findByIdProyecto", query = "SELECT g FROM GastoMes g WHERE g.idProyecto = :idProyecto")})
+    , @NamedQuery(name = "GastoMes.findByIdAnhoProyect", query = "SELECT g FROM GastoMes g WHERE g.idAnhoProyect = :idAnhoProyect")
+    , @NamedQuery(name = "GastoMes.findByIdCompra", query = "SELECT g FROM GastoMes g WHERE g.idCompra = :idCompra")
+    , @NamedQuery(name = "GastoMes.findByImporte", query = "SELECT g FROM GastoMes g WHERE g.importe = :importe")
+    , @NamedQuery(name = "GastoMes.findByOrdenCompra", query = "SELECT g FROM GastoMes g WHERE g.ordenCompra = :ordenCompra")
+    , @NamedQuery(name = "GastoMes.findByAtributoPago", query = "SELECT g FROM GastoMes g WHERE g.atributoPago = :atributoPago")
+    , @NamedQuery(name = "GastoMes.findByAsiento", query = "SELECT g FROM GastoMes g WHERE g.asiento = :asiento")
+    , @NamedQuery(name = "GastoMes.findByTipo", query = "SELECT g FROM GastoMes g WHERE g.tipo = :tipo")})
 public class GastoMes implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,8 +69,23 @@ public class GastoMes implements Serializable {
     private Character estado;
     @Column(name = "NUM_FAC")
     private BigInteger numFac;
-    @Column(name = "ID_PROYECTO")
-    private BigInteger idProyecto;
+    @Column(name = "ID_ANHO_PROYECT")
+    private BigInteger idAnhoProyect;
+    @Column(name = "ID_COMPRA")
+    private BigInteger idCompra;
+    @Column(name = "IMPORTE")
+    private BigInteger importe;
+    @Size(max = 150)
+    @Column(name = "ORDEN_COMPRA")
+    private String ordenCompra;
+    @Size(max = 400)
+    @Column(name = "ATRIBUTO_PAGO")
+    private String atributoPago;
+    @Size(max = 150)
+    @Column(name = "ASIENTO")
+    private String asiento;
+    @Column(name = "TIPO")
+    private Character tipo;
     @JoinColumn(name = "CUENTA_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Cuenta cuentaId;
@@ -112,12 +146,60 @@ public class GastoMes implements Serializable {
         this.numFac = numFac;
     }
 
-    public BigInteger getIdProyecto() {
-        return idProyecto;
+    public BigInteger getIdAnhoProyect() {
+        return idAnhoProyect;
     }
 
-    public void setIdProyecto(BigInteger idProyecto) {
-        this.idProyecto = idProyecto;
+    public void setIdAnhoProyect(BigInteger idAnhoProyect) {
+        this.idAnhoProyect = idAnhoProyect;
+    }
+
+    public BigInteger getIdCompra() {
+        return idCompra;
+    }
+
+    public void setIdCompra(BigInteger idCompra) {
+        this.idCompra = idCompra;
+    }
+
+    public BigInteger getImporte() {
+        return importe;
+    }
+
+    public void setImporte(BigInteger importe) {
+        this.importe = importe;
+    }
+
+    public String getOrdenCompra() {
+        return ordenCompra;
+    }
+
+    public void setOrdenCompra(String ordenCompra) {
+        this.ordenCompra = ordenCompra;
+    }
+
+    public String getAtributoPago() {
+        return atributoPago;
+    }
+
+    public void setAtributoPago(String atributoPago) {
+        this.atributoPago = atributoPago;
+    }
+
+    public String getAsiento() {
+        return asiento;
+    }
+
+    public void setAsiento(String asiento) {
+        this.asiento = asiento;
+    }
+
+    public Character getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(Character tipo) {
+        this.tipo = tipo;
     }
 
     public Cuenta getCuentaId() {
