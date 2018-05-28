@@ -86,7 +86,7 @@ public class AnhoProyect implements Serializable {
         this.id = id;
     }
     
-    public AnhoProyect(BigInteger num, Date fIni, Date fTer, BigInteger tDisp, BigInteger total, Proyecto proId) {
+     public AnhoProyect(BigInteger num, Date fIni, Date fTer, BigInteger tDisp, BigInteger total, Proyecto proId) {
         this.num = num;
         this.inicio = fIni;
         this.termino = fTer;

@@ -74,7 +74,7 @@ public class Presupuesto implements Serializable {
         this.id = id;
     }
     
-    public Presupuesto(BigInteger montoDis, BigInteger montoTot, BigInteger totalGasta, AnhoProyect anhoProyectId, Cuenta cuentaId, FuenteF fuenteFId) {
+     public Presupuesto(BigInteger montoDis, BigInteger montoTot, BigInteger totalGasta, AnhoProyect anhoProyectId, Cuenta cuentaId, FuenteF fuenteFId) {
         this.montoDis = montoDis;
         this.montoTot = montoTot;
         this.totalGasta = totalGasta;
