@@ -129,10 +129,10 @@
                       <p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
                   </div>
                   <div class="col-md-12 col-sm-12">
-                      <p>N° Cuenta Corriente: <strong><% out.print(proyecto.getNumCuenta()); %></strong></p>
+                      <p>N° Cuenta Corriente: <strong><% out.print(proyecto.getBancoId().getNumCuenta()); %></strong></p>
                   </div>
                   <div class="col-md-12 col-sm-12">
-                      <p>Banco: <strong><% out.print(proyecto.getBanco()); %></strong></p>
+                      <p>Banco: <strong><% out.print(proyecto.getBancoId().getNombre()); %></strong></p>
                   </div>
                   <div class="col-md-12 col-sm-12">
                       <p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>

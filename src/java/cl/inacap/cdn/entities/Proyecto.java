@@ -93,7 +93,7 @@ public class Proyecto implements Serializable {
         this.id = id;
     }
     
-     public static Proyecto findById(BigDecimal id){
+    public static Proyecto findById(BigDecimal id){
         Proyecto pro;
         
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
