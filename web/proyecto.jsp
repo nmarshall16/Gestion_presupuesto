@@ -13,12 +13,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <%
+        Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");
+    %>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Proyecto</title>
+  <title><%=proyecto.getNombre()%></title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -113,7 +116,6 @@
       <!-- Se obtene el proyecto enviado desde el Servlet y se cargan los datos
       y años de proyecto del mismo siempre y cuando se reciba un proyecto valido -->
       <% 
-          Proyecto proyecto = (Proyecto)request.getAttribute("proyecto");
           if(proyecto!= null){
           SimpleDateFormat dateFormato = new SimpleDateFormat("dd/MM");
       %>
@@ -213,14 +215,20 @@
                 </div>
             </div>
       <%
-        }else{
-        out.print("<h2>No se encuentra ningun Año de proyecto disponible</h2>");
-        }
+        }else{ %>
+        <div class="row">
+          <div class="col-12 text-center mt-3 mb-3">
+            <h2 class="text-info">No Existe Ningun Año de Proyecto Registrado</h2>
+          </div>
+        </div>
+      <% }
     }else{
       %>
-      <div class="col-xl-12 col-sm-12 mb-12">
-          <h2>Proyecto no disponible</h2>
-      </div>
+        <div class="row">
+            <div class="col-12 text-center mt-5 mb-5">
+                <h2 class="text-danger">No Se Ha Podido Encontrar El Proyecto Señalado</h2>
+            </div>
+        </div>
     <% } %>
       <div class="col-md-1" align="center">
           <a href="Proyect.do" style="text-decoration: none;">

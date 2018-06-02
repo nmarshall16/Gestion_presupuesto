@@ -114,7 +114,7 @@
                 </div>
             </div>
             <div class="col-lg-4" align="center">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirmacion">
+                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#confirmacion" style="text-decoration: none;">
                     <i class="fa fa-plus-square fa-2x"></i>
                     <br>Guardar Año
                 </button>
@@ -172,7 +172,7 @@
                 </button>
               </div>
               <div class="modal-body">
-                ...
+                  <p id="pModal">¿Desea guardar nuevo año ingresado?</p>
               </div>
               <div class="modal-footer">
                 <a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>

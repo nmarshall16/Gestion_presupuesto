@@ -11,12 +11,15 @@ import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Persistence;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -68,6 +71,21 @@ public class Usuario implements Serializable {
 
     public Usuario(BigDecimal rut) {
         this.rut = rut;
+    }
+    
+    public static Usuario findById(BigDecimal rut){
+        Usuario usuario;
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
+        usuario = em.find(Usuario.class, rut);
+        
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        return usuario;
     }
 
     public BigDecimal getRut() {

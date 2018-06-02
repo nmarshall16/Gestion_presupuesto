@@ -5,6 +5,7 @@
  */
 package cl.inacap.cdn.controllers;
 
+import cl.inacap.cdn.entities.Banco;
 import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
@@ -40,41 +41,37 @@ public class ProyectServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            String action = request.getParameter("accion");
-            /* Se recibe el parametro accion enviado desde el jsp si el paremetro
-            es null se cargara el inicio del administrador con todos los proyectos activos */
-            if(action != null){
-                /*
-                Acciones del switch 
-                    - mostrarProyecto: Busca un proyecto determinado y carga la
-                      vista con todos sus datos y funcionalidades.
-                    - 
-                */
-                switch(action){
-                    case "mostrarProyecto":
-                        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                        EntityManager em = emf.createEntityManager();
-                        BigDecimal idProyecto = new BigDecimal(Integer.parseInt(request.getParameter("idProyect")));
-                        Proyecto proyecto = em.find(Proyecto.class, idProyecto);
-                        request.setAttribute("proyecto", proyecto);
-                        em.close();
-                        emf.close();
-                        request.getRequestDispatcher("proyecto.jsp").forward(request, response);
-                    break;
+            // Consultar sesión de usuario
+            Usuario u = (Usuario)request.getSession(false).getAttribute("user");
+            if (u != null) {
+                String action = request.getParameter("accion");
+                /* Se recibe el parametro accion enviado desde el jsp si el paremetro
+                es null se cargara el inicio del administrador con todos los proyectos activos */
+                if(action != null){
+                    /*
+                    Acciones del switch 
+                        - mostrarProyecto: Busca un proyecto determinado y carga la
+                          vista con todos sus datos y funcionalidades.
+                        - 
+                    */
+                    switch(action){
+                        case "mostrarProyecto":
+                            BigDecimal idProyecto = new BigDecimal(Integer.parseInt(request.getParameter("idProyect")));
+                            request.setAttribute("proyecto", Proyecto.findById(idProyecto));
+                            request.getRequestDispatcher("proyecto.jsp").forward(request, response);
+                        break;
+                        case "crearProyecto":
+                            request.setAttribute("bancos", Banco.findAll());
+                            
+                            request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
+                        break;
+                    }
+                }else{
+                    request.setAttribute("proyectos", Proyecto.findByEstado('1'));
+                    request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
                 }
             }else{
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                TypedQuery<Proyecto> proyectosActivos = em.createQuery("select p from Proyecto p where p.estado=:estado", Proyecto.class);
-                proyectosActivos.setParameter("estado", '1');
-                ArrayList<Proyecto> proyectos = new ArrayList<>();
-                proyectosActivos.getResultList().forEach((proyecto) -> {
-                    proyectos.add(proyecto);
-                });
-                request.setAttribute("proyectos", proyectos);
-                em.close();
-                emf.close();
-                request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                String mensaje = "Su Sesión Ha Expirado\nInicie Sesión Nuevamente";
             }
         }
     }

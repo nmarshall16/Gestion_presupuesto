@@ -90,4 +90,3 @@ function formatNumber(num) {
     return (((sign) ? '' : '-') + num/* + ',' + cents*/);
 }
 
-

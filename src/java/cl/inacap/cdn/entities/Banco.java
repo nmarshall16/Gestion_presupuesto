@@ -9,18 +9,23 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -62,6 +67,36 @@ public class Banco implements Serializable {
 
     public Banco(BigDecimal id) {
         this.id = id;
+    }
+
+    public Banco(String nombre, BigInteger numCuenta) {
+        this.nombre = nombre;
+        this.numCuenta = numCuenta;
+    }
+    
+    public static List<Banco> findAll(){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+        List<Banco> bancos;
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        
+        TypedQuery<Banco> result =  em.createNamedQuery("Banco.findAll", Banco.class);
+
+        bancos = result.getResultList();
+        
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+        System.out.println("");
+        
+        if(bancos.isEmpty()){
+            return null;
+        }else{
+            return bancos;
+        }
     }
 
     public BigDecimal getId() {

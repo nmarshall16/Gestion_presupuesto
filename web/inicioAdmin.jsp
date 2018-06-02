@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -86,13 +87,13 @@
           <h2>Proyectos Activos</h2>
         </div>
         <div class="col-lg-4 col-sm-4">
-          <a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Proyecto</p></a>
+          <a href="Proyect.do?accion=crearProyecto" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Proyecto</p></a>
         </div>
       </div>
       <!-- Icon Cards-->
       <div class="row">
         <%
-            ArrayList<Proyecto> proyectos = (ArrayList)request.getAttribute("proyectos");
+            List<Proyecto> proyectos = (List)request.getAttribute("proyectos");
             if(proyectos.size() > 0){
                 for(Proyecto proyecto:proyectos){
         %>

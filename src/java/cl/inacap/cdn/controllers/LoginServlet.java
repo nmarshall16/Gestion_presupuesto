@@ -45,13 +45,14 @@ public class LoginServlet extends HttpServlet {
                 run = run.replace(".", "");
                 String[] rutDv = run.split("-");
                 BigDecimal rut = new BigDecimal(rutDv[0]);
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                Usuario usuario = em.find(Usuario.class, rut);
+                
+                Usuario usuario = Usuario.findById(rut);
+                
                 if(usuario != null){
                     if(usuario.getClave().equals(request.getParameter("clave"))){
                         switch( usuario.getTipoUsuarioId().getId().intValue() ){
                             case 1:
+                                request.getSession(true).setAttribute("user", usuario);
                                 response.sendRedirect("Proyect.do");
                                 break;
                             case 2:
@@ -66,8 +67,7 @@ public class LoginServlet extends HttpServlet {
                 }else{
                     out.print("Usuario Invalido");
                 }
-                em.close();
-                emf.close();
+                
             }
         }
     }
