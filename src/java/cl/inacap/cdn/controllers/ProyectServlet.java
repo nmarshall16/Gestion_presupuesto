@@ -61,13 +61,13 @@ public class ProyectServlet extends HttpServlet {
                             request.getRequestDispatcher("proyecto.jsp").forward(request, response);
                         break;
                         case "crearProyecto":
-                            //request.setAttribute("bancos", Banco.findAll());
+                            request.setAttribute("bancos", Banco.findAll());
                             
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
                     }
                 }else{
-                    //request.setAttribute("proyectos", Proyecto.findByEstado('1'));
+                    request.setAttribute("proyectos", Proyecto.findByEstado('1'));
                     request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
                 }
             }else{
