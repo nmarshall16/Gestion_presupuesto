@@ -63,9 +63,9 @@ public class Presupuesto implements Serializable {
     @JoinColumn(name = "CUENTA_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Cuenta cuentaId;
-    @JoinColumn(name = "FUENTE_F_ID", referencedColumnName = "ID")
+    @JoinColumn(name = "FUENTE_F_COD_CENTRO", referencedColumnName = "COD_CENTRO")
     @ManyToOne(optional = false)
-    private FuenteF fuenteFId;
+    private FuenteF fuenteFCodCentro;
 
     public Presupuesto() {
     }
@@ -74,13 +74,13 @@ public class Presupuesto implements Serializable {
         this.id = id;
     }
     
-     public Presupuesto(BigInteger montoDis, BigInteger montoTot, BigInteger totalGasta, AnhoProyect anhoProyectId, Cuenta cuentaId, FuenteF fuenteFId) {
+    public Presupuesto(BigInteger montoDis, BigInteger montoTot, BigInteger totalGasta, AnhoProyect anhoProyectId, Cuenta cuentaId, FuenteF fuenteFCodCentro) {
         this.montoDis = montoDis;
         this.montoTot = montoTot;
         this.totalGasta = totalGasta;
         this.anhoProyectId = anhoProyectId;
         this.cuentaId = cuentaId;
-        this.fuenteFId = fuenteFId;
+        this.fuenteFCodCentro = fuenteFCodCentro;
     }
     
     public static Presupuesto insPresupuesto(Presupuesto presupuesto){
@@ -158,12 +158,12 @@ public class Presupuesto implements Serializable {
         this.cuentaId = cuentaId;
     }
 
-    public FuenteF getFuenteFId() {
-        return fuenteFId;
+    public FuenteF getFuenteFCodCentro() {
+        return fuenteFCodCentro;
     }
 
-    public void setFuenteFId(FuenteF fuenteFId) {
-        this.fuenteFId = fuenteFId;
+    public void setFuenteFCodCentro(FuenteF fuenteFCodCentro) {
+        this.fuenteFCodCentro = fuenteFCodCentro;
     }
 
     @Override

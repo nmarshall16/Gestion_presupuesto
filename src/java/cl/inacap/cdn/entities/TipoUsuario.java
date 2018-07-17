@@ -50,10 +50,10 @@ public class TipoUsuario implements Serializable {
     @SequenceGenerator(sequenceName = "TIPO_USUARIO_ID_SEQ", allocationSize = 1, name = "TIPO_USU_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "NOMBRE")
     private String nombre;
-    @JoinTable(name = "PERMISOS_USUARIO", joinColumns = {
+    @JoinTable(name = "PERMISO_USUARIO", joinColumns = {
         @JoinColumn(name = "TIPO_USUARIO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
         @JoinColumn(name = "PERMISOS_ID", referencedColumnName = "ID")})
     @ManyToMany

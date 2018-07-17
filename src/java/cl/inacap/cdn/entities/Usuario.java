@@ -51,10 +51,10 @@ public class Usuario implements Serializable {
     private BigDecimal rut;
     @Column(name = "DV")
     private Character dv;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "NOMBRE")
     private String nombre;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "APELLIDO")
     private String apellido;
     @Size(max = 150)
@@ -87,7 +87,7 @@ public class Usuario implements Serializable {
         emf.close();
         return usuario;
     }
-
+    
     public BigDecimal getRut() {
         return rut;
     }

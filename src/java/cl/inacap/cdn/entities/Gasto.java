@@ -12,13 +12,12 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -34,7 +33,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Gasto.findAll", query = "SELECT g FROM Gasto g")
-    , @NamedQuery(name = "Gasto.findById", query = "SELECT g FROM Gasto g WHERE g.id = :id")
+    , @NamedQuery(name = "Gasto.findByCodCuenta", query = "SELECT g FROM Gasto g WHERE g.codCuenta = :codCuenta")
     , @NamedQuery(name = "Gasto.findByNombre", query = "SELECT g FROM Gasto g WHERE g.nombre = :nombre")})
 public class Gasto implements Serializable {
 
@@ -43,29 +42,30 @@ public class Gasto implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GASTO_SEQ")
-    @SequenceGenerator(sequenceName = "GASTO_ID_SEQ", allocationSize = 1, name = "GASTO_SEQ")
-    @Column(name = "ID")
-    private BigDecimal id;
+    @Column(name = "COD_CUENTA")
+    private BigDecimal codCuenta;
     @Size(max = 150)
     @Column(name = "NOMBRE")
     private String nombre;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gastoId")
+    @JoinColumn(name = "FUENTE_F_COD_CENTRO", referencedColumnName = "COD_CENTRO")
+    @ManyToOne(optional = false)
+    private FuenteF fuenteFCodCentro;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gastoCodCuenta")
     private Collection<GastoMes> gastoMesCollection;
 
     public Gasto() {
     }
 
-    public Gasto(BigDecimal id) {
-        this.id = id;
+    public Gasto(BigDecimal codCuenta) {
+        this.codCuenta = codCuenta;
     }
 
-    public BigDecimal getId() {
-        return id;
+    public BigDecimal getCodCuenta() {
+        return codCuenta;
     }
 
-    public void setId(BigDecimal id) {
-        this.id = id;
+    public void setCodCuenta(BigDecimal codCuenta) {
+        this.codCuenta = codCuenta;
     }
 
     public String getNombre() {
@@ -74,6 +74,14 @@ public class Gasto implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public FuenteF getFuenteFCodCentro() {
+        return fuenteFCodCentro;
+    }
+
+    public void setFuenteFCodCentro(FuenteF fuenteFCodCentro) {
+        this.fuenteFCodCentro = fuenteFCodCentro;
     }
 
     @XmlTransient
@@ -88,7 +96,7 @@ public class Gasto implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (codCuenta != null ? codCuenta.hashCode() : 0);
         return hash;
     }
 
@@ -99,7 +107,7 @@ public class Gasto implements Serializable {
             return false;
         }
         Gasto other = (Gasto) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.codCuenta == null && other.codCuenta != null) || (this.codCuenta != null && !this.codCuenta.equals(other.codCuenta))) {
             return false;
         }
         return true;
@@ -107,7 +115,7 @@ public class Gasto implements Serializable {
 
     @Override
     public String toString() {
-        return "cl.inacap.cdn.entities.Gasto[ id=" + id + " ]";
+        return "cl.inacap.cdn.entities.Gasto[ codCuenta=" + codCuenta + " ]";
     }
     
 }

@@ -7,60 +7,56 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Nicolas
  */
 @Entity
-@Table(name = "BANCO")
+@Table(name = "HOMOLOGAR")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Banco.findAll", query = "SELECT b FROM Banco b")
-    , @NamedQuery(name = "Banco.findById", query = "SELECT b FROM Banco b WHERE b.id = :id")
-    , @NamedQuery(name = "Banco.findByNombre", query = "SELECT b FROM Banco b WHERE b.nombre = :nombre")
-    , @NamedQuery(name = "Banco.findByNumCuenta", query = "SELECT b FROM Banco b WHERE b.numCuenta = :numCuenta")})
-public class Banco implements Serializable {
+    @NamedQuery(name = "Homologar.findAll", query = "SELECT h FROM Homologar h")
+    , @NamedQuery(name = "Homologar.findById", query = "SELECT h FROM Homologar h WHERE h.id = :id")
+    , @NamedQuery(name = "Homologar.findByEstado", query = "SELECT h FROM Homologar h WHERE h.estado = :estado")})
+public class Homologar implements Serializable {
 
     private static final long serialVersionUID = 1L;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Id
     @Basic(optional = false)
     @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BANCO_SEQ")
-    @SequenceGenerator(sequenceName = "BANCO_ID_SEQ", allocationSize = 1, name = "BANCO_SEQ")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "HOMOLOGAR_SEQ")
+    @SequenceGenerator(sequenceName = "HOMOLOGAR_ID_SEQ", allocationSize = 1, name = "HOMOLOGAR_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Size(max = 250)
-    @Column(name = "NOMBRE")
-    private String nombre;
-    @Column(name = "NUM_CUENTA")
-    private BigInteger numCuenta;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bancoId")
-    private Collection<Proyecto> proyectoCollection;
+    @Column(name = "ESTADO")
+    private Character estado;
+    @JoinColumn(name = "CUENTA_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private Cuenta cuentaId;
+    @JoinColumn(name = "GASTO_MES_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private GastoMes gastoMesId;
 
-    public Banco() {
+    public Homologar() {
     }
 
-    public Banco(BigDecimal id) {
+    public Homologar(BigDecimal id) {
         this.id = id;
     }
 
@@ -72,29 +68,28 @@ public class Banco implements Serializable {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public Character getEstado() {
+        return estado;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setEstado(Character estado) {
+        this.estado = estado;
     }
 
-    public BigInteger getNumCuenta() {
-        return numCuenta;
+    public Cuenta getCuentaId() {
+        return cuentaId;
     }
 
-    public void setNumCuenta(BigInteger numCuenta) {
-        this.numCuenta = numCuenta;
+    public void setCuentaId(Cuenta cuentaId) {
+        this.cuentaId = cuentaId;
     }
 
-    @XmlTransient
-    public Collection<Proyecto> getProyectoCollection() {
-        return proyectoCollection;
+    public GastoMes getGastoMesId() {
+        return gastoMesId;
     }
 
-    public void setProyectoCollection(Collection<Proyecto> proyectoCollection) {
-        this.proyectoCollection = proyectoCollection;
+    public void setGastoMesId(GastoMes gastoMesId) {
+        this.gastoMesId = gastoMesId;
     }
 
     @Override
@@ -107,10 +102,10 @@ public class Banco implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Banco)) {
+        if (!(object instanceof Homologar)) {
             return false;
         }
-        Banco other = (Banco) object;
+        Homologar other = (Homologar) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -119,7 +114,7 @@ public class Banco implements Serializable {
 
     @Override
     public String toString() {
-        return "cl.inacap.cdn.entities.Banco[ id=" + id + " ]";
+        return "cl.inacap.cdn.entities.Homologar[ id=" + id + " ]";
     }
     
 }

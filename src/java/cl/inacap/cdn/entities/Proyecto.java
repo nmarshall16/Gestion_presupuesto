@@ -9,9 +9,27 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import javax.persistence.*;
-import javax.validation.ConstraintViolationException;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -43,10 +61,10 @@ public class Proyecto implements Serializable {
     @SequenceGenerator(sequenceName = "PROYECTO_ID_SEQ", allocationSize = 1, name = "PROYECTO_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Size(max = 150)
+    @Size(max = 300)
     @Column(name = "NOMBRE")
     private String nombre;
-    @Size(max = 100)
+    @Size(max = 250)
     @Column(name = "CODIGO")
     private String codigo;
     @Column(name = "FECHA_INI")
@@ -74,82 +92,18 @@ public class Proyecto implements Serializable {
     public Proyecto(BigDecimal id) {
         this.id = id;
     }
-
-    public Proyecto(String nombre, String codigo, Date fechaIni, Date fechaFin, Character estado, Banco bancoId) {
-        this.nombre = nombre;
-        this.codigo = codigo;
-        this.fechaIni = fechaIni;
-        this.fechaFin = fechaFin;
-        this.estado = estado;
-        this.bancoId = bancoId;
-    }
     
     public static Proyecto findById(BigDecimal id){
         Proyecto pro;
         
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
         
         pro = em.find(Proyecto.class, id);
         
-        em.getTransaction().commit();
         em.close();
         emf.close();
         return pro;
-    }
-    
-    public static Proyecto insProyecto(Proyecto proyecto){
-        
-        System.out.println("");
-        System.out.println("--------------- Ingreso a insertarProyecto ---------------");
-        
-        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
-        EntityManager em            = emf.createEntityManager();
-        
-        try {
-            em.getTransaction().begin();
-            em.persist(proyecto);
-            em.getTransaction().commit();
-            em.close();
-            emf.close();
-            
-        } catch (ConstraintViolationException e) {
-            System.out.println("Error en Insertar Proyecto");
-            System.out.println("Clase de error "+e.getClass());
-            System.out.println("Causa de error "+e.getCause());
-            System.out.println("No se!"+e.initCause(e.getCause()));           
-        }
-        System.out.println("--------------- Fin de insertarProyecto ---------------");
-        System.out.println("");
-
-        return proyecto;
-    }
-    
-    public static List<Proyecto> findByEstado(Character estado){
-        
-        System.out.println("");
-        System.out.println("----------  Ingreso a Busqueda de Proyectos  ----------");
-        List<Proyecto> proyectos;
-        
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-        EntityManager em = emf.createEntityManager();
-        
-        TypedQuery<Proyecto> result =  em.createNamedQuery("Proyecto.findByEstado", Proyecto.class);
-        result.setParameter("estado", estado);
-
-        proyectos = result.getResultList();
-        
-        em.close();
-        emf.close();
-        System.out.println("----------  Fin de Busqueda de Proyectos  ----------");
-        System.out.println("");
-        
-        if(proyectos.isEmpty()){
-            return null;
-        }else{
-            return proyectos;
-        }
     }
     
     public BigDecimal getId() {

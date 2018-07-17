@@ -18,8 +18,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -42,7 +40,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @NamedQueries({
     @NamedQuery(name = "Cuenta.findAll", query = "SELECT c FROM Cuenta c")
     , @NamedQuery(name = "Cuenta.findById", query = "SELECT c FROM Cuenta c WHERE c.id = :id")
-    , @NamedQuery(name = "Cuenta.findByCodCuenta", query = "SELECT c FROM Cuenta c WHERE c.codCuenta = :codCuenta")
     , @NamedQuery(name = "Cuenta.findByNombre", query = "SELECT c FROM Cuenta c WHERE c.nombre = :nombre")})
 public class Cuenta implements Serializable {
 
@@ -55,19 +52,13 @@ public class Cuenta implements Serializable {
     @SequenceGenerator(sequenceName = "CUENTA_ID_SEQ", allocationSize = 1, name = "CUENTA_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Size(max = 100)
-    @Column(name = "COD_CUENTA")
-    private String codCuenta;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "NOMBRE")
     private String nombre;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuentaId")
-    private Collection<Presupuesto> presupuestoCollection;
+    private Collection<Homologar> homologarCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "cuentaId")
-    private Collection<GastoMes> gastoMesCollection;
-    @JoinColumn(name = "FUENTE_F_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
-    private FuenteF fuenteFId;
+    private Collection<Presupuesto> presupuestoCollection;
 
     public Cuenta() {
     }
@@ -76,7 +67,7 @@ public class Cuenta implements Serializable {
         this.id = id;
     }
     
-    public static List<Cuenta> findAll(){
+     public static List<Cuenta> findAll(){
         
         System.out.println("");
         System.out.println("----------  Ingreso a Busqueda de Cuentas  ----------");
@@ -99,21 +90,13 @@ public class Cuenta implements Serializable {
             return cuentas;
         }
     }
-    
+     
     public BigDecimal getId() {
         return id;
     }
 
     public void setId(BigDecimal id) {
         this.id = id;
-    }
-
-    public String getCodCuenta() {
-        return codCuenta;
-    }
-
-    public void setCodCuenta(String codCuenta) {
-        this.codCuenta = codCuenta;
     }
 
     public String getNombre() {
@@ -125,29 +108,21 @@ public class Cuenta implements Serializable {
     }
 
     @XmlTransient
+    public Collection<Homologar> getHomologarCollection() {
+        return homologarCollection;
+    }
+
+    public void setHomologarCollection(Collection<Homologar> homologarCollection) {
+        this.homologarCollection = homologarCollection;
+    }
+
+    @XmlTransient
     public Collection<Presupuesto> getPresupuestoCollection() {
         return presupuestoCollection;
     }
 
     public void setPresupuestoCollection(Collection<Presupuesto> presupuestoCollection) {
         this.presupuestoCollection = presupuestoCollection;
-    }
-
-    @XmlTransient
-    public Collection<GastoMes> getGastoMesCollection() {
-        return gastoMesCollection;
-    }
-
-    public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
-        this.gastoMesCollection = gastoMesCollection;
-    }
-
-    public FuenteF getFuenteFId() {
-        return fuenteFId;
-    }
-
-    public void setFuenteFId(FuenteF fuenteFId) {
-        this.fuenteFId = fuenteFId;
     }
 
     @Override

@@ -75,6 +75,8 @@ public class AnhoProyect implements Serializable {
     private BigInteger total;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "anhoProyectId")
     private Collection<Presupuesto> presupuestoCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "anhoProyectId")
+    private Collection<GastoMes> gastoMesCollection;
     @JoinColumn(name = "PROYECTO_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private Proyecto proyectoId;
@@ -220,6 +222,15 @@ public class AnhoProyect implements Serializable {
 
     public void setPresupuestoCollection(Collection<Presupuesto> presupuestoCollection) {
         this.presupuestoCollection = presupuestoCollection;
+    }
+
+    @XmlTransient
+    public Collection<GastoMes> getGastoMesCollection() {
+        return gastoMesCollection;
+    }
+
+    public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
+        this.gastoMesCollection = gastoMesCollection;
     }
 
     public Proyecto getProyectoId() {

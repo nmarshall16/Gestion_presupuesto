@@ -46,7 +46,7 @@ public class Permisos implements Serializable {
     @SequenceGenerator(sequenceName = "PERMISOS_ID_SEQ", allocationSize = 1, name = "PERMISOS_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "NOMBRE")
     private String nombre;
     @ManyToMany(mappedBy = "permisosCollection")

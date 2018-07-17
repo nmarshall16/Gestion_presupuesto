@@ -8,8 +8,10 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,6 +21,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -26,6 +29,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -37,17 +41,27 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "GastoMes.findAll", query = "SELECT g FROM GastoMes g")
     , @NamedQuery(name = "GastoMes.findById", query = "SELECT g FROM GastoMes g WHERE g.id = :id")
-    , @NamedQuery(name = "GastoMes.findByFecha", query = "SELECT g FROM GastoMes g WHERE g.fecha = :fecha")
-    , @NamedQuery(name = "GastoMes.findByMes", query = "SELECT g FROM GastoMes g WHERE g.mes = :mes")
-    , @NamedQuery(name = "GastoMes.findByEstado", query = "SELECT g FROM GastoMes g WHERE g.estado = :estado")
-    , @NamedQuery(name = "GastoMes.findByNumFac", query = "SELECT g FROM GastoMes g WHERE g.numFac = :numFac")
-    , @NamedQuery(name = "GastoMes.findByIdAnhoProyect", query = "SELECT g FROM GastoMes g WHERE g.idAnhoProyect = :idAnhoProyect")
     , @NamedQuery(name = "GastoMes.findByIdCompra", query = "SELECT g FROM GastoMes g WHERE g.idCompra = :idCompra")
     , @NamedQuery(name = "GastoMes.findByImporte", query = "SELECT g FROM GastoMes g WHERE g.importe = :importe")
+    , @NamedQuery(name = "GastoMes.findByFecha", query = "SELECT g FROM GastoMes g WHERE g.fecha = :fecha")
+    , @NamedQuery(name = "GastoMes.findByMes", query = "SELECT g FROM GastoMes g WHERE g.mes = :mes")
+    , @NamedQuery(name = "GastoMes.findByStatus", query = "SELECT g FROM GastoMes g WHERE g.status = :status")
     , @NamedQuery(name = "GastoMes.findByOrdenCompra", query = "SELECT g FROM GastoMes g WHERE g.ordenCompra = :ordenCompra")
+    , @NamedQuery(name = "GastoMes.findByNumFac", query = "SELECT g FROM GastoMes g WHERE g.numFac = :numFac")
     , @NamedQuery(name = "GastoMes.findByAtributoPago", query = "SELECT g FROM GastoMes g WHERE g.atributoPago = :atributoPago")
     , @NamedQuery(name = "GastoMes.findByAsiento", query = "SELECT g FROM GastoMes g WHERE g.asiento = :asiento")
-    , @NamedQuery(name = "GastoMes.findByTipo", query = "SELECT g FROM GastoMes g WHERE g.tipo = :tipo")})
+    , @NamedQuery(name = "GastoMes.findByTipo", query = "SELECT g FROM GastoMes g WHERE g.tipo = :tipo")
+    , @NamedQuery(name = "GastoMes.findByRutProvedor", query = "SELECT g FROM GastoMes g WHERE g.rutProvedor = :rutProvedor")
+    , @NamedQuery(name = "GastoMes.findByNombreProvedor", query = "SELECT g FROM GastoMes g WHERE g.nombreProvedor = :nombreProvedor")
+    , @NamedQuery(name = "GastoMes.findByUnidadNegocio", query = "SELECT g FROM GastoMes g WHERE g.unidadNegocio = :unidadNegocio")
+    , @NamedQuery(name = "GastoMes.findBySede", query = "SELECT g FROM GastoMes g WHERE g.sede = :sede")
+    , @NamedQuery(name = "GastoMes.findByProducto", query = "SELECT g FROM GastoMes g WHERE g.producto = :producto")
+    , @NamedQuery(name = "GastoMes.findByFilial", query = "SELECT g FROM GastoMes g WHERE g.filial = :filial")
+    , @NamedQuery(name = "GastoMes.findByCuentaBanco", query = "SELECT g FROM GastoMes g WHERE g.cuentaBanco = :cuentaBanco")
+    , @NamedQuery(name = "GastoMes.findByDescripcion", query = "SELECT g FROM GastoMes g WHERE g.descripcion = :descripcion")
+    , @NamedQuery(name = "GastoMes.findByReferencia", query = "SELECT g FROM GastoMes g WHERE g.referencia = :referencia")
+    , @NamedQuery(name = "GastoMes.findByEstado", query = "SELECT g FROM GastoMes g WHERE g.estado = :estado")
+    , @NamedQuery(name = "GastoMes.findByOrigen", query = "SELECT g FROM GastoMes g WHERE g.origen = :origen")})
 public class GastoMes implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -59,45 +73,70 @@ public class GastoMes implements Serializable {
     @SequenceGenerator(sequenceName = "GASTO_MES_ID_SEQ", allocationSize = 1, name = "GASTO_MES_SEQ")
     @Column(name = "ID")
     private BigDecimal id;
-    @Column(name = "FECHA")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha;
-    @Size(max = 100)
-    @Column(name = "MES")
-    private String mes;
-    @Column(name = "ESTADO")
-    private Character estado;
-    @Column(name = "NUM_FAC")
-    private BigInteger numFac;
-    @Column(name = "ID_ANHO_PROYECT")
-    private BigInteger idAnhoProyect;
     @Column(name = "ID_COMPRA")
     private BigInteger idCompra;
     @Column(name = "IMPORTE")
     private BigInteger importe;
-    @Size(max = 150)
+    @Column(name = "FECHA")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecha;
+    @Column(name = "MES")
+    private BigInteger mes;
+    @Column(name = "STATUS")
+    private Character status;
+    @Size(max = 250)
     @Column(name = "ORDEN_COMPRA")
     private String ordenCompra;
+    @Column(name = "NUM_FAC")
+    private BigInteger numFac;
     @Size(max = 400)
     @Column(name = "ATRIBUTO_PAGO")
     private String atributoPago;
-    @Size(max = 150)
+    @Size(max = 250)
     @Column(name = "ASIENTO")
     private String asiento;
     @Column(name = "TIPO")
     private Character tipo;
-    @JoinColumn(name = "CUENTA_ID", referencedColumnName = "ID")
+    @Size(max = 12)
+    @Column(name = "RUT_PROVEDOR")
+    private String rutProvedor;
+    @Size(max = 250)
+    @Column(name = "NOMBRE_PROVEDOR")
+    private String nombreProvedor;
+    @Size(max = 150)
+    @Column(name = "UNIDAD_NEGOCIO")
+    private String unidadNegocio;
+    @Column(name = "SEDE")
+    private BigInteger sede;
+    @Size(max = 250)
+    @Column(name = "PRODUCTO")
+    private String producto;
+    @Size(max = 200)
+    @Column(name = "FILIAL")
+    private String filial;
+    @Size(max = 250)
+    @Column(name = "CUENTA_BANCO")
+    private String cuentaBanco;
+    @Size(max = 300)
+    @Column(name = "DESCRIPCION")
+    private String descripcion;
+    @Size(max = 200)
+    @Column(name = "REFERENCIA")
+    private String referencia;
+    @Size(max = 200)
+    @Column(name = "ESTADO")
+    private String estado;
+    @Size(max = 200)
+    @Column(name = "ORIGEN")
+    private String origen;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "gastoMesId")
+    private Collection<Homologar> homologarCollection;
+    @JoinColumn(name = "ANHO_PROYECT_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
-    private Cuenta cuentaId;
-    @JoinColumn(name = "FUENTE_F_ID", referencedColumnName = "ID")
+    private AnhoProyect anhoProyectId;
+    @JoinColumn(name = "GASTO_COD_CUENTA", referencedColumnName = "COD_CUENTA")
     @ManyToOne(optional = false)
-    private FuenteF fuenteFId;
-    @JoinColumn(name = "GASTO_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
-    private Gasto gastoId;
-    @JoinColumn(name = "PROVEEDOR_RUT", referencedColumnName = "RUT")
-    @ManyToOne(optional = false)
-    private Proveedor proveedorRut;
+    private Gasto gastoCodCuenta;
 
     public GastoMes() {
     }
@@ -112,46 +151,6 @@ public class GastoMes implements Serializable {
 
     public void setId(BigDecimal id) {
         this.id = id;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getMes() {
-        return mes;
-    }
-
-    public void setMes(String mes) {
-        this.mes = mes;
-    }
-
-    public Character getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Character estado) {
-        this.estado = estado;
-    }
-
-    public BigInteger getNumFac() {
-        return numFac;
-    }
-
-    public void setNumFac(BigInteger numFac) {
-        this.numFac = numFac;
-    }
-
-    public BigInteger getIdAnhoProyect() {
-        return idAnhoProyect;
-    }
-
-    public void setIdAnhoProyect(BigInteger idAnhoProyect) {
-        this.idAnhoProyect = idAnhoProyect;
     }
 
     public BigInteger getIdCompra() {
@@ -170,12 +169,44 @@ public class GastoMes implements Serializable {
         this.importe = importe;
     }
 
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public BigInteger getMes() {
+        return mes;
+    }
+
+    public void setMes(BigInteger mes) {
+        this.mes = mes;
+    }
+
+    public Character getStatus() {
+        return status;
+    }
+
+    public void setStatus(Character status) {
+        this.status = status;
+    }
+
     public String getOrdenCompra() {
         return ordenCompra;
     }
 
     public void setOrdenCompra(String ordenCompra) {
         this.ordenCompra = ordenCompra;
+    }
+
+    public BigInteger getNumFac() {
+        return numFac;
+    }
+
+    public void setNumFac(BigInteger numFac) {
+        this.numFac = numFac;
     }
 
     public String getAtributoPago() {
@@ -202,36 +233,117 @@ public class GastoMes implements Serializable {
         this.tipo = tipo;
     }
 
-    public Cuenta getCuentaId() {
-        return cuentaId;
+    public String getRutProvedor() {
+        return rutProvedor;
     }
 
-    public void setCuentaId(Cuenta cuentaId) {
-        this.cuentaId = cuentaId;
+    public void setRutProvedor(String rutProvedor) {
+        this.rutProvedor = rutProvedor;
     }
 
-    public FuenteF getFuenteFId() {
-        return fuenteFId;
+    public String getNombreProvedor() {
+        return nombreProvedor;
     }
 
-    public void setFuenteFId(FuenteF fuenteFId) {
-        this.fuenteFId = fuenteFId;
+    public void setNombreProvedor(String nombreProvedor) {
+        this.nombreProvedor = nombreProvedor;
     }
 
-    public Gasto getGastoId() {
-        return gastoId;
+    public String getUnidadNegocio() {
+        return unidadNegocio;
     }
 
-    public void setGastoId(Gasto gastoId) {
-        this.gastoId = gastoId;
+    public void setUnidadNegocio(String unidadNegocio) {
+        this.unidadNegocio = unidadNegocio;
     }
 
-    public Proveedor getProveedorRut() {
-        return proveedorRut;
+    public BigInteger getSede() {
+        return sede;
     }
 
-    public void setProveedorRut(Proveedor proveedorRut) {
-        this.proveedorRut = proveedorRut;
+    public void setSede(BigInteger sede) {
+        this.sede = sede;
+    }
+
+    public String getProducto() {
+        return producto;
+    }
+
+    public void setProducto(String producto) {
+        this.producto = producto;
+    }
+
+    public String getFilial() {
+        return filial;
+    }
+
+    public void setFilial(String filial) {
+        this.filial = filial;
+    }
+
+    public String getCuentaBanco() {
+        return cuentaBanco;
+    }
+
+    public void setCuentaBanco(String cuentaBanco) {
+        this.cuentaBanco = cuentaBanco;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getReferencia() {
+        return referencia;
+    }
+
+    public void setReferencia(String referencia) {
+        this.referencia = referencia;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
+
+    @XmlTransient
+    public Collection<Homologar> getHomologarCollection() {
+        return homologarCollection;
+    }
+
+    public void setHomologarCollection(Collection<Homologar> homologarCollection) {
+        this.homologarCollection = homologarCollection;
+    }
+
+    public AnhoProyect getAnhoProyectId() {
+        return anhoProyectId;
+    }
+
+    public void setAnhoProyectId(AnhoProyect anhoProyectId) {
+        this.anhoProyectId = anhoProyectId;
+    }
+
+    public Gasto getGastoCodCuenta() {
+        return gastoCodCuenta;
+    }
+
+    public void setGastoCodCuenta(Gasto gastoCodCuenta) {
+        this.gastoCodCuenta = gastoCodCuenta;
     }
 
     @Override

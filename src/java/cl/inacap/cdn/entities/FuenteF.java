@@ -15,14 +15,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Persistence;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
@@ -39,9 +36,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "FuenteF.findAll", query = "SELECT f FROM FuenteF f")
-    , @NamedQuery(name = "FuenteF.findById", query = "SELECT f FROM FuenteF f WHERE f.id = :id")
-    , @NamedQuery(name = "FuenteF.findByNombre", query = "SELECT f FROM FuenteF f WHERE f.nombre = :nombre")
-    , @NamedQuery(name = "FuenteF.findByCodigo", query = "SELECT f FROM FuenteF f WHERE f.codigo = :codigo")})
+    , @NamedQuery(name = "FuenteF.findByCodCentro", query = "SELECT f FROM FuenteF f WHERE f.codCentro = :codCentro")
+    , @NamedQuery(name = "FuenteF.findByNombre", query = "SELECT f FROM FuenteF f WHERE f.nombre = :nombre")})
 public class FuenteF implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,35 +45,27 @@ public class FuenteF implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FUENTE_SEQ")
-    @SequenceGenerator(sequenceName = "FUENTE_F_ID_SEQ", allocationSize = 1, name = "FUENTE_SEQ")
-    @Column(name = "ID")
-    private BigDecimal id;
-    @Size(max = 150)
+    @Column(name = "COD_CENTRO")
+    private BigDecimal codCentro;
+    @Size(max = 250)
     @Column(name = "NOMBRE")
     private String nombre;
-    @Size(max = 100)
-    @Column(name = "CODIGO")
-    private String codigo;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFCodCentro")
+    private Collection<Gasto> gastoCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFCodCentro")
     private Collection<Presupuesto> presupuestoCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFId")
-    private Collection<GastoMes> gastoMesCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "fuenteFId")
-    private Collection<Cuenta> cuentaCollection;
 
     public FuenteF() {
     }
 
-    public FuenteF(BigDecimal id) {
-        this.id = id;
+    public FuenteF(BigDecimal codCentro) {
+        this.codCentro = codCentro;
     }
     
-    public FuenteF(String nombre, String codigo, Collection<Presupuesto> presupuestoCollection, Collection<GastoMes> gastoMesCollection) {
+    public FuenteF(String nombre, String codigo, Collection<Presupuesto> presupuestoCollection, Collection<Gasto> gastosCollection) {
         this.nombre = nombre;
-        this.codigo = codigo;
         this.presupuestoCollection = presupuestoCollection;
-        this.gastoMesCollection = gastoMesCollection;
+        this.gastoCollection = gastosCollection;
     }
     
     public static List<FuenteF> findAll(){
@@ -99,12 +87,12 @@ public class FuenteF implements Serializable {
         return ff;
     }
     
-    public BigDecimal getId() {
-        return id;
+    public BigDecimal getCodCentro() {
+        return codCentro;
     }
 
-    public void setId(BigDecimal id) {
-        this.id = id;
+    public void setCodCentro(BigDecimal codCentro) {
+        this.codCentro = codCentro;
     }
 
     public String getNombre() {
@@ -115,12 +103,13 @@ public class FuenteF implements Serializable {
         this.nombre = nombre;
     }
 
-    public String getCodigo() {
-        return codigo;
+    @XmlTransient
+    public Collection<Gasto> getGastoCollection() {
+        return gastoCollection;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setGastoCollection(Collection<Gasto> gastoCollection) {
+        this.gastoCollection = gastoCollection;
     }
 
     @XmlTransient
@@ -132,28 +121,10 @@ public class FuenteF implements Serializable {
         this.presupuestoCollection = presupuestoCollection;
     }
 
-    @XmlTransient
-    public Collection<GastoMes> getGastoMesCollection() {
-        return gastoMesCollection;
-    }
-
-    public void setGastoMesCollection(Collection<GastoMes> gastoMesCollection) {
-        this.gastoMesCollection = gastoMesCollection;
-    }
-
-    @XmlTransient
-    public Collection<Cuenta> getCuentaCollection() {
-        return cuentaCollection;
-    }
-
-    public void setCuentaCollection(Collection<Cuenta> cuentaCollection) {
-        this.cuentaCollection = cuentaCollection;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (codCentro != null ? codCentro.hashCode() : 0);
         return hash;
     }
 
@@ -164,7 +135,7 @@ public class FuenteF implements Serializable {
             return false;
         }
         FuenteF other = (FuenteF) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.codCentro == null && other.codCentro != null) || (this.codCentro != null && !this.codCentro.equals(other.codCentro))) {
             return false;
         }
         return true;
@@ -172,7 +143,7 @@ public class FuenteF implements Serializable {
 
     @Override
     public String toString() {
-        return "cl.inacap.cdn.entities.FuenteF[ id=" + id + " ]";
+        return "cl.inacap.cdn.entities.FuenteF[ codCentro=" + codCentro + " ]";
     }
     
 }
