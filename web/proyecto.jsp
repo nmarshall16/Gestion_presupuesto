@@ -91,6 +91,7 @@
         </li>
         <li class="breadcrumb-item active">Proyecto</li>
       </ol>
+	  
       <%  String mensaje = (String)request.getAttribute("mensaje");
           if (mensaje != null) { %>
           

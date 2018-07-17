@@ -4,6 +4,7 @@
     Author     : dell
 --%>
 
+<%@page import="java.util.List"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -90,22 +91,38 @@
 
       <!-- CARTA -->
       <h3>Nuevo Proyecto</h3><br>
-      <!-- Example DataTables Card-->
-      <form action="Proyect.do" method="post">
+	
+		
+	<% if (!((List<String>)request.getAttribute("errores")).isEmpty()) { %>
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		<p><strong>Debes Completar Todos Los Datos</strong><p>
+		<ul>
+	<% for(String mensaje : ((List<String>)request.getAttribute("errores"))) {
+			out.println("<li>"+mensaje+"</li>");
+		} %>
+		</ul>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<% } %>
+		
+      <form action="Proyect.do?accion=guardarProyecto" method="post">
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="nameProyect">Nombre del Proyecto</label>
-            <input type="text" class="form-control" id="nameProyect">
+            <input type="text" class="form-control" name="nameProyect" id="nameProyect">
           </div>
           <div class="form-group col-md-6">
             <label for="codProyect">Codigo de Proyecto</label>
-            <input type="text" class="form-control" id="codProyect">
+            <input type="text" class="form-control" name="codProyect" id="codProyect">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="banco">Banco</label>
-            <select type="text" class="form-control" id="banco">
+            <select type="text" class="form-control" id="banco" name="banco">
+                <option value="0" disabled selected>-- Seleccione Banco --</option>
                 <c:forEach items="${requestScope.bancos}" var="bco">
                     <option value="${bco.id}">${bco.nombre}</option>
                 </c:forEach>
@@ -113,20 +130,19 @@
           </div>
             <div class="form-group col-md-6">
             <label for="numCuenta">N° Cuenta Corriente</label>
-            <input type="text" class="form-control" id="numCuenta">
+            <input type="text" class="form-control" id="numCuenta" name="numCuenta">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="fechaInicio">Fecha de Inicio</label>
-            <input type="text" class="form-control" id="fechaInicio" placeholder="Select value">
+            <input type="text" class="form-control" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
           </div>
           <div class="form-group col-md-6">
             <label for="fechaTermino">Fecha de Termino</label>
-            <input type="text" class="form-control" id="fechaTermino" placeholder="Select value">
+            <input type="text" class="form-control" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
           </div>
         </div>
-      
       <br>
       <div class="row">
         <div class="col-lg-2" align="center">

@@ -11,7 +11,12 @@ import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -26,7 +31,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author Nicolas
  */
 public class ProyectServlet extends HttpServlet {
-
+	
+	List<String> errores = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -61,10 +67,48 @@ public class ProyectServlet extends HttpServlet {
                             request.getRequestDispatcher("proyecto.jsp").forward(request, response);
                         break;
                         case "crearProyecto":
-                            request.setAttribute("bancos", Banco.findAll());
-                            
+                            request.setAttribute("bancos", Banco.findAll());                            
+							request.setAttribute("errores", errores);
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
+						case "guardarProyecto":
+							errores.clear();
+							DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+							try{
+								if (valNewProyect(request).isEmpty()) {
+									Proyecto pro = Proyecto.insProyecto(
+										new Proyecto(
+											request.getParameter("nameProyect").trim(),
+											request.getParameter("codProyect").trim(),
+											df.parse(request.getParameter("fechaInicio")),
+											df.parse(request.getParameter("fechaInicio")),
+											'1',
+											new Banco(new BigDecimal(request.getParameter("banco")))
+										)
+									);
+									response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&accion=mostrarProyecto");
+								}else{
+									request.setAttribute("errores", errores);
+									request.setAttribute("bancos", Banco.findAll());
+									request.getRequestDispatcher("Proyect.do?accion=crearProyecto").forward(request, response);
+								}
+							}catch(IOException | ParseException | ServletException e){
+								// AGREGAR SENTENCIAS EN CASO DE ERROR!
+								out.print(e.getClass()+"<br>");
+								// Imprimiendo detalle de error
+								StackTraceElement[] stack = e.getStackTrace();
+								String trace = "";
+								for(StackTraceElement linea : stack){
+								   trace += linea.toString()+"<br>";
+								}
+								out.print(trace);
+								out.print(e.initCause(e.getCause()));
+								out.print("<br>");
+							}
+						break;
+						default:
+						break;
+							
                     }
                 }else{
                     request.setAttribute("proyectos", Proyecto.findByEstado('1'));
@@ -114,5 +158,21 @@ public class ProyectServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+	
+	public List<String> valNewProyect(HttpServletRequest request){
+		if(request.getParameter("nameProyect").trim().equals("")){
+			errores.add("Debe Ingresar Nombre De Proyecto");
+		}
+		if(request.getParameter("codProyect").trim().equals("")){
+			errores.add("Debe Ingresar Código De Proyecto");
+		}
+		if(request.getParameter("banco") == null){
+			errores.add("Debe Ingresar Banco");
+		}
+		if(request.getParameter("numCuenta").equals("")){
+			errores.add("Debe Ingresar Número De Cuenta");
+		}
+		return errores;
+	}
+	
 }

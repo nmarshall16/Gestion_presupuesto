@@ -131,7 +131,7 @@
                 <th scope="col">Cuentas</th>
                 <th scope="col">Sercotec</th>
                 <th scope="col">Inacap</th>
-                <th scope="col">Aporte No Pecuniario</th>
+                <th scope="col">Aporte No Pecuniario</th>                
               </tr>
             </thead>
             <tfoot>
@@ -149,12 +149,12 @@
             <tbody>
 
               <c:forEach items="${requestScope.ctas}" var="cta">
-                  <tr>
-                      <th scope="row">${cta.id}</th>
-                      <td><input type="number" name="sercotec" class="form-control" value="0"></td>
-                      <td><input type="number" name="inacap" class="form-control" value="0"></td>
-                      <td><input type="number" name="pecuniarios" class="form-control" value="0"></td>
-                  </tr>
+				<tr id="${cta.id}">
+					<th scope="row">${cta.nombre}</th>
+					<td><input type="number" name="sercotec" class="form-control" value="0"></td>
+					<td><input type="number" name="inacap" class="form-control" value="0"></td>
+					<td><input type="number" name="pecuniarios" class="form-control" value="0"></td>
+				</tr>
               </c:forEach>
 
             </tbody>
@@ -224,7 +224,7 @@
           <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
             <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">Ã—</span>
+              <span aria-hidden="true">Ã?</span>
             </button>
           </div>
           <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>

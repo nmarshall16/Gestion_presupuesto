@@ -93,9 +93,8 @@
       <!-- Icon Cards-->
       <div class="row">
         <%
-            List<Proyecto> proyectos = (List)request.getAttribute("proyectos");
-            if(proyectos.size() > 0){
-                for(Proyecto proyecto:proyectos){
+            if(((List<Proyecto>)request.getAttribute("proyectos")) != null){
+                for(Proyecto proyecto: (List<Proyecto>)request.getAttribute("proyectos")){
         %>
                     <div class="col-xl-3 col-sm-6 mb-3">
                         <div class="card text-white bg-primary o-hidden h-100">
@@ -116,7 +115,14 @@
         <%
                 }
             }else{
-                out.print("<div class='col-xl-12 col-sm-12 mb-12'>No se a encontrado ningun proyecto registrado</div>");
+                out.print(
+					"<div class='col-xl-8 col-sm-8 mb-3 text-center mt-5'>"+
+						"<h3 class='text-danger'>No se a encontrado ningun proyecto registrado<h3>"+
+					"</div>"+
+					"<div class='col-xl-4 col-sm-4 mb-3 mt-3'>"+
+						"<h1 class='text-info text-center mb-1'><i class='fa fa-arrow-up'></i></h1>"+
+						"<h4 class='text-info text-center mb-1'>Ingresa Nuevo Proyecto Aquí</h4>"+
+					"</div>");
             }
         %>
       </div>

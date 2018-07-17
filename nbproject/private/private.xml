@@ -5,8 +5,10 @@
         <group>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/inicioAdmin.jsp</file>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/Banco.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/GastoMes.java</file>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/nuevoProyecto.jsp</file>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/Proyecto.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/Gasto.java</file>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/controllers/ProyectServlet.java</file>
             <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/nuevoAno.jsp</file>
         </group>
