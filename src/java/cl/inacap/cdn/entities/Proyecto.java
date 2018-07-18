@@ -179,6 +179,33 @@ public class Proyecto implements Serializable {
 
         return proyecto;
     }
+	
+	public static Proyecto updateProyecto(Proyecto proyecto){
+        
+        System.out.println("");
+        System.out.println("--------------- Ingreso a insertarProyecto ---------------");
+        
+        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em            = emf.createEntityManager();
+        
+        try {
+            em.getTransaction().begin();
+			em.merge(proyecto);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            
+        } catch (ConstraintViolationException e) {
+            System.out.println("Error en Insertar Proyecto");
+            System.out.println("Clase de error "+e.getClass());
+            System.out.println("Causa de error "+e.getCause());
+            System.out.println("No se!"+e.initCause(e.getCause()));           
+        }
+        System.out.println("--------------- Fin de insertarProyecto ---------------");
+        System.out.println("");
+
+        return proyecto;
+    }
 	    
     public BigDecimal getId() {
         return id;

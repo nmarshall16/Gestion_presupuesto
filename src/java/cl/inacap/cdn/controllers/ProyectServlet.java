@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Nicolas
  */
 public class ProyectServlet extends HttpServlet {
-	
+	DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 	List<String> errores = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,6 +45,7 @@ public class ProyectServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+		Proyecto pro = null;
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             // Consultar sesión de usuario
@@ -67,25 +68,49 @@ public class ProyectServlet extends HttpServlet {
                             request.getRequestDispatcher("proyecto.jsp").forward(request, response);
                         break;
                         case "crearProyecto":
+							request.setAttribute("titulo", "Crear Proyecto");
+							request.setAttribute("proyecto", null);
+							request.setAttribute("mensaje", null);
                             request.setAttribute("bancos", Banco.findAll());                            
 							request.setAttribute("errores", errores);
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
 						case "guardarProyecto":
 							errores.clear();
-							DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 							try{
 								if (valNewProyect(request).isEmpty()) {
-									Proyecto pro = Proyecto.insProyecto(
-										new Proyecto(
-											request.getParameter("nameProyect").trim(),
-											request.getParameter("codProyect").trim(),
-											df.parse(request.getParameter("fechaInicio")),
-											df.parse(request.getParameter("fechaInicio")),
-											'1',
-											new Banco(new BigDecimal(request.getParameter("banco")))
-										)
-									);
+									// Guardar Nuevo Proyecto
+									if(request.getParameter("idProyect") == null){
+										pro = Proyecto.insProyecto(
+											new Proyecto(
+												request.getParameter("nameProyect").trim(),
+												request.getParameter("codProyect").trim(),
+												df.parse(request.getParameter("fechaInicio")),
+												df.parse(request.getParameter("fechaTermino")),
+												'1',
+												new Banco(new BigDecimal(request.getParameter("banco")))
+											)
+										);
+									}else{
+									// Actualizar Proyecto Exitente
+										pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+										if (pro != null) {
+											if(valNewProyect(request).isEmpty()){
+												try{
+													pro.setNombre(request.getParameter("nameProyect").trim());
+													pro.setCodigo(request.getParameter("codProyect").trim());
+													pro.setBancoId(new Banco(new BigDecimal(request.getParameter("banco"))));
+													pro.setFechaIni(df.parse(request.getParameter("fechaInicio")));
+													pro.setFechaFin(df.parse(request.getParameter("fechaTermino")));
+
+													Proyecto.updateProyecto(pro);
+												}catch(ParseException ex){
+
+												}
+											}
+										}
+									}
+									
 									response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&accion=mostrarProyecto");
 								}else{
 									request.setAttribute("errores", errores);
@@ -107,18 +132,26 @@ public class ProyectServlet extends HttpServlet {
 							}
 						break;
 						case "eliminarProyecto":
-							Proyecto pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+							pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
 							if (pro != null) {
 								Proyecto.hideProyecto(pro);
 							}
 							response.sendRedirect(request.getContextPath()+"/Proyect.do");
 						break;
 						case "modificarProyecto":
-							
+							pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+							if (pro != null){
+								request.setAttribute("titulo", "Modificar Proyecto");
+								request.setAttribute("proyecto", Proyecto.findById(new BigDecimal(request.getParameter("idProyect"))));
+								request.setAttribute("bancos", Banco.findAll());
+								request.setAttribute("errores", errores);
+							}else{
+								request.setAttribute("titulo", null);
+							}
+                            request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
 						break;
 						default:
 						break;
-							
                     }
                 }else{
                     request.setAttribute("proyectos", Proyecto.findByEstado('1'));

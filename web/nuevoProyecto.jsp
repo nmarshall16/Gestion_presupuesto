@@ -4,6 +4,10 @@
     Author     : dell
 --%>
 
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="cl.inacap.cdn.entities.Banco"%>
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page import="java.util.List"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -27,6 +31,13 @@
 
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
   <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/css/daterangepicker.css" />
+  
+  <!-- Switch Button -->
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">  
+  
+  <!-- Custom CSS -->
+  <link href="css/custom.css" rel="stylesheet">
+
 
 </head>
 
@@ -39,31 +50,31 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
+          <a class="nav-link" href="<%=request.getContextPath()%>/Proyect.do">
             <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos Eliminados">
           <a class="nav-link" href="charts.html">
             <i class="fa fa-fw fa-archive"></i>
             <span class="nav-link-text">Proyectos Eliminados</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de usuario">
           <a class="nav-link" href="tables.html">
             <i class="fa fa-fw fa-sitemap"></i>
             <span class="nav-link-text">Tipos de usuario</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
           <a class="nav-link" href="#collapseComponents">
             <i class="fa fa-fw fa-users"></i>
             <span class="nav-link-text">Usuarios</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cerrar Sesión">
           <a class="nav-link" href="#collapseExamplePages">
             <i class="fa fa-fw fa-sign-out"></i>
             <span class="nav-link-text">Cerrar Sesión</span>
@@ -79,74 +90,109 @@
       </ul>
     </div>
   </nav>
+  
   <div class="content-wrapper">
     <div class="container-fluid">
-      <!-- Breadcrumbs-->
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="Proyect.do">Inicio</a>
-        </li>
-        <li class="breadcrumb-item active">Nuevo Proyecto</li>
-      </ol>
+<% if (request.getAttribute("titulo") != null) { 
+		SimpleDateFormat dateFormato = new SimpleDateFormat("dd/MM/yyyy");
+		Proyecto proyecto = (Proyecto)request.getAttribute("proyecto"); %> 
+		<!-- Breadcrumbs-->
+		<ol class="breadcrumb">
+		  <li class="breadcrumb-item">
+			<a href="Proyect.do">Inicio</a>
+		  </li>
+		  <%=(proyecto != null)?("<li class='breadcrumb-item'><a href='"+request.getContextPath()+"/Proyect.do?idProyect="+proyecto.getId()+"'>"+proyecto.getNombre()+"</a></li>"):("")%>
+		  <li class="breadcrumb-item active"><%=request.getAttribute("titulo")%></li>
+		</ol>
 
-      <!-- CARTA -->
-      <h3>Nuevo Proyecto</h3><br>
-	
+		<!-- CARTA -->
+		<div class="row">
+			<div class="col-lg-9 col-md-9 col-sm-9">
+				<h3><%=request.getAttribute("titulo")%></h3>
+				<%= (proyecto != null) ? 
+				"<div class='col-sm-12 col-md-12 col-lg-12 card pt-2'>"
+					+"<p><strong>Id Proyecto</strong> : "+proyecto.getId()+"</p>"
+					+"<p><strong>Nombre Proyecto</strong> : "+proyecto.getNombre()+"</p>"
+				+"</div>" : "" %>
+				<br>
+			</div>
+			<div class="col-lg-3 col-md-3 col-sm-3">
+				<% if ((request.getAttribute("titulo") != null) && (request.getAttribute("titulo") == "Modificar Proyecto")){ %>  
+				<p class="text-info"><strong>Modificar Proyecto</strong></p>
+				<input id="switch" type='checkbox' data-toggle='toggle' data-on='<i class="fa fa-unlock"></i> Habilitado' data-off='<i class="fa fa-lock"></i> Bloqueado' data-onstyle='success' data-offstyle='danger'>				
+				<% } %>
+			</div>
+			
+		</div>
 		
-	<% if (!((List<String>)request.getAttribute("errores")).isEmpty()) { %>
-	<div class="alert alert-danger alert-dismissible fade show" role="alert">
-		<p><strong>Debes Completar Todos Los Datos</strong><p>
-		<ul>
-	<% for(String mensaje : ((List<String>)request.getAttribute("errores"))) {
-			out.println("<li>"+mensaje+"</li>");
-		} %>
-		</ul>
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-			<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	<% } %>
+		<% if (!((List<String>)request.getAttribute("errores")).isEmpty()) { %>
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<p><strong>Debes Completar Todos Los Datos</strong><p>
+			<ul>
+		<% for(String mensaje : ((List<String>)request.getAttribute("errores"))) {
+				out.println("<li>"+mensaje+"</li>");
+			} %>
+			</ul>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<% } %>
 		
-      <form action="Proyect.do?accion=guardarProyecto" method="post">
+      <form action="Proyect.do?<%=(proyecto != null)?"idProyect="+proyecto.getId()+"&":""%>accion=guardarProyecto" method="post">
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="nameProyect">Nombre del Proyecto</label>
-            <input type="text" class="form-control" name="nameProyect" id="nameProyect">
+            <input <%=(proyecto!=null)?("value='"+proyecto.getNombre()+"'"):("")%>
+				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="nameProyect" id="nameProyect">
           </div>
           <div class="form-group col-md-6">
             <label for="codProyect">Codigo de Proyecto</label>
-            <input type="text" class="form-control" name="codProyect" id="codProyect">
+            <input <%=(proyecto!=null)?("value='"+proyecto.getCodigo()+"'"):("")%>
+				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="codProyect" id="codProyect">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="banco">Banco</label>
-            <select type="text" class="form-control" id="banco" name="banco">
-                <option value="0" disabled selected>-- Seleccione Banco --</option>
-                <c:forEach items="${requestScope.bancos}" var="bco">
-                    <option value="${bco.id}">${bco.nombre}</option>
-                </c:forEach>
+            <select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="banco" name="banco">
+                <option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
+				<%	for(Banco banco : (List<Banco>)request.getAttribute("bancos")) { 
+						if (proyecto != null){
+							if(proyecto.getBancoId().getId().compareTo(banco.getId()) != 0){
+								out.print("<option value='"+banco.getId()+"'>"+banco.getNombre()+"</option>");
+							}else{
+								out.print("<option value='"+banco.getId()+"' selected>"+banco.getNombre()+" - (Actual)"+"</option>");
+							}
+						}else{
+							out.print("<option value='"+banco.getId()+"'>"+banco.getNombre()+"</option>");
+						}
+					}
+				%>
             </select>
           </div>
             <div class="form-group col-md-6">
             <label for="numCuenta">N° Cuenta Corriente</label>
-            <input type="text" class="form-control" id="numCuenta" name="numCuenta">
+            <input <%=(proyecto!=null)?("value='"+proyecto.getBancoId().getNumCuenta()+"'"):("")%>
+				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="numCuenta" name="numCuenta" readonly>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="fechaInicio">Fecha de Inicio</label>
-            <input type="text" class="form-control" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
+            <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaIni())+"'"):("")%>
+				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
           </div>
           <div class="form-group col-md-6">
             <label for="fechaTermino">Fecha de Termino</label>
-            <input type="text" class="form-control" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
+            <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaFin())+"'"):("")%>
+				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
           </div>
         </div>
       <br>
       <div class="row">
         <div class="col-lg-2" align="center">
-          <a href="#" style="text-decoration: none;">
+          <a href="<%=request.getContextPath()%>/Proyect.do" style="text-decoration: none;">
           <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
           </a>
       </div>
@@ -159,9 +205,19 @@
       </div>
       </div>
       </form>
-    </div>
-    <!-- /.container-fluid-->
-    <!-- /.content-wrapper-->
+		
+	<% }else{ %>
+	<div class="row">
+		<div class="col-md-12 text-center mt-5">
+			<h1 class="text-danger">Proyecto No Encontrado</h1>
+			<p class="text-info mb-5">Por Favor, Busque Con Identificador Válido</p>
+			<a href="<%=request.getContextPath()%>/Proyect.do" class="btn btn-primary btn-lg mt-5">Volver A Proyectos</a>
+		</div>
+	</div>
+	<% } %>	
+    </div><!-- /.container-fluid-->
+  </div><!-- /.content-wrapper-->
+	
     <footer class="sticky-footer">
       <div class="container">
         <div class="text-center">
@@ -203,11 +259,30 @@
     <script src="js/sb-admin.min.js"></script>
     <!-- Custom scripts for this page-->
     <script src="js/sb-admin-datatables.min.js"></script>
+	<!-- Switch Button -->
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
 
     <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
-
+	
+	<script>
+		$(function() {
+			$('#switch').change(function() {
+				if ($(this).prop('checked')) {
+					$(':input.lock').each(function () {
+						$(this).removeClass('lock');
+					});
+				}else{
+					$(':input.form-control').each(function () {
+						$(this).addClass('lock');
+					});
+				}
+			});
+		});
+	</script>
+		
   </div>
 </body>
 </html>
