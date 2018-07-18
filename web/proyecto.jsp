@@ -43,7 +43,7 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="<%=request.getContextPath()%>/Proyect.do">
             <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Inicio</span>
           </a>
@@ -127,26 +127,34 @@
                 <i class="fa fa-table"></i> <% out.print(proyecto.getNombre()); %>
             </div>
             <div class=" row card-body">
-              <div class="row col-md-9 col-sm-8">
-                  <div class="col-md-12 col-sm-12">
-                      <p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
-                  </div>
-                  <div class="col-md-12 col-sm-12">
-                      <p>N° Cuenta Corriente: <strong><% out.print(proyecto.getBancoId().getNumCuenta()); %></strong></p>
-                  </div>
-                  <div class="col-md-12 col-sm-12">
-                      <p>Banco: <strong><% out.print(proyecto.getBancoId().getNombre()); %></strong></p>
-                  </div>
-                  <div class="col-md-12 col-sm-12">
-                      <p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
-                  </div>
-                  <div class="col-md-12 col-sm-12">
-                      <p>Fecha Termino Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaFin())); %></strong></p>
-                  </div>              
-              </div>
-              <div class="col-md-3 col-sm-2">
-                  <a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p></a>
-              </div>
+				<div class="row col-md-9 col-sm-8">
+					<div class="col-md-12 col-sm-12">
+						<p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
+					</div>
+					<div class="col-md-12 col-sm-12">
+						<p>N° Cuenta Corriente: <strong><% out.print(proyecto.getBancoId().getNumCuenta()); %></strong></p>
+					</div>
+					<div class="col-md-12 col-sm-12">
+						<p>Banco: <strong><% out.print(proyecto.getBancoId().getNombre()); %></strong></p>
+					</div>
+					<div class="col-md-12 col-sm-12">
+						<p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
+					</div>
+					<div class="col-md-12 col-sm-12">
+						<p>Fecha Termino Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaFin())); %></strong></p>
+					</div>              
+				</div>
+				<div class="row">
+					<div class="col-md-12 col-sm-12">
+						<a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p></a>
+					</div>
+					<div class="col-md-12 col-sm-12 text-center">
+						<button class="btn btn-link text-danger" data-toggle="modal" data-target="#eliminarProyecto" style="text-decoration: none;">
+							<i class="fa fa-trash fa-2x"></i>
+							<br>Eliminar
+						</button>
+					</div>	
+				</div>
             </div>
           </div>
         </div>
@@ -250,6 +258,27 @@
     <a class="scroll-to-top rounded" href="#page-top">
       <i class="fa fa-angle-up"></i>
     </a>
+	
+	<div class="modal fade" id="eliminarProyecto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">¿Desea Eliminar Proyecto?</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p id="pModal">Al eliminar el proyecto, este será movido a "Proyectos Eliminados"</p>
+				</div>
+				<div class="modal-footer">
+					<a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
+					<a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=proyecto.getId()%>&accion=eliminarProyecto" class="btn btn-danger">Eliminar Proyecto</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
     <!-- Logout Modal-->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">

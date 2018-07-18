@@ -10,28 +10,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Persistence;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -172,7 +151,35 @@ public class Proyecto implements Serializable {
             return proyectos;
         }
     }
-    
+	
+	public static Proyecto hideProyecto(Proyecto proyecto){
+        
+        System.out.println("");
+        System.out.println("--------------- Ingreso a insertarProyecto ---------------");
+        
+        EntityManagerFactory emf    = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em            = emf.createEntityManager();
+        
+        try {
+            em.getTransaction().begin();
+            proyecto.setEstado('0');
+			em.merge(proyecto);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            
+        } catch (ConstraintViolationException e) {
+            System.out.println("Error en Insertar Proyecto");
+            System.out.println("Clase de error "+e.getClass());
+            System.out.println("Causa de error "+e.getCause());
+            System.out.println("No se!"+e.initCause(e.getCause()));           
+        }
+        System.out.println("--------------- Fin de insertarProyecto ---------------");
+        System.out.println("");
+
+        return proyecto;
+    }
+	    
     public BigDecimal getId() {
         return id;
     }

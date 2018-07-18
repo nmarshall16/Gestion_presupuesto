@@ -48,7 +48,7 @@ public class ProyectServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             // Consultar sesión de usuario
-            Usuario u = (Usuario)request.getSession(false).getAttribute("user");
+            Usuario u = (Usuario)request.getSession(true).getAttribute("user");
             if (u != null) {
                 String action = request.getParameter("accion");
                 /* Se recibe el parametro accion enviado desde el jsp si el paremetro
@@ -105,6 +105,16 @@ public class ProyectServlet extends HttpServlet {
 								out.print(e.initCause(e.getCause()));
 								out.print("<br>");
 							}
+						break;
+						case "eliminarProyecto":
+							Proyecto pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+							if (pro != null) {
+								Proyecto.hideProyecto(pro);
+							}
+							response.sendRedirect(request.getContextPath()+"/Proyect.do");
+						break;
+						case "modificarProyecto":
+							
 						break;
 						default:
 						break;
