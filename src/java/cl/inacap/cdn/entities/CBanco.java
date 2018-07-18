@@ -1,0 +1,98 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cl.inacap.cdn.entities;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+/**
+ *
+ * @author dell
+ */
+@Entity
+@Table(name = "C_BANCO")
+@XmlRootElement
+@NamedQueries({
+	@NamedQuery(name = "CBanco.findAll", query = "SELECT c FROM CBanco c")
+	, @NamedQuery(name = "CBanco.findByNumCuenta", query = "SELECT c FROM CBanco c WHERE c.numCuenta = :numCuenta")})
+public class CBanco implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	// @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+	@Id
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "NUM_CUENTA")
+	private BigDecimal numCuenta;
+	@JoinColumn(name = "BANCO_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+	private Banco bancoId;
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "cBancoNumCuenta")
+	private List<Proyecto> proyectoList;
+
+	public CBanco() {
+	}
+
+	public CBanco(BigDecimal numCuenta) {
+		this.numCuenta = numCuenta;
+	}
+
+	public BigDecimal getNumCuenta() {
+		return numCuenta;
+	}
+
+	public void setNumCuenta(BigDecimal numCuenta) {
+		this.numCuenta = numCuenta;
+	}
+
+	public Banco getBancoId() {
+		return bancoId;
+	}
+
+	public void setBancoId(Banco bancoId) {
+		this.bancoId = bancoId;
+	}
+
+	@XmlTransient
+	public List<Proyecto> getProyectoList() {
+		return proyectoList;
+	}
+
+	public void setProyectoList(List<Proyecto> proyectoList) {
+		this.proyectoList = proyectoList;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += (numCuenta != null ? numCuenta.hashCode() : 0);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		// TODO: Warning - this method won't work in the case the id fields are not set
+		if (!(object instanceof CBanco)) {
+			return false;
+		}
+		CBanco other = (CBanco) object;
+		if ((this.numCuenta == null && other.numCuenta != null) || (this.numCuenta != null && !this.numCuenta.equals(other.numCuenta))) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "cl.inacap.cdn.entities.CBanco[ numCuenta=" + numCuenta + " ]";
+	}
+	
+}

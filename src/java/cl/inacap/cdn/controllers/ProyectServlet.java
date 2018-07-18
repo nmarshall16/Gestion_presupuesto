@@ -6,6 +6,7 @@
 package cl.inacap.cdn.controllers;
 
 import cl.inacap.cdn.entities.Banco;
+import cl.inacap.cdn.entities.CBanco;
 import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class ProyectServlet extends HttpServlet {
 												df.parse(request.getParameter("fechaInicio")),
 												df.parse(request.getParameter("fechaTermino")),
 												'1',
-												new Banco(new BigDecimal(request.getParameter("banco")))
+												new CBanco(new BigDecimal(request.getParameter("numCuenta")))
 											)
 										);
 									}else{
@@ -99,7 +100,7 @@ public class ProyectServlet extends HttpServlet {
 												try{
 													pro.setNombre(request.getParameter("nameProyect").trim());
 													pro.setCodigo(request.getParameter("codProyect").trim());
-													pro.setBancoId(new Banco(new BigDecimal(request.getParameter("banco"))));
+													pro.setCBancoNumCuenta(new CBanco(new BigDecimal(request.getParameter("numCuenta"))));
 													pro.setFechaIni(df.parse(request.getParameter("fechaInicio")));
 													pro.setFechaFin(df.parse(request.getParameter("fechaTermino")));
 

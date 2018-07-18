@@ -117,7 +117,7 @@
             }else{
                 out.print(
 					"<div class='col-xl-8 col-sm-8 mb-3 text-center mt-5'>"+
-						"<h3 class='text-danger'>No se a encontrado ningun proyecto registrado<h3>"+
+						"<h3 class='text-danger'>No se ha encontrado ningun proyecto registrado<h3>"+
 					"</div>"+
 					"<div class='col-xl-4 col-sm-4 mb-3 mt-3'>"+
 						"<h1 class='text-info text-center mb-1'><i class='fa fa-arrow-up'></i></h1>"+

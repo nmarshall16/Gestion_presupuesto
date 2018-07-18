@@ -19,35 +19,36 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author dell
  */
 @Entity
-@Table(name = "TIPO_USUARIO")
+@Table(name = "PERMISO")
 @XmlRootElement
 @NamedQueries({
-	@NamedQuery(name = "TipoUsuario.findAll", query = "SELECT t FROM TipoUsuario t")
-	, @NamedQuery(name = "TipoUsuario.findById", query = "SELECT t FROM TipoUsuario t WHERE t.id = :id")
-	, @NamedQuery(name = "TipoUsuario.findByNombre", query = "SELECT t FROM TipoUsuario t WHERE t.nombre = :nombre")})
-public class TipoUsuario implements Serializable {
+	@NamedQuery(name = "Permiso.findAll", query = "SELECT p FROM Permiso p")
+	, @NamedQuery(name = "Permiso.findById", query = "SELECT p FROM Permiso p WHERE p.id = :id")
+	, @NamedQuery(name = "Permiso.findByNombre", query = "SELECT p FROM Permiso p WHERE p.nombre = :nombre")})
+public class Permiso implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	// @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
 	@Id
     @Basic(optional = false)
     @NotNull
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TIPO_USU_SEQ")
-    @SequenceGenerator(sequenceName = "TIPO_USUARIO_ID_SEQ", allocationSize = 1, name = "TIPO_USU_SEQ")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERMISO_SEQ")
+    @SequenceGenerator(sequenceName = "PERMISO_ID_SEQ", allocationSize = 1, name = "PERMISO_SEQ")
     @Column(name = "ID")
 	private BigDecimal id;
 	@Size(max = 250)
     @Column(name = "NOMBRE")
 	private String nombre;
-	@ManyToMany(mappedBy = "tipoUsuarioList")
-	private List<Permiso> permisoList;
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "tipoUsuarioId")
-	private List<Usuario> usuarioList;
+	@JoinTable(name = "PERMISOSU", joinColumns = {
+    	@JoinColumn(name = "PERMISO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
+    	@JoinColumn(name = "TIPO_USUARIO_ID", referencedColumnName = "ID")})
+    @ManyToMany
+	private List<TipoUsuario> tipoUsuarioList;
 
-	public TipoUsuario() {
+	public Permiso() {
 	}
 
-	public TipoUsuario(BigDecimal id) {
+	public Permiso(BigDecimal id) {
 		this.id = id;
 	}
 
@@ -68,21 +69,12 @@ public class TipoUsuario implements Serializable {
 	}
 
 	@XmlTransient
-	public List<Permiso> getPermisoList() {
-		return permisoList;
+	public List<TipoUsuario> getTipoUsuarioList() {
+		return tipoUsuarioList;
 	}
 
-	public void setPermisoList(List<Permiso> permisoList) {
-		this.permisoList = permisoList;
-	}
-
-	@XmlTransient
-	public List<Usuario> getUsuarioList() {
-		return usuarioList;
-	}
-
-	public void setUsuarioList(List<Usuario> usuarioList) {
-		this.usuarioList = usuarioList;
+	public void setTipoUsuarioList(List<TipoUsuario> tipoUsuarioList) {
+		this.tipoUsuarioList = tipoUsuarioList;
 	}
 
 	@Override
@@ -95,10 +87,10 @@ public class TipoUsuario implements Serializable {
 	@Override
 	public boolean equals(Object object) {
 		// TODO: Warning - this method won't work in the case the id fields are not set
-		if (!(object instanceof TipoUsuario)) {
+		if (!(object instanceof Permiso)) {
 			return false;
 		}
-		TipoUsuario other = (TipoUsuario) object;
+		Permiso other = (Permiso) object;
 		if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
 			return false;
 		}
@@ -107,7 +99,7 @@ public class TipoUsuario implements Serializable {
 
 	@Override
 	public String toString() {
-		return "cl.inacap.cdn.entities.TipoUsuario[ id=" + id + " ]";
+		return "cl.inacap.cdn.entities.Permiso[ id=" + id + " ]";
 	}
 	
 }
