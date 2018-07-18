@@ -16,6 +16,10 @@
         <servlet-name>PresupuestoServlet</servlet-name>
         <servlet-class>cl.inacap.cdn.controllers.PresupuestoServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>GastoServlet</servlet-name>
+        <servlet-class>cl.inacap.cdn.controllers.GastoServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/Login.do</url-pattern>
@@ -31,6 +35,10 @@
     <servlet-mapping>
         <servlet-name>PresupuestoServlet</servlet-name>
         <url-pattern>/Presupuesto.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GastoServlet</servlet-name>
+        <url-pattern>/Gasto.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

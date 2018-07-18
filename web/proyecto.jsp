@@ -146,7 +146,9 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12 col-sm-12">
-						<a href="#" style="text-decoration: none;"><p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p></a>
+						<a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=proyecto.getId()%>&accion=modificarProyecto" style="text-decoration: none;">
+							<p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p>
+						</a>
 					</div>
 					<div class="col-md-12 col-sm-12 text-center">
 						<button class="btn btn-link text-danger" data-toggle="modal" data-target="#eliminarProyecto" style="text-decoration: none;">
@@ -199,18 +201,18 @@
                                     <td><a href="Presupuesto.do" class="btn btn-secondary btn-block" role="button">Presupuesto</a></td>
                                     <td class="meses">
                                         <select class="custom-select">
-                                            <option selected value="Enero">Enero</option>
-                                            <option value="Febrero">Febrero</option>
-                                            <option value="Marzo">Marzo</option>
-                                            <option value="Abril">Abril</option>
-                                            <option value="Mayo">Mayo</option>
-                                            <option value="Junio">Junio</option>
-                                            <option value="Julio">Julio</option>
-                                            <option value="Agosto">Agosto</option>
-                                            <option value="Septiembre">Septiembre</option>
-                                            <option value="Octubre">Octubre</option>
-                                            <option value="Noviembre">Noviembre</option>
-                                            <option value="Diciembre">Diciembre</option>
+                                            <option selected value="1">Enero</option>
+                                            <option value="2">Febrero</option>
+                                            <option value="3">Marzo</option>
+                                            <option value="4">Abril</option>
+                                            <option value="5">Mayo</option>
+                                            <option value="6">Junio</option>
+                                            <option value="7">Julio</option>
+                                            <option value="8">Agosto</option>
+                                            <option value="9">Septiembre</option>
+                                            <option value="10">Octubre</option>
+                                            <option value="11">Noviembre</option>
+                                            <option value="12">Diciembre</option>
                                         </select>
                                     </td>
                                     <td><button type="button" class="btn btn-primary btn-block selectAnho" value="<% out.print(anho.getId()); %>">Seleccionar</button></td>
