@@ -56,6 +56,38 @@ public class Gasto implements Serializable {
 		this.id = id;
 	}
 
+        public Gasto(BigInteger codCuenta, String nombre, FuenteF fuenteFCodCentro) {
+            this.codCuenta = codCuenta;
+            this.nombre = nombre;
+            this.fuenteFCodCentro = fuenteFCodCentro;
+        }
+        
+        public Gasto findGasto(BigDecimal fuente, BigInteger cuenta){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            FuenteF financiamiento = FuenteF.findById(fuente);
+            TypedQuery<Gasto> buscarGasto = em.createQuery("SELECT g FROM Gasto g WHERE g.codCuenta = :cuenta AND g.fuenteFCodCentro = :fuente", Gasto.class);
+            buscarGasto.setParameter("cuenta", cuenta);
+            buscarGasto.setParameter("fuente", financiamiento);
+            List<Gasto> gastos = buscarGasto.getResultList();
+            Gasto gasto = null;
+            if(gastos.size() > 0){
+                gasto = buscarGasto.getSingleResult();
+            }
+            return gasto;
+        }
+        
+        public void addGasto(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            em.persist(this);
+            trans.commit();
+            em.close();
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}

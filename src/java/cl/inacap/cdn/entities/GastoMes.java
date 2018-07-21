@@ -8,6 +8,7 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
@@ -129,7 +130,30 @@ public class GastoMes implements Serializable {
 	public GastoMes(BigDecimal id) {
 		this.id = id;
 	}
-
+        
+        public void addGastoMes(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            em.persist(this);
+            trans.commit();
+            em.close();
+        }
+        
+        public void removeGastosMes(ArrayList<GastoMes> gastos){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            for(GastoMes gasto: gastos){
+                GastoMes gastoMes = em.find(GastoMes.class, gasto.getId());
+                trans.begin();
+                em.remove(gastoMes);
+                trans.commit();
+            }
+            em.close();
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}

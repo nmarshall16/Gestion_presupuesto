@@ -16,6 +16,26 @@ $(document).ready(function() {
         var meses = $(fila).children(".meses").children(); // Se optiene el select con los meses del año que se haya selecionado
         $(location).attr('href', 'Year.do?idAnho='+$(this).val()+'&mes='+$(meses).val()+'&op=3');
     });
+    $("#uploadFileForm").ajaxForm({
+       beforeSend: function(){
+           $('#cargaModal').modal('show');
+       },
+       success: function(data){
+           var datos = $.parseJSON(data);
+           if(datos.error){
+               $(".error").text("ERROR: "+datos.detalle);
+               $(".alert-danger").show('slow/400/fast');
+           }else{
+               $(".alert-success").show('slow/400/fast');
+               $('#cargaModal').modal('toggle');
+               $(location).attr('href', 'Gasto.do?idAnho='+datos.anho+'&mes='+datos.mes+'&op=verGastos');
+           }
+       },
+       error: function(data){
+           $(".error").text("ERROR: "+data);
+           $(".alert-danger").show('slow/400/fast');
+       }
+    });
 });
 
 

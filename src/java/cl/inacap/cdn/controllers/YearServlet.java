@@ -77,6 +77,7 @@ public class YearServlet extends HttpServlet {
                 case 3:
                     request.setAttribute("mes", request.getParameter("mes"));
                     request.setAttribute("anho", request.getParameter("idAnho"));
+                    request.setAttribute("opcion", "cargarGastos");
                     request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
                     break;
                 case 4: 

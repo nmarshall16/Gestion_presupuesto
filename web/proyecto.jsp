@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.List"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Collection"%>
 <%@page import="java.util.ArrayList"%>
@@ -132,10 +133,10 @@
 						<p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
 					</div>
 					<div class="col-md-12 col-sm-12">
-						<p>N° Cuenta Corriente: <strong><% out.print(proyecto.getBancoId().getNumCuenta()); %></strong></p>
+						<p>N° Cuenta Corriente: <strong><% out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
 					</div>
 					<div class="col-md-12 col-sm-12">
-						<p>Banco: <strong><% out.print(proyecto.getBancoId().getNombre()); %></strong></p>
+						<p>Banco: <strong><% out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
 					</div>
 					<div class="col-md-12 col-sm-12">
 						<p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
@@ -166,7 +167,7 @@
       </div>
       <br>
       <%
-        Collection<AnhoProyect> anhos = proyecto.getAnhoProyectCollection();
+        List<AnhoProyect> anhos = proyecto.getAnhoProyectList();
         if(anhos.size() > 0){
       %>
             <div class="card mb-3">

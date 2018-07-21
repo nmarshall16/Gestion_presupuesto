@@ -6,9 +6,11 @@
 package cl.inacap.cdn.controllers;
 
 import cl.inacap.cdn.entities.AnhoProyect;
+import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.Gasto;
 import cl.inacap.cdn.entities.GastoMes;
 import cl.inacap.cdn.entities.Proyecto;
+import com.google.gson.Gson;
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,10 +20,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -56,110 +67,145 @@ public class GastoServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            final Part filePart = request.getPart("archivo"); // Obtiene el archivo
-            String name = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // el nombre del archivo
-            String ext = name.substring(name.length()-4); // Obtiene a extencion
-            if(ext.equals("xlsx")){ // Se valida la extencion
-                ServletContext context = request.getServletContext();
-                final String path= context.getRealPath("/")+"files"; // Se obtiene la ruta del proyecto
-                AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                Proyecto proyecto = anho.getProyectoId();
-                final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+request.getParameter("mes")+"."+ext; // Se genera el nombre del archivo
-                OutputStream salida = null;
-                InputStream filecontent = null;
-                final PrintWriter writer = response.getWriter();
-                try {
-                    // Se guarda el archivo en la ruta se indicada 
-                    salida = new FileOutputStream(new File(path + File.separator
-                    + fileName));
-                    filecontent = filePart.getInputStream();
-                    int read = 0;
-                    final byte[] bytes = new byte[1024];
-                    while ((read = filecontent.read(bytes)) != -1) {
-                        salida.write(bytes, 0, read);
-                    }
-                    FileInputStream file = new FileInputStream(new File(path+"\\"+fileName)); // Se indica el archivo
-                    XSSFWorkbook wb = new XSSFWorkbook(file);
-                    XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
-                    Row validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
-                    // Se valida el encabezado del archivo
-                    if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
-                        && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
-                        && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
-                        && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
-                        && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
-                        && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
-                        && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
-                        && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
-                        && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
-                        && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
-                        && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
-                        && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
-                        && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
-                        && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
-                    ){
-                        int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
-                        boolean error = false;
-                        for(int i = 6; i <= numFilas; i++){
-                            Row fila = sheet.getRow(i);
-                            if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){
-                                GastoMes gastoMes = new GastoMes();
-                                gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
-                                gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
-                                gastoMes.setFecha(fila.getCell(6).getDateCellValue());
-                                gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
-                                gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
-                                gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
-                                gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
-                                gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
-                                gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
-                                gastoMes.setAnhoProyectId(anho);
-                                Gasto gasto = new Gasto();
-                                //out.print(fila.getCell(1).getNumericCellValue()+"-"); // id_comp
-                                out.print(fila.getCell(3).getNumericCellValue()+"-"); // cod_cuenta
-                                out.print(fila.getCell(4).getStringCellValue()+"-"); // nom_cuenta
-                            //out.print(fila.getCell(5).getNumericCellValue()+"-"); // importe
-                            //out.print(fila.getCell(6).getDateCellValue()+"-"); // fecha 
-                            //out.print(fila.getCell(7).getStringCellValue()+"-"); // num_orden
-                            //out.print(fila.getCell(11).getStringCellValue()+"-"); // cod_proyecto
-                            //out.print(fila.getCell(12).getStringCellValue()+"-"); // proyecto
-                            out.print(fila.getCell(15).getNumericCellValue()+"-"); // cod_centro_resp
-                            //out.print(fila.getCell(17).getNumericCellValue()+"-"); // num_factura
-                            //out.print(fila.getCell(18).getStringCellValue()+"-"); // rut_proveedor
-                            //out.print(fila.getCell(19).getStringCellValue()+"-"); // nombre_proveedor
-                            //out.print(fila.getCell(23).getStringCellValue()+"-"); // atributo_pago
-                            //out.print(fila.getCell(27).getStringCellValue()+"<br>"); // asiento
+            String opcion = request.getParameter("op");
+            switch(opcion){
+                case "verGastos":
+                    out.print("wena perro");
+                break;
+                case "cargarGastos":
+                    final Part filePart = request.getPart("archivo"); // Obtiene el archivo
+                    String name = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // el nombre del archivo
+                    String ext = name.substring(name.length()-4); // Obtiene a extencion
+                    if(ext.equals("xlsx")){ // Se valida la extencion
+                        ServletContext context = request.getServletContext();
+                        final String path= context.getRealPath("/")+"files"; // Se obtiene la ruta del proyecto
+                        AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                        Proyecto proyecto = anho.getProyectoId();
+                        BigInteger mes = new BigInteger(request.getParameter("mes"));
+                        final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+mes+"."+ext; // Se genera el nombre del archivo
+                        OutputStream salida = null;
+                        InputStream filecontent = null;
+                        final PrintWriter writer = response.getWriter();
+                        try {
+                        // Se guarda el archivo en la ruta se indicada 
+                            salida = new FileOutputStream(new File(path + File.separator
+                            + fileName));
+                            filecontent = filePart.getInputStream();
+                            int read = 0;
+                            final byte[] bytes = new byte[1024];
+                            while ((read = filecontent.read(bytes)) != -1) {
+                                salida.write(bytes, 0, read);
+                            }
+                            FileInputStream file = new FileInputStream(new File(path+"\\"+fileName)); // Se indica el archivo
+                            XSSFWorkbook wb = new XSSFWorkbook(file);
+                            XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
+                            Row validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
+                            boolean error = false;
+                            String detalleError = "No error";
+                            // Se valida el encabezado del archivo
+                            if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
+                            && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
+                            && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
+                            && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
+                            && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
+                            && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
+                            && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
+                            && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
+                            && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
+                            && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
+                            && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
+                            && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
+                            && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
+                            && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
+                            ){
+                                int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
+                                ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                for(int i = 6; i <= numFilas; i++){
+                                    Row fila = sheet.getRow(i);
+                                    if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
+                                        // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
+                                        GastoMes gastoMes = new GastoMes();
+                                        gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
+                                        gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
+                                        gastoMes.setFecha(fila.getCell(6).getDateCellValue());
+                                        gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
+                                        gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
+                                        gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
+                                        gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
+                                        gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
+                                        gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
+                                        gastoMes.setAnhoProyectId(anho);
+                                        gastoMes.setMes(mes);
+                                        gastoMes.setStatus('P');
+                                        gastoMes.setTipo('G');
+                                        Gasto gasto = new Gasto();
+                                        gasto = gasto.findGasto(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()), BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()));
+                                        // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
+                                        if(gasto != null){
+                                            gastoMes.setGastoId(gasto);
+                                        }else{
+                                            FuenteF financiamiento = FuenteF.findById(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()));
+                                            Gasto newGasto = new Gasto(
+                                            BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()),
+                                            fila.getCell(4).getStringCellValue().toUpperCase(),
+                                            financiamiento
+                                            );
+                                            newGasto.addGasto();
+                                            gastoMes.setGastoId(newGasto);
+                                        }
+                                        gastoMes.addGastoMes(); // Se añade a la base de datos
+                                        gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
+                                    }else{
+                                        error = true;
+                                        break;
+                                    }
+                                }
+                                if(error){
+                                    GastoMes gastosB = new GastoMes();
+                                    gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
+                                    detalleError = "Se a detectado un gasto correspondiente a otro proyecto por favor validar que todos los gastos este asociados al proyecto "+proyecto.getNombre();
+                                }
                             }else{
-                                error = true;
-                                break;
+                                detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
+                            }
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                // Return ajax response (e.g. write JSON or XML).
+                                Map <String, Object> map = new HashMap<String, Object>();
+                                    map.put("error", error);
+                                    map.put("detalle", detalleError);
+                                    map.put("anho", request.getParameter("idAnho"));
+                                    map.put("mes", mes);
+                                    response.getWriter().write(new Gson().toJson(map));
+                            } else {
+                                /*
+                                request.setAttribute("mes", mes);
+                                request.setAttribute("anho", request.getParameter("idAnho"));
+                                request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                                */
+                            }
+                        } catch (FileNotFoundException fne) {
+                            writer.println("No se pudo cargar el archivo, por favor cargue "
+                            + "el archivo nuevamente y verifique que el archivo no "
+                            + "este protegido.");
+                            writer.println("<br/> ERROR: " + fne.getMessage());
+                            LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
+                            new Object[]{fne.getMessage()});
+                        }catch (NullPointerException ex){
+                            out.print(ex.toString());
+                            out.print("Formato invalido");
+                        } finally {
+                            if (salida != null) {
+                                salida.close();
+                            }
+                            if (filecontent != null) {
+                                filecontent.close();
+                            }
+                            if (writer != null) {
+                                writer.close();
                             }
                         }
-                        if(error){
-                            out.print("Error");
-                        }
-                    }else{
-                        out.print("Archivo invalido");
                     }
-                } catch (FileNotFoundException fne) {
-                    writer.println("No se pudo cargar el archivo, por favor cargue "
-                    + "el archivo nuevamente y verifique que el archivo no "
-                    + "este protegido.");
-                    writer.println("<br/> ERROR: " + fne.getMessage());
-                    LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
-                    new Object[]{fne.getMessage()});
-                }catch (NullPointerException ex){
-                    out.print("Formato invalido");
-                } finally {
-                    if (salida != null) {
-                        salida.close();
-                    }
-                    if (filecontent != null) {
-                        filecontent.close();
-                    }
-                    if (writer != null) {
-                        writer.close();
-                    }
-                }
+                break;
             }
         }
     }
