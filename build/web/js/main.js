@@ -28,7 +28,7 @@ $(document).ready(function() {
            }else{
                $(".alert-success").show('slow/400/fast');
                $('#cargaModal').modal('toggle');
-               $(location).attr('href', 'Gasto.do?idAnho='+datos.anho+'&mes='+datos.mes+'&op=verGastos');
+               $(location).attr('href', 'Year.do?idAnho='+datos.anho+'&mes='+datos.mes+'&op=3');
            }
        },
        error: function(data){

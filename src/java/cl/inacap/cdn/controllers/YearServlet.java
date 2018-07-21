@@ -75,10 +75,19 @@ public class YearServlet extends HttpServlet {
                     }
                     break;
                 case 3:
-                    request.setAttribute("mes", request.getParameter("mes"));
-                    request.setAttribute("anho", request.getParameter("idAnho"));
-                    request.setAttribute("opcion", "cargarGastos");
-                    request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                    BigInteger mes = new BigInteger(request.getParameter("mes"));
+                    AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                    GastoMes gasto = new GastoMes();
+                    List<GastoMes> gastos = gasto.findGastos(mes, anho);
+                    if(gastos.size() > 0){
+                        request.setAttribute("gastos", gastos);
+                        request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                    }else{
+                        request.setAttribute("mes", mes);
+                        request.setAttribute("anho", anho.getId());
+                        request.setAttribute("opcion", "cargarGastos");
+                        request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                    }
                     break;
                 case 4: 
                     break;

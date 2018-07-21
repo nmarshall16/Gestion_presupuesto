@@ -154,6 +154,18 @@ public class GastoMes implements Serializable {
             em.close();
         }
         
+        public List<GastoMes> findGastos(BigInteger mes, AnhoProyect anho){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            TypedQuery<GastoMes> buscarGasto = em.createQuery("SELECT g FROM GastoMes g WHERE g.mes = :mes AND g.anhoProyectId = :anho", GastoMes.class);
+            buscarGasto.setParameter("mes", mes);
+            buscarGasto.setParameter("anho", anho);
+            List<GastoMes> gastos = buscarGasto.getResultList();
+            System.out.print(gastos);
+            return gastos;
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}

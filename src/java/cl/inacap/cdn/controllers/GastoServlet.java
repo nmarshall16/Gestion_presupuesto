@@ -11,7 +11,7 @@ import cl.inacap.cdn.entities.Gasto;
 import cl.inacap.cdn.entities.GastoMes;
 import cl.inacap.cdn.entities.Proyecto;
 import com.google.gson.Gson;
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
+import static com.sun.xml.ws.spi.db.BindingContextFactory.LOGGER;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
