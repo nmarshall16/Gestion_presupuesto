@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -131,7 +130,7 @@ public class GastoMes implements Serializable {
 	public GastoMes(BigDecimal id) {
 		this.id = id;
 	}
-        
+
         public static GastoMes findById(BigInteger id){
         GastoMes gasto;
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");

@@ -157,7 +157,7 @@
             <label for="banco">Banco</label>
             <select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="banco" name="banco">
                 <option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
-				<%	
+				<%	/*
 				if (request.getAttribute("bancos") != null){
 					for(Banco banco : (List<Banco>)request.getAttribute("bancos")) { 
 						if (proyecto != null){
@@ -170,13 +170,13 @@
 							out.print("<option value='"+banco.getId()+"'>"+banco.getNombre()+"</option>");
 						}
 					}
-				}
+				}	*/
 				%>
             </select>
           </div>
             <div class="form-group col-md-6">
             <label for="numCuenta">N° Cuenta Corriente</label>
-            <input <%=(proyecto!=null)?("value='"+proyecto.getCBancoNumCuenta().getNumCuenta()+"'"):("")%>
+            <input <%//(proyecto!=null)?("value='"+proyecto.getCBancoNumCuenta().getNumCuenta()+"'"):("")%>
 				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="numCuenta" name="numCuenta" readonly>
           </div>
         </div>

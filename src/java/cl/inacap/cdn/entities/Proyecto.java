@@ -7,30 +7,9 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Persistence;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -39,70 +18,60 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Nicolas
+ * @author dell
  */
 @Entity
 @Table(name = "PROYECTO")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Proyecto.findAll", query = "SELECT p FROM Proyecto p")
-    , @NamedQuery(name = "Proyecto.findById", query = "SELECT p FROM Proyecto p WHERE p.id = :id")
-    , @NamedQuery(name = "Proyecto.findByNombre", query = "SELECT p FROM Proyecto p WHERE p.nombre = :nombre")
-    , @NamedQuery(name = "Proyecto.findByCodigo", query = "SELECT p FROM Proyecto p WHERE p.codigo = :codigo")
-    , @NamedQuery(name = "Proyecto.findByFechaIni", query = "SELECT p FROM Proyecto p WHERE p.fechaIni = :fechaIni")
-    , @NamedQuery(name = "Proyecto.findByFechaFin", query = "SELECT p FROM Proyecto p WHERE p.fechaFin = :fechaFin")
-    , @NamedQuery(name = "Proyecto.findByEstado", query = "SELECT p FROM Proyecto p WHERE p.estado = :estado")
-    , @NamedQuery(name = "Proyecto.findByCBancoNumCuenta", query = "SELECT p FROM Proyecto p WHERE p.cBancoNumCuenta = :cBancoNumCuenta")})
+	@NamedQuery(name = "Proyecto.findAll", query = "SELECT p FROM Proyecto p")
+	, @NamedQuery(name = "Proyecto.findById", query = "SELECT p FROM Proyecto p WHERE p.id = :id")
+	, @NamedQuery(name = "Proyecto.findByNombre", query = "SELECT p FROM Proyecto p WHERE p.nombre = :nombre")
+	, @NamedQuery(name = "Proyecto.findByCodigo", query = "SELECT p FROM Proyecto p WHERE p.codigo = :codigo")
+	, @NamedQuery(name = "Proyecto.findByFechaIni", query = "SELECT p FROM Proyecto p WHERE p.fechaIni = :fechaIni")
+	, @NamedQuery(name = "Proyecto.findByFechaFin", query = "SELECT p FROM Proyecto p WHERE p.fechaFin = :fechaFin")
+	, @NamedQuery(name = "Proyecto.findByEstado", query = "SELECT p FROM Proyecto p WHERE p.estado = :estado")})
 public class Proyecto implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Id
+	private static final long serialVersionUID = 1L;
+	// @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+	@Id
     @Basic(optional = false)
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PROYECTO_SEQ")
     @SequenceGenerator(sequenceName = "PROYECTO_ID_SEQ", allocationSize = 1, name = "PROYECTO_SEQ")
     @Column(name = "ID")
-    private BigDecimal id;
-    @Size(max = 300)
+	private BigDecimal id;
+	@Size(max = 300)
     @Column(name = "NOMBRE")
-    private String nombre;
-    @Size(max = 250)
+	private String nombre;
+	@Size(max = 250)
     @Column(name = "CODIGO")
-    private String codigo;
-    @Column(name = "FECHA_INI")
+	private String codigo;
+	@Column(name = "FECHA_INI")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaIni;
-    @Column(name = "FECHA_FIN")
+	private Date fechaIni;
+	@Column(name = "FECHA_FIN")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaFin;
-    @Column(name = "ESTADO")
-    private Character estado;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "C_BANCO_NUM_CUENTA")
-    private BigInteger cBancoNumCuenta;
-    @JoinTable(name = "PROYECT_ASIG", joinColumns = {
-        @JoinColumn(name = "PROYECTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
-        @JoinColumn(name = "USUARIO_RUT", referencedColumnName = "RUT")})
+	private Date fechaFin;
+	@Column(name = "ESTADO")
+	private Character estado;
+	@JoinTable(name = "PROYECT_ASIG", joinColumns = {
+    	@JoinColumn(name = "PROYECTO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
+    	@JoinColumn(name = "USUARIO_RUT", referencedColumnName = "RUT")})
     @ManyToMany
-    private List<Usuario> usuarioList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "proyectoId")
-    private List<CBanco> cBancoList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "proyectoId")
-    private List<AnhoProyect> anhoProyectList;
+	private List<Usuario> usuarioList;
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "proyectoId")
+	private List<CBanco> cBancoList;
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "proyectoId")
+	private List<AnhoProyect> anhoProyectList;
 
-    public Proyecto() {
-    }
+	public Proyecto() {
+	}
 
-    public Proyecto(BigDecimal id) {
-        this.id = id;
-    }
-
-    public Proyecto(BigDecimal id, BigInteger cBancoNumCuenta) {
-        this.id = id;
-        this.cBancoNumCuenta = cBancoNumCuenta;
-    }
+	public Proyecto(BigDecimal id) {
+		this.id = id;
+	}
     
     public Proyecto(String nombre, String codigo, Date fechaIni, Date fechaFin, Character estado) {
         this.nombre = nombre;
@@ -235,112 +204,104 @@ public class Proyecto implements Serializable {
         return proyecto;
     }
     
-    public BigDecimal getId() {
-        return id;
-    }
+	public BigDecimal getId() {
+		return id;
+	}
 
-    public void setId(BigDecimal id) {
-        this.id = id;
-    }
+	public void setId(BigDecimal id) {
+		this.id = id;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public String getCodigo() {
-        return codigo;
-    }
+	public String getCodigo() {
+		return codigo;
+	}
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
 
-    public Date getFechaIni() {
-        return fechaIni;
-    }
+	public Date getFechaIni() {
+		return fechaIni;
+	}
 
-    public void setFechaIni(Date fechaIni) {
-        this.fechaIni = fechaIni;
-    }
+	public void setFechaIni(Date fechaIni) {
+		this.fechaIni = fechaIni;
+	}
 
-    public Date getFechaFin() {
-        return fechaFin;
-    }
+	public Date getFechaFin() {
+		return fechaFin;
+	}
 
-    public void setFechaFin(Date fechaFin) {
-        this.fechaFin = fechaFin;
-    }
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
 
-    public Character getEstado() {
-        return estado;
-    }
+	public Character getEstado() {
+		return estado;
+	}
 
-    public void setEstado(Character estado) {
-        this.estado = estado;
-    }
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
 
-    public BigInteger getCBancoNumCuenta() {
-        return cBancoNumCuenta;
-    }
+	@XmlTransient
+	public List<Usuario> getUsuarioList() {
+		return usuarioList;
+	}
 
-    public void setCBancoNumCuenta(BigInteger cBancoNumCuenta) {
-        this.cBancoNumCuenta = cBancoNumCuenta;
-    }
+	public void setUsuarioList(List<Usuario> usuarioList) {
+		this.usuarioList = usuarioList;
+	}
 
-    @XmlTransient
-    public List<Usuario> getUsuarioList() {
-        return usuarioList;
-    }
+	@XmlTransient
+	public List<CBanco> getCBancoList() {
+		return cBancoList;
+	}
 
-    public void setUsuarioList(List<Usuario> usuarioList) {
-        this.usuarioList = usuarioList;
-    }
+	public void setCBancoList(List<CBanco> cBancoList) {
+		this.cBancoList = cBancoList;
+	}
 
-    @XmlTransient
-    public List<CBanco> getCBancoList() {
-        return cBancoList;
-    }
+	@XmlTransient
+	public List<AnhoProyect> getAnhoProyectList() {
+		return anhoProyectList;
+	}
 
-    public void setCBancoList(List<CBanco> cBancoList) {
-        this.cBancoList = cBancoList;
-    }
+	public void setAnhoProyectList(List<AnhoProyect> anhoProyectList) {
+		this.anhoProyectList = anhoProyectList;
+	}
 
-    @XmlTransient
-    public List<AnhoProyect> getAnhoProyectList() {
-        return anhoProyectList;
-    }
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += (id != null ? id.hashCode() : 0);
+		return hash;
+	}
 
-    public void setAnhoProyectList(List<AnhoProyect> anhoProyectList) {
-        this.anhoProyectList = anhoProyectList;
-    }
+	@Override
+	public boolean equals(Object object) {
+		// TODO: Warning - this method won't work in the case the id fields are not set
+		if (!(object instanceof Proyecto)) {
+			return false;
+		}
+		Proyecto other = (Proyecto) object;
+		if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Proyecto)) {
-            return false;
-        }
-        Proyecto other = (Proyecto) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "cl.inacap.cdn.entities.Proyecto[ id=" + id + " ]";
-    }
-    
+	@Override
+	public String toString() {
+		return "cl.inacap.cdn.entities.Proyecto[ id=" + id + " ]";
+	}
+	
 }

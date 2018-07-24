@@ -16,12 +16,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -88,8 +83,7 @@ public class ProyectServlet extends HttpServlet {
 												request.getParameter("codProyect").trim(),
 												df.parse(request.getParameter("fechaInicio")),
 												df.parse(request.getParameter("fechaTermino")),
-												'1',
-												new CBanco(new BigDecimal(request.getParameter("numCuenta")))
+												'1'
 											)
 										);
 									}else{
@@ -100,10 +94,8 @@ public class ProyectServlet extends HttpServlet {
 												try{
 													pro.setNombre(request.getParameter("nameProyect").trim());
 													pro.setCodigo(request.getParameter("codProyect").trim());
-													pro.setCBancoNumCuenta(new CBanco(new BigDecimal(request.getParameter("numCuenta"))));
 													pro.setFechaIni(df.parse(request.getParameter("fechaInicio")));
 													pro.setFechaFin(df.parse(request.getParameter("fechaTermino")));
-
 													Proyecto.updateProyecto(pro);
 												}catch(ParseException ex){
 
