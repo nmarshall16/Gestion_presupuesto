@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.math.BigInteger"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.NumberFormat"%>
@@ -92,7 +93,20 @@
 
       <!-- CARTA -->
       <h3>Mayor Contable Mensual</h3>
-      <p>Estado de documento: <strong>En Proceso</strong></p>
+      <p>Estado de documento: 
+      <%
+        boolean estado = (Boolean)request.getAttribute("estado");
+        if(estado){
+      %>
+        <strong style="color: #2BB520;">Terminado</strong>
+      <%
+        }else{
+      %>
+      <strong style="color: #C70039;">En Proceso</strong>
+      <%
+        }
+      %>
+      </p>
       <br>
       <!-- Example DataTables Card-->
       <div class="card mb-3">
@@ -100,7 +114,10 @@
           <i class="fa fa-table"></i> Gastos Mensuales</div>
         <div class="card-body">
           <div class="table-responsive">
-            <form action="#">
+            <form method="post" action="Gasto.do">
+              <input type="hidden" value="marcarGastos" name="op">
+              <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
+              <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead align="center">
                 <tr>
@@ -124,8 +141,16 @@
                   for(GastoMes gasto:gastos){
                   %>
                 <tr>
-                    <td><input type="checkbox" value="<% out.print(gasto.getId()); %>"></td>
-                    <td><% out.print(gasto.getIdCompra()); %></td>
+                    <td><input type="checkbox" value="<% out.print(gasto.getId()); %>" name="gastos"></td>
+                    <td>
+                    <%
+                        if(!gasto.getIdCompra().equals(new BigInteger("0"))){
+                            out.print(gasto.getIdCompra());
+                        }else{
+                            out.print("-");
+                        }
+                    %>
+                    </td>
                     <td><% out.print(gasto.getGastoId().getNombre()); %></td>
                     <td>
                     <% 
@@ -136,7 +161,15 @@
                         out.print(formateador.format(gasto.getFecha()));
                     %>
                     </td>
-                    <td><% out.print(gasto.getNumFac()); %></td>
+                    <td>
+                    <%
+                        if(!gasto.getNumFac().equals(new BigInteger("0"))){
+                            out.print(gasto.getIdCompra());
+                        }else{
+                            out.print("-");
+                        }
+                    %>
+                    </td>
                     <td>
                     <% 
                         if(gasto.getRutProvedor()!= null){

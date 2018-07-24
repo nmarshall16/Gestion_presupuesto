@@ -24,10 +24,11 @@ $(document).ready(function() {
            var datos = $.parseJSON(data);
            if(datos.error){
                $(".error").text("ERROR: "+datos.detalle);
+               $('#cargaModal').modal('toggle');
                $(".alert-danger").show('slow/400/fast');
            }else{
-               $(".alert-success").show('slow/400/fast');
                $('#cargaModal').modal('toggle');
+               $(".alert-success").show('slow/400/fast');
                $(location).attr('href', 'Year.do?idAnho='+datos.anho+'&mes='+datos.mes+'&op=3');
            }
        },
@@ -35,6 +36,48 @@ $(document).ready(function() {
            $(".error").text("ERROR: "+data);
            $(".alert-danger").show('slow/400/fast');
        }
+    });
+    $(".deleteGasto").click(function(){
+        if(confirm("¿Seguro que quiere borrar este gasto?")){
+            $("#row-"+$(this).val()).remove();
+            var filas = $(".filaGasto");
+            if(filas.length <= 0){
+                $(location).attr('href', 'Year.do?idAnho='+$("#idAnho").val()+'&mes='+$("#mes").val()+'&op=3');
+            }
+            return true;
+        }else{
+            return false;
+        }		
+    });
+    $(".deleteExcepcion").click(function(){
+        if(confirm("¿Seguro que quiere borrar este gasto?")){
+            $("#exc-"+$(this).val()).remove();
+            var filas = $(".filaExcepcion");
+            if(filas.length <= 0){
+                $("#contentException").hide("slow/400/fast");
+            }
+            return true;
+        }else{
+            return false;
+        }		
+    });
+    $( "form" ).submit(function() {
+        var filas = $(".filaExcepcion");
+        var error = false;
+        if(filas.length > 0){
+            if($("#cuentasExc").val().length <= 0){
+                error = true;
+            }
+        }
+        if($("#cuentas").val().length <= 0){
+          error = true;
+        }
+        if(error){
+            $('body,html').animate({scrollTop : 0}, 500);
+            $("#errorDiv").show("slow/400/fast");
+            $("#errorJS").text(" SELECCIONE LA CUENTA A LA CUAL DESEA ASOCIAR LOS GASTOS");
+            return false;
+        }
     });
 });
 

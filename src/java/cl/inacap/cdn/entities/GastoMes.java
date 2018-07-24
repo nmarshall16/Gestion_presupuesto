@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -131,6 +132,24 @@ public class GastoMes implements Serializable {
 		this.id = id;
 	}
         
+        public static GastoMes findById(BigInteger id){
+        GastoMes gasto;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try{
+            TypedQuery<GastoMes> result = em.createNamedQuery("GastoMes.findById", GastoMes.class);
+            result.setParameter("id", id);
+            gasto = result.getSingleResult();
+        }catch(NoResultException ex){
+            gasto = null;
+        }
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        return gasto;
+        }
+        
         public void addGastoMes(){
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
             EntityManager em = emf.createEntityManager();
@@ -154,7 +173,7 @@ public class GastoMes implements Serializable {
             em.close();
         }
         
-        public List<GastoMes> findGastos(BigInteger mes, AnhoProyect anho){
+        public static List<GastoMes> findGastos(BigInteger mes, AnhoProyect anho){
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
@@ -162,8 +181,32 @@ public class GastoMes implements Serializable {
             buscarGasto.setParameter("mes", mes);
             buscarGasto.setParameter("anho", anho);
             List<GastoMes> gastos = buscarGasto.getResultList();
-            System.out.print(gastos);
             return gastos;
+        }
+        
+        public void actualizarEstado(char estado){
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                EntityTransaction trans = em.getTransaction();
+                trans.begin();
+                GastoMes gasto = em.merge(this);
+                gasto.setStatus(estado);
+                trans.commit();
+                em.close();
+            }catch(Exception ex){
+                System.out.print(ex);
+            }
+        }
+        
+        public static boolean validaEstadoGastos(List<GastoMes> gastos){
+            boolean estado = true;
+            for (GastoMes gasto : gastos) {
+                if(gasto.getStatus().equals('P')){
+                    estado = false;
+                }
+            }
+            return estado;
         }
         
 	public BigDecimal getId() {

@@ -6,9 +6,11 @@
 package cl.inacap.cdn.controllers;
 
 import cl.inacap.cdn.entities.AnhoProyect;
+import cl.inacap.cdn.entities.Cuenta;
 import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.Gasto;
 import cl.inacap.cdn.entities.GastoMes;
+import cl.inacap.cdn.entities.Homologar;
 import cl.inacap.cdn.entities.Proyecto;
 import com.google.gson.Gson;
 import static com.sun.xml.ws.spi.db.BindingContextFactory.LOGGER;
@@ -69,10 +71,94 @@ public class GastoServlet extends HttpServlet {
             /* TODO output your page here. You may use following sample code. */
             String opcion = request.getParameter("op");
             switch(opcion){
-                case "verGastos":
-                    out.print("wena perro");
+                case "homologar":
+                    String[] gast = request.getParameterValues("gastos");
+                    String cuen = request.getParameter("cuentas");
+                    Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
+                    for (String resultado : gast) {
+                        GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                        if(gasto.getGastoId().getCodCuenta().equals(new BigInteger("5001045")) || gasto.getGastoId().getCodCuenta().equals(new BigInteger("5010015"))){
+                            List<Homologar> homExc = Homologar.findHomologaciones(gasto);
+                            if(homExc.size()>0){
+                                homExc.get(0).actualizarHomologacion(cuenta);
+                            }else{
+                                Homologar homologar = new Homologar();
+                                homologar.setCuentaId(cuenta);
+                                homologar.setGastoMesId(gasto);
+                                homologar.setEstado('V');
+                                homologar.addHomologacion();
+                                gasto.actualizarEstado('R');
+                            }
+                        }else{
+                            Homologar hom = Homologar.findHomologacion(gasto);
+                            if(hom!=null){
+                               hom.actualizarHomologacion(cuenta);
+                            }else{
+                                Homologar homologar = new Homologar();
+                                homologar.setCuentaId(cuenta);
+                                homologar.setGastoMesId(gasto);
+                                homologar.setEstado('V');
+                                homologar.addHomologacion();
+                                gasto.actualizarEstado('R');
+                            }
+                        }
+                    }
+                    gast = request.getParameterValues("gastosExc");
+                    if(gast != null){
+                        cuen = request.getParameter("cuentasExc");
+                        cuenta = Cuenta.findById(new BigInteger(cuen));
+                        for (String resultado : gast) {
+                            GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                            List<Homologar> homExc = Homologar.findHomologaciones(gasto);
+                            if(homExc.size()>0){
+                                homExc.get(1).actualizarHomologacion(cuenta);
+                            }else{
+                                Homologar homologar = new Homologar();
+                                homologar.setCuentaId(cuenta);
+                                homologar.setGastoMesId(gasto);
+                                homologar.setEstado('V');
+                                homologar.addHomologacion();
+                            }
+                        }
+                    }
+                    BigInteger mesPend = new BigInteger(request.getParameter("mes"));
+                    AnhoProyect anhoPend = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                    List<GastoMes> gastosPend = GastoMes.findGastos(mesPend, anhoPend);
+                    request.setAttribute("mes", mesPend);
+                    request.setAttribute("anho", anhoPend.getId());
+                    request.setAttribute("gastos", gastosPend);
+                    request.setAttribute("estado", GastoMes.validaEstadoGastos(gastosPend));
+                    request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                break;
+                case "marcarGastos":
+                    String[] result = request.getParameterValues("gastos");
+                    ArrayList<GastoMes> gastos = new ArrayList<>();
+                    ArrayList<GastoMes> excepciones = new ArrayList<>();
+                    ArrayList<String> advertencias = new ArrayList<>();
+                    for (String resultado : result) {
+                        GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                        if(gasto.getStatus()!='P'){
+                            advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
+                        }
+                        if(gasto.getGastoId().getCodCuenta().equals(new BigInteger("5001045")) || gasto.getGastoId().getCodCuenta().equals(new BigInteger("5010015"))){
+                           excepciones.add(gasto);
+                           advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
+                        }
+                        gastos.add(gasto);
+                    }
+                    List<Cuenta> cuentas = Cuenta.findAll();
+                    BigInteger mesHo = new BigInteger(request.getParameter("mes"));
+                    AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                    request.setAttribute("mes", mesHo);
+                    request.setAttribute("anho", anhoHo.getId());
+                    request.setAttribute("gastos", gastos);
+                    request.setAttribute("excepciones", excepciones);
+                    request.setAttribute("advertencias", advertencias);
+                    request.setAttribute("cuentas", cuentas);
+                    request.getRequestDispatcher("homologar.jsp").forward(request, response);
                 break;
                 case "cargarGastos":
+                    try{
                     final Part filePart = request.getPart("archivo"); // Obtiene el archivo
                     String name = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // el nombre del archivo
                     String ext = name.substring(name.length()-4); // Obtiene a extencion
@@ -166,6 +252,7 @@ public class GastoServlet extends HttpServlet {
                                     detalleError = "Se a detectado un gasto correspondiente a otro proyecto por favor validar que todos los gastos este asociados al proyecto "+proyecto.getNombre();
                                 }
                             }else{
+                                error = true;
                                 detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
                             }
                             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
@@ -184,15 +271,20 @@ public class GastoServlet extends HttpServlet {
                                 */
                             }
                         } catch (FileNotFoundException fne) {
-                            writer.println("No se pudo cargar el archivo, por favor cargue "
-                            + "el archivo nuevamente y verifique que el archivo no "
-                            + "este protegido.");
-                            writer.println("<br/> ERROR: " + fne.getMessage());
-                            LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
+                            String detalle = "No se pudo cargar el archivo, por favor cargue "
+                                    + "el archivo nuevamente y verifique que el archivo no "
+                                    + "este protegido.";
+                            detalle+="<br/> ERROR: " + fne.getMessage();
+                            /*LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
                             new Object[]{fne.getMessage()});
+                            */
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                errorAjax(response, detalle);
+                            }
                         }catch (NullPointerException ex){
-                            out.print(ex.toString());
-                            out.print("Formato invalido");
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                errorAjax(response, ex.toString());
+                            }
                         } finally {
                             if (salida != null) {
                                 salida.close();
@@ -204,6 +296,17 @@ public class GastoServlet extends HttpServlet {
                                 writer.close();
                             }
                         }
+                    }else{
+                        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                            errorAjax(response, "Tipo de archivo incorrecto por favor validar que el archivo cuente con la extencion xlsx");
+                        }
+                    }
+                    }catch(NullPointerException ex){
+                        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                            errorAjax(response, "No se a cargado ningun archivo");
+                        }
+                    }catch(Exception ex){
+                    
                     }
                 break;
             }
@@ -248,5 +351,10 @@ public class GastoServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+    public void errorAjax(HttpServletResponse response, String error) throws IOException{
+        Map <String, Object> map = new HashMap<String, Object>();
+        map.put("error", true);
+        map.put("detalle", error);
+        response.getWriter().write(new Gson().toJson(map));
+    }
 }

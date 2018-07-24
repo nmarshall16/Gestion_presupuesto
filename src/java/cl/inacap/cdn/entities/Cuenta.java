@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -74,7 +75,21 @@ public class Cuenta implements Serializable {
             return cuentas;
         }
     }
-     
+        
+        public static Cuenta findById(BigInteger id){
+            Cuenta cuenta;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            TypedQuery<Cuenta> result = em.createNamedQuery("Cuenta.findById", Cuenta.class);
+            result.setParameter("id", id);
+            cuenta = result.getSingleResult();
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            return cuenta;
+        }
+    
 	public BigDecimal getId() {
 		return id;
 	}

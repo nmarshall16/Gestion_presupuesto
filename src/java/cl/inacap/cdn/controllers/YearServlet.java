@@ -77,10 +77,12 @@ public class YearServlet extends HttpServlet {
                 case 3:
                     BigInteger mes = new BigInteger(request.getParameter("mes"));
                     AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                    GastoMes gasto = new GastoMes();
-                    List<GastoMes> gastos = gasto.findGastos(mes, anho);
+                    List<GastoMes> gastos = GastoMes.findGastos(mes, anho);
                     if(gastos.size() > 0){
+                        request.setAttribute("mes", mes);
+                        request.setAttribute("anho", anho.getId());
                         request.setAttribute("gastos", gastos);
+                        request.setAttribute("estado", GastoMes.validaEstadoGastos(gastos));
                         request.getRequestDispatcher("gastos.jsp").forward(request, response);
                     }else{
                         request.setAttribute("mes", mes);
