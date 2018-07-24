@@ -77,6 +77,7 @@ public class GastoServlet extends HttpServlet {
                     Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
                     for (String resultado : gast) {
                         GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                        System.out.print(gasto.getAtributoPago().substring(32, gasto.getAtributoPago().length()-1));
                         if(gasto.getGastoId().getCodCuenta().equals(new BigInteger("5001045")) || gasto.getGastoId().getCodCuenta().equals(new BigInteger("5010015"))){
                             List<Homologar> homExc = Homologar.findHomologaciones(gasto);
                             if(homExc.size()>0){

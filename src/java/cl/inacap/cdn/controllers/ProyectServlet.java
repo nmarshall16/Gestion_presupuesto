@@ -81,8 +81,8 @@ public class ProyectServlet extends HttpServlet {
 							try{
 								if (valNewProyect(request).isEmpty()) {
 									// Guardar Nuevo Proyecto
-									if(request.getParameter("idProyect") == null){
-										pro = Proyecto.insProyecto(
+									if(request.getParameter("idProyect") == null){	
+                                                                            pro = Proyecto.insProyecto(
 											new Proyecto(
 												request.getParameter("nameProyect").trim(),
 												request.getParameter("codProyect").trim(),
