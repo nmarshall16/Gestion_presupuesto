@@ -53,7 +53,21 @@ public class Banco implements Serializable {
         this.nombre = nombre;
         this.cBancoList = cBancoList;
     }
-    
+	
+	public static Banco findById(BigDecimal id){
+        Banco banco;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<Banco> result = em.createNamedQuery("Banco.findById", Banco.class);
+        result.setParameter("id", id);
+        banco = result.getSingleResult();
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        return banco;
+    }
+	
     public static List<Banco> findAll(){
         
         System.out.println("");

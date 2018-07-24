@@ -9,6 +9,7 @@ import cl.inacap.cdn.entities.Banco;
 import cl.inacap.cdn.entities.CBanco;
 import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.Usuario;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
@@ -16,7 +17,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -142,6 +145,30 @@ public class ProyectServlet extends HttpServlet {
 								request.setAttribute("titulo", null);
 							}
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
+						break;
+						case "getCuentas":
+							Gson gson = new Gson();
+							Map <String, String> map = new HashMap<String, String>();
+							Banco banco = Banco.findById(new BigDecimal(request.getParameter("banco")));
+							if (banco != null) {
+								List<CBanco> cuentasB = CBanco.findAllByBanco(banco);
+								if (!cuentasB.isEmpty()) {
+									response.setContentType("application/json");
+									response.setCharacterEncoding("UTF-8");
+									try{
+										int cont = 1;
+										for (CBanco cta : cuentasB) {
+											map.put("cuenta"+cont , cta.getNumCuenta().toString());
+											cont++;
+										}
+										out.print(gson.toJson(map));
+										out.flush();
+										out.close();
+									}catch(java.lang.StackOverflowError ex){
+										out.print(ex);
+									}
+								}
+							}
 						break;
 						default:
 						break;

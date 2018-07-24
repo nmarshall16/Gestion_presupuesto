@@ -193,8 +193,8 @@ public class YearServlet extends HttpServlet {
                     totalF, 
                     BigInteger.valueOf(0), 
                     anho, 
-                    ctas.get(i), 
-                    ff.get(j)
+                    ctas.get(j), 
+                    ff.get(i)
                 );
                 
                 Presupuesto.insPresupuesto(presupuesto);

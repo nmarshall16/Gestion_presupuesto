@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -46,7 +47,59 @@ public class CBanco implements Serializable {
 	public CBanco(BigDecimal numCuenta) {
 		this.numCuenta = numCuenta;
 	}
-
+	
+	public static CBanco findByNumCta(BigDecimal id){
+        CBanco cBanco = null;
+		try{
+			System.out.println("");
+			System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findByNumCuenta", CBanco.class);
+			result.setParameter("numCuenta", id);
+			cBanco = result.getSingleResult();
+			em.close();
+			emf.close();
+			System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+			System.out.println("");
+		}catch(Exception ex){
+			cBanco = null;
+		}
+        return cBanco;
+    }
+	
+	public static List<CBanco> findAllByBanco(Banco banco){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+        List<CBanco> cBancos;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findAllByBanco", CBanco.class);
+		result.setParameter("banco", banco);
+		cBancos = result.getResultList();
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+        System.out.println("");
+        
+        if(cBancos.isEmpty()){
+            return null;
+        }else{
+            return cBancos;
+        }
+    }
+	
+	public static CBanco insCBanco(CBanco cBanco){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		em.persist(cBanco);
+		em.getTransaction().commit();
+		em.close();
+		return cBanco;
+	}
+	
 	public BigDecimal getNumCuenta() {
 		return numCuenta;
 	}
