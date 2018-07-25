@@ -79,8 +79,11 @@ public class GastoServlet extends HttpServlet {
                                 Homologar homologar = new Homologar();
                                 homologar.setCuentaId(cuenta);
                                 homologar.setGastoMesId(gasto);
-                                
-                                homologar.setEstado('V');
+                                if(GastoMes.validaCuenta(gasto)){
+                                    homologar.setEstado('V');
+                                }else{
+                                    homologar.setEstado('P');
+                                }
                                 homologar.addHomologacion();
                                 gasto.actualizarEstado('R');
                             }
@@ -92,7 +95,11 @@ public class GastoServlet extends HttpServlet {
                                 Homologar homologar = new Homologar();
                                 homologar.setCuentaId(cuenta);
                                 homologar.setGastoMesId(gasto);
-                                homologar.setEstado('V');
+                                if(GastoMes.validaCuenta(gasto)){
+                                    homologar.setEstado('V');
+                                }else{
+                                    homologar.setEstado('P');
+                                }
                                 homologar.addHomologacion();
                                 gasto.actualizarEstado('R');
                             }
@@ -112,7 +119,11 @@ public class GastoServlet extends HttpServlet {
                                     Homologar homologar = new Homologar();
                                     homologar.setCuentaId(cuenta);
                                     homologar.setGastoMesId(gasto);
-                                    homologar.setEstado('V');
+                                    if(GastoMes.validaCuenta(gasto)){
+                                        homologar.setEstado('V');
+                                    }else{
+                                        homologar.setEstado('P');
+                                    }
                                     homologar.addHomologacion();
                                 }
                             }
