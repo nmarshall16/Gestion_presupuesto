@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,8 +19,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -53,7 +58,29 @@ public class Gastoexc implements Serializable {
     public Gastoexc(BigDecimal id) {
         this.id = id;
     }
-
+    
+    public static boolean validarGastoExc(Gasto gasto){
+        boolean validacion = false;
+        Gastoexc gastoExc;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        try{
+            TypedQuery<Gastoexc> result = em.createQuery("SELECT g FROM Gastoexc g WHERE g.gastoId = :gasto", Gastoexc.class);
+            result.setParameter("gasto", gasto);
+            gastoExc = result.getSingleResult();
+        }catch(NoResultException ex){
+            gastoExc = null;
+        }
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        if(gastoExc!=null){
+            validacion = true;
+        }
+        return validacion;
+    }
+    
     public BigDecimal getId() {
         return id;
     }

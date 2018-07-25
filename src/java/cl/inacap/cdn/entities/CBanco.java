@@ -7,64 +7,89 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Persistence;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author dell
+ * @author Nicolas
  */
 @Entity
 @Table(name = "C_BANCO")
 @XmlRootElement
 @NamedQueries({
-	@NamedQuery(name = "CBanco.findAll", query = "SELECT c FROM CBanco c")
-	, @NamedQuery(name = "CBanco.findByNumCuenta", query = "SELECT c FROM CBanco c WHERE c.numCuenta = :numCuenta")})
+    @NamedQuery(name = "CBanco.findAll", query = "SELECT c FROM CBanco c")
+    , @NamedQuery(name = "CBanco.findById", query = "SELECT c FROM CBanco c WHERE c.id = :id")
+    , @NamedQuery(name = "CBanco.findByNumCuenta", query = "SELECT c FROM CBanco c WHERE c.numCuenta = :numCuenta")})
 public class CBanco implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	// @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-	@Id
+    private static final long serialVersionUID = 1L;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Id
     @Basic(optional = false)
     @NotNull
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "C_BANCO_SEQ")
+    @SequenceGenerator(sequenceName = "C_BANCO_ID_SEQ", allocationSize = 1, name = "C_BANCO_SEQ")
+    @Column(name = "ID")
+    private BigDecimal id;
     @Column(name = "NUM_CUENTA")
-	private BigDecimal numCuenta;
-	@JoinColumn(name = "BANCO_ID", referencedColumnName = "ID")
+    private BigInteger numCuenta;
+    @JoinColumn(name = "BANCO_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
-	private Banco bancoId;
-	@JoinColumn(name = "FUENTE_F_COD_CENTRO", referencedColumnName = "COD_CENTRO")
+    private Banco bancoId;
+    @JoinColumn(name = "FUENTE_F_COD_CENTRO", referencedColumnName = "COD_CENTRO")
     @ManyToOne(optional = false)
-	private FuenteF fuenteFCodCentro;
-	@JoinColumn(name = "PROYECTO_ID", referencedColumnName = "ID")
+    private FuenteF fuenteFCodCentro;
+    @JoinColumn(name = "PROYECTO_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
-	private Proyecto proyectoId;
+    private Proyecto proyectoId;
 
-	public CBanco() {
-	}
+    public CBanco() {
+    }
 
-	public CBanco(BigDecimal numCuenta) {
-		this.numCuenta = numCuenta;
-	}
-	
-	public static CBanco findByNumCta(BigDecimal id){
+    public CBanco(BigDecimal id) {
+        this.id = id;
+    }
+
+    public BigDecimal getId() {
+        return id;
+    }
+
+    public static CBanco findByNumCta(BigDecimal id){
         CBanco cBanco = null;
-		try{
-			System.out.println("");
-			System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
-			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-			EntityManager em = emf.createEntityManager();
-			TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findByNumCuenta", CBanco.class);
-			result.setParameter("numCuenta", id);
-			cBanco = result.getSingleResult();
-			em.close();
-			emf.close();
-			System.out.println("----------  Fin de Busqueda de Bancos  ----------");
-			System.out.println("");
-		}catch(Exception ex){
-			cBanco = null;
-		}
+        try{
+                System.out.println("");
+                System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findByNumCuenta", CBanco.class);
+                result.setParameter("numCuenta", id);
+                cBanco = result.getSingleResult();
+                em.close();
+                emf.close();
+                System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+                System.out.println("");
+        }catch(Exception ex){
+                cBanco = null;
+        }
         return cBanco;
     }
 	
@@ -99,62 +124,66 @@ public class CBanco implements Serializable {
 		em.close();
 		return cBanco;
 	}
-	
-	public BigDecimal getNumCuenta() {
-		return numCuenta;
-	}
+    
+    public void setId(BigDecimal id) {
+        this.id = id;
+    }
 
-	public void setNumCuenta(BigDecimal numCuenta) {
-		this.numCuenta = numCuenta;
-	}
+    public BigInteger getNumCuenta() {
+        return numCuenta;
+    }
 
-	public Banco getBancoId() {
-		return bancoId;
-	}
+    public void setNumCuenta(BigInteger numCuenta) {
+        this.numCuenta = numCuenta;
+    }
 
-	public void setBancoId(Banco bancoId) {
-		this.bancoId = bancoId;
-	}
+    public Banco getBancoId() {
+        return bancoId;
+    }
 
-	public FuenteF getFuenteFCodCentro() {
-		return fuenteFCodCentro;
-	}
+    public void setBancoId(Banco bancoId) {
+        this.bancoId = bancoId;
+    }
 
-	public void setFuenteFCodCentro(FuenteF fuenteFCodCentro) {
-		this.fuenteFCodCentro = fuenteFCodCentro;
-	}
+    public FuenteF getFuenteFCodCentro() {
+        return fuenteFCodCentro;
+    }
 
-	public Proyecto getProyectoId() {
-		return proyectoId;
-	}
+    public void setFuenteFCodCentro(FuenteF fuenteFCodCentro) {
+        this.fuenteFCodCentro = fuenteFCodCentro;
+    }
 
-	public void setProyectoId(Proyecto proyectoId) {
-		this.proyectoId = proyectoId;
-	}
+    public Proyecto getProyectoId() {
+        return proyectoId;
+    }
 
-	@Override
-	public int hashCode() {
-		int hash = 0;
-		hash += (numCuenta != null ? numCuenta.hashCode() : 0);
-		return hash;
-	}
+    public void setProyectoId(Proyecto proyectoId) {
+        this.proyectoId = proyectoId;
+    }
 
-	@Override
-	public boolean equals(Object object) {
-		// TODO: Warning - this method won't work in the case the id fields are not set
-		if (!(object instanceof CBanco)) {
-			return false;
-		}
-		CBanco other = (CBanco) object;
-		if ((this.numCuenta == null && other.numCuenta != null) || (this.numCuenta != null && !this.numCuenta.equals(other.numCuenta))) {
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
 
-	@Override
-	public String toString() {
-		return "cl.inacap.cdn.entities.CBanco[ numCuenta=" + numCuenta + " ]";
-	}
-	
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof CBanco)) {
+            return false;
+        }
+        CBanco other = (CBanco) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "cl.inacap.cdn.entities.CBanco[ id=" + id + " ]";
+    }
+    
 }

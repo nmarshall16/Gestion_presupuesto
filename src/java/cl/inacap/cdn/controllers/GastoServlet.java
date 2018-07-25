@@ -10,6 +10,7 @@ import cl.inacap.cdn.entities.Cuenta;
 import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.Gasto;
 import cl.inacap.cdn.entities.GastoMes;
+import cl.inacap.cdn.entities.Gastoexc;
 import cl.inacap.cdn.entities.Homologar;
 import cl.inacap.cdn.entities.Proyecto;
 import com.google.gson.Gson;
@@ -70,8 +71,7 @@ public class GastoServlet extends HttpServlet {
                     Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
                     for (String resultado : gast) {
                         GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                        System.out.print(gasto.getAtributoPago().substring(32, gasto.getAtributoPago().length()-1));
-                        if(gasto.getGastoId().getCodCuenta().equals(new BigInteger("5001045")) || gasto.getGastoId().getCodCuenta().equals(new BigInteger("5010015"))){
+                        if(Gastoexc.validarGastoExc(gasto.getGastoId())){
                             List<Homologar> homExc = Homologar.findHomologaciones(gasto);
                             if(homExc.size()>0){
                                 homExc.get(0).actualizarHomologacion(cuenta);
@@ -79,6 +79,7 @@ public class GastoServlet extends HttpServlet {
                                 Homologar homologar = new Homologar();
                                 homologar.setCuentaId(cuenta);
                                 homologar.setGastoMesId(gasto);
+                                
                                 homologar.setEstado('V');
                                 homologar.addHomologacion();
                                 gasto.actualizarEstado('R');
@@ -103,15 +104,17 @@ public class GastoServlet extends HttpServlet {
                         cuenta = Cuenta.findById(new BigInteger(cuen));
                         for (String resultado : gast) {
                             GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                            List<Homologar> homExc = Homologar.findHomologaciones(gasto);
-                            if(homExc.size()>0){
-                                homExc.get(1).actualizarHomologacion(cuenta);
-                            }else{
-                                Homologar homologar = new Homologar();
-                                homologar.setCuentaId(cuenta);
-                                homologar.setGastoMesId(gasto);
-                                homologar.setEstado('V');
-                                homologar.addHomologacion();
+                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){
+                                List<Homologar> homExc = Homologar.findHomologaciones(gasto);
+                                if(homExc.size()>0){
+                                    homExc.get(1).actualizarHomologacion(cuenta);
+                                }else{
+                                    Homologar homologar = new Homologar();
+                                    homologar.setCuentaId(cuenta);
+                                    homologar.setGastoMesId(gasto);
+                                    homologar.setEstado('V');
+                                    homologar.addHomologacion();
+                                }
                             }
                         }
                     }
@@ -134,7 +137,7 @@ public class GastoServlet extends HttpServlet {
                         if(gasto.getStatus()!='P'){
                             advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
                         }
-                        if(gasto.getGastoId().getCodCuenta().equals(new BigInteger("5001045")) || gasto.getGastoId().getCodCuenta().equals(new BigInteger("5010015"))){
+                        if(Gastoexc.validarGastoExc(gasto.getGastoId())){
                            excepciones.add(gasto);
                            advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
                         }
