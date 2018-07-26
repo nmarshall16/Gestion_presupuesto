@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -108,6 +109,31 @@ public class Homologar implements Serializable {
 			System.out.print(ex);
 		}
 	}
+        
+        public static int getGastosP(AnhoProyect anho){
+            int largo = 0;
+            List<Homologar> homologacion = null;
+            ArrayList<Homologar> pendientes = new ArrayList<>();
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                em.getTransaction().begin();
+                TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
+                buscarGasto.setParameter("estado", 'P');
+                homologacion = buscarGasto.getResultList();
+                for(Homologar ho:homologacion){
+                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho)){
+                        pendientes.add(ho);
+                    }
+                }
+            }catch(NoResultException ex){
+                homologacion = null;
+            }
+            if(pendientes.size()>0){
+                largo = pendientes.size();
+            }
+            return largo;
+        }
         
 	public BigDecimal getId() {
 		return id;

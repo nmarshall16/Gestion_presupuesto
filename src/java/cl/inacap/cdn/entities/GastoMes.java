@@ -210,6 +210,7 @@ public class GastoMes implements Serializable {
         
         public static boolean validaCuenta(GastoMes gasto){
             boolean validacion = true;
+            System.out.print(gasto.getAtributoPago());
             if(gasto.getAtributoPago()!=null){
                 String[] atp = gasto.getAtributoPago().split(" ");
                 System.out.print(atp[2]);
@@ -224,10 +225,14 @@ public class GastoMes implements Serializable {
                     resultado.setParameter("cuenta", cuenta.getNumCuenta());
                     resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
                     cuenteResult = resultado.getSingleResult();
+                    System.out.print("########################");
+                    System.out.print(cuenteResult);
                 }catch(NoResultException ex){
                     cuenteResult = null;
                 }
                 if(cuenteResult!=null){
+                    validacion = true;
+                }else{
                     validacion = false;
                 }
             }

@@ -4,6 +4,9 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.math.BigDecimal"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
 <%@page import="java.math.BigInteger"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -56,7 +59,16 @@
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
           <a class="nav-link" href="tables.html">
             <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">Verificar Cuenta</span>
+            <span class="nav-link-text">
+                Verificar Cuenta 
+                <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()));
+                    out.print(p);
+                    %>
+                </span>
+            </span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
@@ -151,7 +163,7 @@
                         }
                     %>
                     </td>
-                    <td><% out.print(gasto.getGastoId().getNombre()); %></td>
+                    <td><% out.print(gasto.getGastoId().getNombre().toUpperCase()); %></td>
                     <td>
                     <% 
                         out.print(formatter.format(gasto.getImporte()).substring(2));

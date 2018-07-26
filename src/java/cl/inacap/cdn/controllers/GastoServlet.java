@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,55 +67,17 @@ public class GastoServlet extends HttpServlet {
             String opcion = request.getParameter("op");
             switch(opcion){
                 case "homologar":
-                    String[] gast = request.getParameterValues("gastos");
-                    String cuen = request.getParameter("cuentas");
-                    Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
-                    for (String resultado : gast) {
-                        GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                        if(Gastoexc.validarGastoExc(gasto.getGastoId())){
-                            List<Homologar> homExc = Homologar.findHomologaciones(gasto);
-                            if(homExc.size()>0){
-                                homExc.get(0).actualizarHomologacion(cuenta);
-                            }else{
-                                Homologar homologar = new Homologar();
-                                homologar.setCuentaId(cuenta);
-                                homologar.setGastoMesId(gasto);
-                                if(GastoMes.validaCuenta(gasto)){
-                                    homologar.setEstado('V');
-                                }else{
-                                    homologar.setEstado('P');
-                                }
-                                homologar.addHomologacion();
-                                gasto.actualizarEstado('R');
-                            }
-                        }else{
-                            Homologar hom = Homologar.findHomologacion(gasto);
-                            if(hom!=null){
-                               hom.actualizarHomologacion(cuenta);
-                            }else{
-                                Homologar homologar = new Homologar();
-                                homologar.setCuentaId(cuenta);
-                                homologar.setGastoMesId(gasto);
-                                if(GastoMes.validaCuenta(gasto)){
-                                    homologar.setEstado('V');
-                                }else{
-                                    homologar.setEstado('P');
-                                }
-                                homologar.addHomologacion();
-                                gasto.actualizarEstado('R');
-                            }
-                        }
-                    }
-                    gast = request.getParameterValues("gastosExc");
-                    if(gast != null){
-                        cuen = request.getParameter("cuentasExc");
-                        cuenta = Cuenta.findById(new BigInteger(cuen));
+                    boolean errorH = false;
+                    try{
+                        String[] gast = request.getParameterValues("gastos");
+                        String cuen = request.getParameter("cuentas");
+                        Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
                         for (String resultado : gast) {
                             GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
                             if(Gastoexc.validarGastoExc(gasto.getGastoId())){
                                 List<Homologar> homExc = Homologar.findHomologaciones(gasto);
                                 if(homExc.size()>0){
-                                    homExc.get(1).actualizarHomologacion(cuenta);
+                                    homExc.get(0).actualizarHomologacion(cuenta);
                                 }else{
                                     Homologar homologar = new Homologar();
                                     homologar.setCuentaId(cuenta);
@@ -125,13 +88,57 @@ public class GastoServlet extends HttpServlet {
                                         homologar.setEstado('P');
                                     }
                                     homologar.addHomologacion();
+                                    gasto.actualizarEstado('R');
+                                }
+                            }else{
+                                Homologar hom = Homologar.findHomologacion(gasto);
+                                if(hom!=null){
+                                   hom.actualizarHomologacion(cuenta);
+                                }else{
+                                    Homologar homologar = new Homologar();
+                                    homologar.setCuentaId(cuenta);
+                                    homologar.setGastoMesId(gasto);
+                                    if(GastoMes.validaCuenta(gasto)){
+                                        homologar.setEstado('V');
+                                    }else{
+                                        homologar.setEstado('P');
+                                    }
+                                    homologar.addHomologacion();
+                                    gasto.actualizarEstado('R');
                                 }
                             }
                         }
+                        gast = request.getParameterValues("gastosExc");
+                        if(gast != null){
+                            cuen = request.getParameter("cuentasExc");
+                            cuenta = Cuenta.findById(new BigInteger(cuen));
+                            for (String resultado : gast) {
+                                GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                                if(Gastoexc.validarGastoExc(gasto.getGastoId())){
+                                    List<Homologar> homExc = Homologar.findHomologaciones(gasto);
+                                    if(homExc.size()>1){
+                                        homExc.get(1).actualizarHomologacion(cuenta);
+                                    }else{
+                                        Homologar homologar = new Homologar();
+                                        homologar.setCuentaId(cuenta);
+                                        homologar.setGastoMesId(gasto);
+                                        if(GastoMes.validaCuenta(gasto)){
+                                            homologar.setEstado('V');
+                                        }else{
+                                            homologar.setEstado('P');
+                                        }
+                                        homologar.addHomologacion();
+                                    }
+                                }
+                            }
+                        }
+                    }catch(Exception ex){
+                        errorH = true;
                     }
                     BigInteger mesPend = new BigInteger(request.getParameter("mes"));
                     AnhoProyect anhoPend = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
                     List<GastoMes> gastosPend = GastoMes.findGastos(mesPend, anhoPend);
+                    request.setAttribute("error", errorH);
                     request.setAttribute("mes", mesPend);
                     request.setAttribute("anho", anhoPend.getId());
                     request.setAttribute("gastos", gastosPend);
@@ -195,7 +202,7 @@ public class GastoServlet extends HttpServlet {
                             XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
                             Row validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
                             boolean error = false;
-                            String detalleError = "No error";
+                            String detalleError = "No error"; 
                             // Se valida el encabezado del archivo
                             if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
                             && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
@@ -214,6 +221,8 @@ public class GastoServlet extends HttpServlet {
                             ){
                                 int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
                                 ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                Date fecha;
+                                int fi = 0;
                                 for(int i = 6; i <= numFilas; i++){
                                     Row fila = sheet.getRow(i);
                                     if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
@@ -221,7 +230,14 @@ public class GastoServlet extends HttpServlet {
                                         GastoMes gastoMes = new GastoMes();
                                         gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
                                         gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
-                                        gastoMes.setFecha(fila.getCell(6).getDateCellValue());
+                                        try{
+                                        fecha = fila.getCell(6).getDateCellValue();
+                                        }catch(Exception e){
+                                            fecha= null;
+                                        }
+                                        if(fecha!=null){
+                                            gastoMes.setFecha(fila.getCell(6).getDateCellValue());
+                                        }
                                         gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
                                         gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
                                         gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
@@ -251,13 +267,14 @@ public class GastoServlet extends HttpServlet {
                                         gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
                                     }else{
                                         error = true;
+                                        fi = i;
                                         break;
                                     }
                                 }
                                 if(error){
                                     GastoMes gastosB = new GastoMes();
                                     gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
-                                    detalleError = "Se a detectado un gasto correspondiente a otro proyecto por favor validar que todos los gastos este asociados al proyecto "+proyecto.getNombre();
+                                    detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
                                 }
                             }else{
                                 error = true;
