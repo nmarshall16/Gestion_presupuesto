@@ -194,12 +194,10 @@
                                 </tr>
                             </tfoot>
                             <tbody>
-                            <%
-                            for(AnhoProyect anho:anhos){        
-                            %>
+                            <% for(AnhoProyect anho:anhos){ %>
                                 <tr>
                                     <td><% out.print(anho.getNum()); %></td>
-                                    <td><a href="Presupuesto.do" class="btn btn-secondary btn-block" role="button">Presupuesto</a></td>
+                                    <td><a href="Presupuesto.do?accion=1&anhoProyecto=<%=anho.getId()%>" class="btn btn-secondary btn-block" role="button">Presupuesto</a></td>
                                     <td class="meses">
                                         <select class="custom-select">
                                             <option selected value="1">Enero</option>
@@ -218,9 +216,7 @@
                                     </td>
                                     <td><button type="button" class="btn btn-primary btn-block selectAnho" value="<% out.print(anho.getId()); %>">Seleccionar</button></td>
                                 </tr>
-                            <%
-                            }
-                            %>
+                            <% } %>
                             </tbody>
                         </table>
                     </div>

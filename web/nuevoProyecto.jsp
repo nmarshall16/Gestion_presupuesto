@@ -139,75 +139,89 @@
 		</div>
 		<% } %>
 		
-      <form action="Proyect.do?<%=(proyecto != null)?"idProyect="+proyecto.getId()+"&":""%>accion=guardarProyecto" method="post">
+	<form action="Proyect.do?<%=(proyecto != null)?"idProyect="+proyecto.getId()+"&":""%>accion=guardarProyecto" method="post">
         <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="nameProyect">Nombre del Proyecto</label>
-            <input <%=(proyecto!=null)?("value='"+proyecto.getNombre()+"'"):("")%>
+			<div class="form-group col-md-6">
+				<label for="nameProyect">Nombre del Proyecto</label>
+				<input <%=(proyecto!=null)?("value='"+proyecto.getNombre()+"'"):("")%>
 				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="nameProyect" id="nameProyect">
-          </div>
-          <div class="form-group col-md-6">
-            <label for="codProyect">Codigo de Proyecto</label>
-            <input <%=(proyecto!=null)?("value='"+proyecto.getCodigo()+"'"):("")%>
+			</div>
+			<div class="form-group col-md-6">
+				<label for="codProyect">Codigo de Proyecto</label>
+				<input <%=(proyecto!=null)?("value='"+proyecto.getCodigo()+"'"):("")%>
 				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="codProyect" id="codProyect">
-          </div>
+			</div>
         </div>
         <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="banco">Banco</label>
-            <select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="banco" name="banco">
-                <option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
-				<%	/*
-				if (request.getAttribute("bancos") != null){
-					for(Banco banco : (List<Banco>)request.getAttribute("bancos")) { 
-						if (proyecto != null){
-							if(proyecto.getCBancoNumCuenta().getBancoId().getId().compareTo(banco.getId()) != 0){
-								out.print("<option value='"+banco.getId()+"'>"+banco.getNombre()+"</option>");
-							}else{
-								out.print("<option value='"+banco.getId()+"' selected>"+banco.getNombre()+" - (Actual)"+"</option>");
-							}
-						}else{
-							out.print("<option value='"+banco.getId()+"'>"+banco.getNombre()+"</option>");
-						}
-					}
-				}	*/
-				%>
-            </select>
-          </div>
-            <div class="form-group col-md-6">
-            <label for="numCuenta">N° Cuenta Corriente</label>
-            <input <%//(proyecto!=null)?("value='"+proyecto.getCBancoNumCuenta().getNumCuenta()+"'"):("")%>
-				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="numCuenta" name="numCuenta" readonly>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="fechaInicio">Fecha de Inicio</label>
-            <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaIni())+"'"):("")%>
+			<div class="form-group col-md-6">
+				<label for="fechaInicio">Fecha de Inicio</label>
+				<input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaIni())+"'"):("")%>
 				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
-          </div>
-          <div class="form-group col-md-6">
-            <label for="fechaTermino">Fecha de Termino</label>
-            <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaFin())+"'"):("")%>
+			</div>
+			<div class="form-group col-md-6">
+				<label for="fechaTermino">Fecha de Termino</label>
+				<input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaFin())+"'"):("")%>
 				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
-          </div>
+			</div>
         </div>
-      <br>
-      <div class="row">
-        <div class="col-lg-2" align="center">
-          <a href="<%=request.getContextPath()%>/Proyect.do" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
-          </a>
-      </div>
-      <div class="col-lg-8">
-      </div>
-      <div class="col-lg-2" align="center">
-          <button type="submit" class="btn btn-link" style="text-decoration: none;">
-          <i class="fa fa-floppy-o fa-2x"></i><br><strong>Guardar Cambios</strong>
-          </button>
-      </div>
-      </div>
-      </form>
+		<div class="card mb-3">
+			<div class="card-header">
+				<i class="fa fa-university"></i>
+				Datos Bancarios
+			</div>
+			<div class="card-body">
+				<div id="datosBancarios">
+					<div id="datos1" class="form-row">
+						<div class="form-group col-md-4 banco">
+							<label for="banco">Banco</label>
+							<select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="banco">
+								<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
+								<c:forEach items="${requestScope.bancos}" var="banco">
+									<option value="${banco.id}">${banco.nombre}</option>
+								</c:forEach>
+							</select>
+						</div>
+						<div class="form-group col-md-3 cuenta">
+							<label for="cuenta">Cuenta</label>
+							<div class="input-group cta">
+								<select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="cuenta">
+									<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Cuenta --</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group col-md-4 fuente">
+							<label for="fuente">Fuente De Financiamiento</label>
+							<select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="fuente">
+								<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Fuente De Financiamiento --</option>
+								<c:forEach items="${requestScope.fuentes}" var="fte">
+									<option value="${fte.codCentro}">${fte.nombre}</option>
+								</c:forEach>
+							</select>
+						</div>
+						<input name="divDato" type="hidden" value="datos1">
+					</div>
+				</div>
+			</div>
+			<div class="card-footer small text-right">
+				<button type="button" class="btn btn-link" onclick="agregarDatosBancarios()">Nueva Cuenta <i class="fa fa-plus"></i></button>
+				<input name="cantDatos" type="hidden" value="1">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-2" align="center">
+				<a href="<%=request.getContextPath()%>/Proyect.do" style="text-decoration: none;">
+					<i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
+				</a>
+			</div>
+			<div class="col-lg-8">
+			</div>
+			<div class="col-lg-2" align="center">
+				<button type="submit" class="btn btn-link" style="text-decoration: none;">
+					<i class="fa fa-floppy-o fa-2x"></i><br><strong>Guardar Cambios</strong>
+				</button>
+			</div>
+		</div>
+	</form>
 		
 	<% }else{ %>
 	<div class="row">
@@ -269,23 +283,54 @@
     <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+	<script type="text/javascript" src="js/myScript.js"></script>
 	
 	<script>
-		$(function() {
-			$('#switch').change(function() {
-				if ($(this).prop('checked')) {
-					$(':input.lock').each(function () {
-						$(this).removeClass('lock');
-					});
-				}else{
-					$(':input.form-control').each(function () {
-						$(this).addClass('lock');
-					});
+		$("select[name=banco]").change(function () {
+			var id = $(this).val();
+			console.log($("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children());
+			$.ajax({
+				url : 'Proyect.do',
+				data : {
+					accion:'getCuentas',
+					banco:id,
+				},
+				type : 'POST',
+				dataType : 'json',
+				success : function(data) {
+					for(var cta in data){
+						$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append(($('<option>', {value: data[cta], text: data[cta]})));
+					}
+					$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append($('<option value="otro">*** Agregar Cuenta ***</option>'));
+				},
+				error : function(xhr, status, detalle) {
+					$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append($('<option value="otro">*** Agregar Cuenta ***</option>'));
 				}
 			});
 		});
-	</script>
+	
 		
+		function selectBack(btn){
+			console.log($(btn));
+			$(this).parent().parent('.cta').replaceWith(
+				'<select class="form-control" name="cuenta">'
+					+'<option value="0" disabled selected>-- Seleccione Cuenta --</option>'
+				+'</select>'
+			);
+			$('.cta .input-group-append').remove('');
+			cargarCuentas();
+		}
+		
+		$("select[name=cuenta]").change(function (){
+			if ($(this).val() === "otro") {
+				$(this).replaceWith('<input type="text" class="form-control" name="cuenta" placeholder="Ingresar Nueva Cuenta">');
+				$('.cta').append($("<div class='input-group-append'>"
+						+"<button class='btn btn-outline-danger' type='button' onclick='selectBack(this)'><i class='fa fa-times'></i></button>"
+					+"</div>")
+				);
+			}
+		});
+	</script>
   </div>
 </body>
 </html>

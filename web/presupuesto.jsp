@@ -4,7 +4,19 @@
     Author     : dell
 --%>
 
+<%@page import="java.math.BigDecimal"%>
+<%@page import="cl.inacap.cdn.entities.Presupuesto"%>
+<%@page import="cl.inacap.cdn.entities.FuenteF"%>
+<%@page import="cl.inacap.cdn.entities.Cuenta"%>
+<%@page import="java.util.List"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<% 
+	List<Cuenta>		cuentas			= (List)request.getAttribute("ctas");
+	List<FuenteF>		fuentes			= (List)request.getAttribute("fuentes");
+	List<Presupuesto>	presupuestos	= (List)request.getAttribute("presupuestos");
+%>
 
 <!DOCTYPE html>
 <html>
@@ -87,137 +99,134 @@
         </li>
         <li class="breadcrumb-item active">Tables</li>
       </ol>
-
+	  
       <!-- CARTA -->
       <h3>Presupuesto General</h3>
       <p>Detalle Presupuesto</p>
-      <!-- Example DataTables Card-->
-      <div class="card mb-3">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Cuentas</th>
-              <th scope="col">Sercotec</th>
-              <th scope="col">Inacap</th>
-              <th scope="col">Aporte No Pecuniario</th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-              <td>Total:</td>
-              <td>$0</td>
-              <td>$0</td>
-              <td>$0</td>
-            </tr>
-             <tr>
-              <td>Total General:</td>
-              <td colspan="3">$0</td>
-            </tr>
-          </tfoot>
-          <tbody>
-            <tr>
-              <th scope="row">1</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">4</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">5</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-            <tr>
-              <th scope="row">6</th>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-              <td><input type="text" class="form-control" value=""></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="row">
-        <div class="col-lg-2" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
-          </a>
-      </div>
-      <div class="col-lg-8">
-      </div>
-      <div class="col-lg-2" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-floppy-o fa-2x"></i><br><strong>Guardar Cambios</strong>
-          </a>
-      </div>
-      </div>
-    </div>
-    <!-- /.container-fluid-->
-    <!-- /.content-wrapper-->
-    <footer class="sticky-footer">
-      <div class="container">
-        <div class="text-center">
-          <small>Copyright © Your Website 2018</small>
-        </div>
-      </div>
-    </footer>
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-      <i class="fa fa-angle-up"></i>
-    </a>
-    <!-- Logout Modal-->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-            <a class="btn btn-primary" href="login.html">Logout</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <!-- Page level plugin JavaScript-->
-    <script src="vendor/datatables/jquery.dataTables.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin.min.js"></script>
-    <!-- Custom scripts for this page-->
-    <script src="js/sb-admin-datatables.min.js"></script>
+		<!-- Example DataTables Card-->
+		<div class="card mb-3">
+			<form action="Presupuesto.do?action=2" method="post">
+				<table id="cuentas" class="table table-hover">
+				  <thead>
+					<tr>
+					  <th scope="col">Cuentas</th>
+						<c:forEach items="${requestScope.fuentes}" var="fte">
+							<th scope="col">${fte.nombre}</th>
+						</c:forEach>
+					</tr>
+				  </thead>
+				  <tbody>
+					<%  String nombre = "";
+						for(Cuenta cta : cuentas){ %>
+					<tr>
+						<th scope="row"><%=cta.getNombre()%></th>
+					<%	
+						for(FuenteF fte : fuentes){
+							for(Presupuesto pto : presupuestos){
+								//out.print("--"+pto.toString()+"<br>");
+								BigDecimal codFtePrto	= pto.getFuenteFCodCentro().getCodCentro();
+								BigDecimal codFte		= fte.getCodCentro();
+								//out.print(codFtePrto+" - "+codFte+"<br>");
+								if(codFte.compareTo(codFtePrto) == 0 && pto.getCuentaId().getId().compareTo(cta.getId()) == 0){
 
-    <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
-    <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
-    <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+									if (pto.getFuenteFCodCentro().getNombre().equals("Inacap")) {
+										nombre = "inacap";
+									}else{
+										if(pto.getFuenteFCodCentro().getNombre().equals("Sercotec")){
+											nombre = "sercotec";
+										}else{
+											nombre = "pecuniarios";
+										}
+									}
+					%>
+						<td><input name="<%=nombre%>" type="text" class="form-control" value="<%=pto.getMontoTot()%>"></td>
+					<%					
+								}
+							}
+						} %>
+					</tr>
+					<%	} %>
+				  </tbody>
+				  <tfoot>
+					<tr>
+					  <td>Total:</td>
+					  <td id="Tsercotec">$0</td>
+					  <td id="Tinacap">$0</td>
+					  <td id="Tpecuniarios">$0</td>
+					</tr>
+					 <tr>
+					  <td>Total General:</td>
+					  <td id="total" colspan="3">$0</td>
+					</tr>
+				  </tfoot>
+				</table>
+			</form>
+		</div>
+		<div class="row">
+		  <div class="col-lg-2" align="center">
+			<a href="#" style="text-decoration: none;">
+			<i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
+			</a>
+		</div>
+		<div class="col-lg-8 col-md-8">
+		</div>
+		<div class="col-lg-2 col-md-2" align="center">
+			<a href="Year.do?" style="text-decoration: none;">
+				<i class="fa fa-floppy-o fa-2x"></i><br><strong>Guardar Cambios</strong>
+			</a>
+		</div>
+		</div>
+		</div>
+		<!-- /.container-fluid-->
+		<!-- /.content-wrapper-->
+		<footer class="sticky-footer">
+		  <div class="container">
+			<div class="text-center">
+			  <small>Copyright © Your Website 2018</small>
+			</div>
+		  </div>
+		</footer>
+		<!-- Scroll to Top Button-->
+		<a class="scroll-to-top rounded" href="#page-top">
+		  <i class="fa fa-angle-up"></i>
+		</a>
+		<!-- Logout Modal-->
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">×</span>
+				</button>
+			  </div>
+			  <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+			  <div class="modal-footer">
+				<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+				<a class="btn btn-primary" href="login.html">Logout</a>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		<!-- Bootstrap core JavaScript-->
+		<script src="vendor/jquery/jquery.min.js"></script>
+		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<!-- Core plugin JavaScript-->
+		<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+		<!-- Page level plugin JavaScript-->
+		<script src="vendor/datatables/jquery.dataTables.js"></script>
+		<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+		<!-- Custom scripts for all pages-->
+		<script src="js/sb-admin.min.js"></script>
+		<!-- Custom scripts for this page-->
+		<script src="js/sb-admin-datatables.min.js"></script>
 
-  </div>
+		<script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
+		<script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
+		<script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+		<script type="text/javascript" src="vendor/calculador/calculador.js"></script>
+
+	</div>
 </body>
 </html>
 

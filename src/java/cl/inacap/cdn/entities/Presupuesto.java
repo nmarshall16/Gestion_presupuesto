@@ -8,6 +8,7 @@ package cl.inacap.cdn.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.List;
 import javax.persistence.*;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
@@ -95,7 +96,50 @@ public class Presupuesto implements Serializable {
         
         return presupuesto;
     }
-    
+	
+	public static List<Presupuesto> findAll(){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+        List<Presupuesto> presupuestos;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Presupuesto> result =  em.createNamedQuery("Presupuesto.findAll", Presupuesto.class);
+		presupuestos = result.getResultList();
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+        System.out.println("");
+        
+        if(presupuestos.isEmpty()){
+            return null;
+        }else{
+            return presupuestos;
+        }
+    }
+	
+	public static List<Presupuesto> findAllByAnho(AnhoProyect anho){
+        
+        System.out.println("");
+        System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
+        List<Presupuesto> presupuestos;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Presupuesto> result =  em.createNamedQuery("Presupuesto.findAllByAnho", Presupuesto.class);
+		result.setParameter("anho", anho);
+		presupuestos = result.getResultList();
+        em.close();
+        emf.close();
+        System.out.println("----------  Fin de Busqueda de Bancos  ----------");
+        System.out.println("");
+        
+        if(presupuestos.isEmpty()){
+            return null;
+        }else{
+            return presupuestos;
+        }
+    }
+	
 	public BigDecimal getId() {
 		return id;
 	}

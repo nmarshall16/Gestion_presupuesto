@@ -5,8 +5,12 @@
  */
 package cl.inacap.cdn.controllers;
 
+import cl.inacap.cdn.entities.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +35,36 @@ public class PresupuestoServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            
-			response.sendRedirect("presupuesto.jsp");
+			
+            /* TODO output your page here. You may use following sample code. */
+            // Consultar sesión de usuario
+            Usuario u = (Usuario)request.getSession(true).getAttribute("user");
+			if (u != null) {
+				int action = Integer.parseInt(request.getParameter("accion"));
+				/* Se recibe el parametro accion enviado desde el jsp si el paremetro
+				es null se cargara el inicio del administrador con todos los proyectos activos */
+				switch(action){
+					case 1:
+						try{
+							// Cargar vista de presupuestos
+							request.setAttribute("ctas", Cuenta.findAll());			
+							request.setAttribute("fuentes", FuenteF.findAll());
+							request.setAttribute("presupuestos", Presupuesto.findAllByAnho(new AnhoProyect(new BigDecimal(request.getParameter("anhoProyecto")))));
+						}catch(Exception ex){
+							request.setAttribute("mensaje", "Problemas Al Cargar Presupuestos Del Año Indicado");			
+						}
+						request.getRequestDispatcher("presupuesto.jsp").forward(request, response);
+					break;
+					case 2:
+						
+					break;
+					default:
+					break;
+				}
+			}
+			
+
+			
 			
         }
     }
@@ -75,5 +107,5 @@ public class PresupuestoServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
+	
 }

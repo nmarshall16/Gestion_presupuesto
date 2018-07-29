@@ -38,7 +38,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "CBanco.findAll", query = "SELECT c FROM CBanco c")
     , @NamedQuery(name = "CBanco.findById", query = "SELECT c FROM CBanco c WHERE c.id = :id")
-    , @NamedQuery(name = "CBanco.findByNumCuenta", query = "SELECT c FROM CBanco c WHERE c.numCuenta = :numCuenta")})
+    , @NamedQuery(name = "CBanco.findByNumCuenta", query = "SELECT c FROM CBanco c WHERE c.numCuenta = :numCuenta")
+	, @NamedQuery(name = "Presupuesto.findAllByAnho", query = "SELECT p FROM Presupuesto p WHERE p.anhoProyectId = :anho")})
 public class CBanco implements Serializable {
 
     private static final long serialVersionUID = 1L;

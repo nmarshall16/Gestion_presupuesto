@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  * @author dell
  */
 public class YearServlet extends HttpServlet {
+	
+	AnhoProyect anho = null;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -45,6 +47,7 @@ public class YearServlet extends HttpServlet {
                     // CARGAR VISTA PARA CREACIÓN DE NUEVO AÑO
                     // Obteniendo cuentas
                         request.setAttribute("ctas", Cuenta.findAll());
+						request.setAttribute("fuentes", FuenteF.findAll());
                     // Obteniendo id de proyecto
                         BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro"))); 
                     // Setear datos obtenidos y construir vista
@@ -76,7 +79,7 @@ public class YearServlet extends HttpServlet {
                     break;
                 case 3:
                     BigInteger mes = new BigInteger(request.getParameter("mes"));
-                    AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                    anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
                     List<GastoMes> gastos = GastoMes.findGastos(mes, anho);
                     if(gastos.size() > 0){
                         request.setAttribute("mes", mes);
@@ -92,6 +95,12 @@ public class YearServlet extends HttpServlet {
                     }
                     break;
                 case 4: 
+					try{
+						anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+						savePresupuestos(request, response, anho);
+					}catch(IOException | NullPointerException | ServletException ex){
+						
+					}
                     break;
                 default: 
                     break;
@@ -168,18 +177,16 @@ public class YearServlet extends HttpServlet {
             throws ServletException, IOException, NullPointerException{
         
         PrintWriter out = response.getWriter();
-
         out.print("<br>Impreso desde saveYear() <br><br>");
-
-        Presupuesto presu = null;
-        List<Cuenta> ctas = Cuenta.findAll();
-        List<FuenteF> ff = FuenteF.findAll();
-        BigInteger totalF = new BigInteger("0");
-        
+        Presupuesto presu	= null;
+        List<Cuenta> ctas	= Cuenta.findAll();
+        List<FuenteF> ff	= FuenteF.findAll();
+        BigInteger totalF	= new BigInteger("0");
+		
         String[] sercotec   = request.getParameterValues("sercotec");
         String[] inacap     = request.getParameterValues("inacap");
         String[] pecuniario = request.getParameterValues("pecuniarios");
-        
+		
         for (int i = 0; i <= ctas.size()-1 ; i++ ) {
             for (int j = 0; j <= ff.size()-1 ; j++) {
                 switch(i){
@@ -187,7 +194,6 @@ public class YearServlet extends HttpServlet {
                     case 1: totalF = new BigInteger(inacap[j]); break;
                     case 2: totalF = new BigInteger(pecuniario[j]); break;
                 }
-                
                 Presupuesto presupuesto = new Presupuesto(
                     totalF, 
                     totalF, 
@@ -196,9 +202,7 @@ public class YearServlet extends HttpServlet {
                     ctas.get(j), 
                     ff.get(i)
                 );
-                
                 Presupuesto.insPresupuesto(presupuesto);
-                
             }
         }
     }

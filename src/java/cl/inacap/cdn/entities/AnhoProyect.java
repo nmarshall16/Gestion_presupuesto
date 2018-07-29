@@ -30,7 +30,8 @@ import javax.xml.bind.annotation.XmlTransient;
 	, @NamedQuery(name = "AnhoProyect.findByInicio", query = "SELECT a FROM AnhoProyect a WHERE a.inicio = :inicio")
 	, @NamedQuery(name = "AnhoProyect.findByTermino", query = "SELECT a FROM AnhoProyect a WHERE a.termino = :termino")
 	, @NamedQuery(name = "AnhoProyect.findByTotalDis", query = "SELECT a FROM AnhoProyect a WHERE a.totalDis = :totalDis")
-	, @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")})
+	, @NamedQuery(name = "AnhoProyect.findByTotal", query = "SELECT a FROM AnhoProyect a WHERE a.total = :total")
+	, @NamedQuery(name = "AnhoProyect.findAllOfProyect", query = "SELECT a FROM AnhoProyect a WHERE a.proyectoId = :proyectoId")})
 public class AnhoProyect implements Serializable {
 
 	private static final long serialVersionUID = 1L;

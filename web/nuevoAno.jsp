@@ -129,9 +129,9 @@
             <thead>
               <tr>
                 <th scope="col">Cuentas</th>
-                <th scope="col">Sercotec</th>
-                <th scope="col">Inacap</th>
-                <th scope="col">Aporte No Pecuniario</th>                
+                <c:forEach items="${requestScope.fuentes}" var="fte">
+					<th scope="col">${fte.nombre}</th>
+				</c:forEach>
               </tr>
             </thead>
             <tfoot>
@@ -148,14 +148,14 @@
             </tfoot>
             <tbody>
 
-              <c:forEach items="${requestScope.ctas}" var="cta">
+			<c:forEach items="${requestScope.ctas}" var="cta">
 				<tr id="${cta.id}">
 					<th scope="row">${cta.nombre}</th>
 					<td><input type="number" name="sercotec" class="form-control" value="0"></td>
 					<td><input type="number" name="inacap" class="form-control" value="0"></td>
 					<td><input type="number" name="pecuniarios" class="form-control" value="0"></td>
 				</tr>
-              </c:forEach>
+			</c:forEach>
 
             </tbody>
           </table>

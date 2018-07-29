@@ -5,10 +5,7 @@
  */
 package cl.inacap.cdn.controllers;
 
-import cl.inacap.cdn.entities.Banco;
-import cl.inacap.cdn.entities.CBanco;
-import cl.inacap.cdn.entities.Proyecto;
-import cl.inacap.cdn.entities.Usuario;
+import cl.inacap.cdn.entities.*;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +41,11 @@ public class ProyectServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+		
 		Proyecto pro = null;
+		Gson gson	 = null;
+		Map <String, String> map = null;
+		
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             // Consultar sesión de usuario
@@ -71,6 +72,7 @@ public class ProyectServlet extends HttpServlet {
 							request.setAttribute("proyecto", null);
 							request.setAttribute("mensaje", null);
                             request.setAttribute("bancos", Banco.findAll());                            
+							request.setAttribute("fuentes", FuenteF.findAll());                            
 							request.setAttribute("errores", errores);
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
@@ -80,7 +82,7 @@ public class ProyectServlet extends HttpServlet {
 								if (valNewProyect(request).isEmpty()) {
 									// Guardar Nuevo Proyecto
 									if(request.getParameter("idProyect") == null){	
-                                                                            pro = Proyecto.insProyecto(
+										pro = Proyecto.insProyecto(
 											new Proyecto(
 												request.getParameter("nameProyect").trim(),
 												request.getParameter("codProyect").trim(),
@@ -147,8 +149,8 @@ public class ProyectServlet extends HttpServlet {
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
 						break;
 						case "getCuentas":
-							Gson gson = new Gson();
-							Map <String, String> map = new HashMap<String, String>();
+							gson = new Gson();
+							map = new HashMap<String, String>();
 							Banco banco = Banco.findById(new BigDecimal(request.getParameter("banco")));
 							if (banco != null) {
 								List<CBanco> cuentasB = CBanco.findAllByBanco(banco);
@@ -167,6 +169,25 @@ public class ProyectServlet extends HttpServlet {
 									}catch(java.lang.StackOverflowError ex){
 										out.print(ex);
 									}
+								}
+							}
+						break;
+						case "getBancos":
+							gson = new Gson();
+							map = new HashMap<String, String>();
+							List<Banco> bancos = Banco.findAll();
+							if (!bancos.isEmpty()) {
+								response.setContentType("application/json");
+								response.setCharacterEncoding("UTF-8");
+								try{
+									for (Banco bco : bancos) {
+										map.put(bco.getId().toString() , bco.getNombre());
+									}
+									out.print(gson.toJson(map));
+									out.flush();
+									out.close();
+								}catch(java.lang.StackOverflowError ex){
+									out.print(ex);
 								}
 							}
 						break;
@@ -232,7 +253,7 @@ public class ProyectServlet extends HttpServlet {
 		if(request.getParameter("banco") == null){
 			errores.add("Debe Ingresar Banco");
 		}
-		if(request.getParameter("numCuenta").equals("")){
+		if(request.getParameter("cuenta") == null){
 			errores.add("Debe Ingresar Número De Cuenta");
 		}
 		return errores;
