@@ -72,7 +72,7 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="#collapseComponents">
+          <a class="nav-link" href="generarPDF.jsp">
             <i class="fa fa-folder-open"></i>
             <span class="nav-link-text">Documentos</span>
           </a>
