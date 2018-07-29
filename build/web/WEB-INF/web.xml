@@ -24,6 +24,10 @@
         <servlet-name>PdfServlet</servlet-name>
         <servlet-class>cl.inacap.cdn.controllers.PdfServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ValidarServlet</servlet-name>
+        <servlet-class>cl.inacap.cdn.controllers.ValidarServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/Login.do</url-pattern>
@@ -47,6 +51,10 @@
     <servlet-mapping>
         <servlet-name>PdfServlet</servlet-name>
         <url-pattern>/PDF</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ValidarServlet</servlet-name>
+        <url-pattern>/Validar.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

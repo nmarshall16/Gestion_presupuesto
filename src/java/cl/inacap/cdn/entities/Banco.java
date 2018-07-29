@@ -54,7 +54,7 @@ public class Banco implements Serializable {
         this.cBancoList = cBancoList;
     }
 	
-	public static Banco findById(BigDecimal id){
+    public static Banco findById(BigDecimal id){
         Banco banco;
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();

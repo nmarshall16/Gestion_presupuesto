@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
@@ -50,7 +51,21 @@ public class Homologar implements Serializable {
 	public Homologar(BigDecimal id) {
 		this.id = id;
 	}
-
+        
+        public static Homologar findById(BigDecimal id){
+            Homologar homol;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            TypedQuery<Homologar> result = em.createNamedQuery("Homologar.findById", Homologar.class);
+            result.setParameter("id", id);
+            homol = result.getSingleResult();
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            return homol;
+        }
+        
 	public void addHomologacion(){
 		try{
 			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
@@ -64,7 +79,7 @@ public class Homologar implements Serializable {
 			System.out.print(ex);
 		}
 	}
-
+        
 	public static List<Homologar> findHomologaciones(GastoMes gasto){
 		List<Homologar> homologacion = null;
 		try{
@@ -110,7 +125,7 @@ public class Homologar implements Serializable {
 		}
 	}
         
-        public static int getGastosP(AnhoProyect anho){
+        public static int getGastosP(AnhoProyect anho, String mes){
             int largo = 0;
             List<Homologar> homologacion = null;
             ArrayList<Homologar> pendientes = new ArrayList<>();
@@ -122,7 +137,7 @@ public class Homologar implements Serializable {
                 buscarGasto.setParameter("estado", 'P');
                 homologacion = buscarGasto.getResultList();
                 for(Homologar ho:homologacion){
-                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho)){
+                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
                         pendientes.add(ho);
                     }
                 }
@@ -133,6 +148,27 @@ public class Homologar implements Serializable {
                 largo = pendientes.size();
             }
             return largo;
+        }
+        
+        public static ArrayList<Homologar> getGastosPendientes(AnhoProyect anho, String mes){
+            List<Homologar> homologacion = null;
+            ArrayList<Homologar> pendientes = new ArrayList<>();
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                em.getTransaction().begin();
+                TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
+                buscarGasto.setParameter("estado", 'P');
+                homologacion = buscarGasto.getResultList();
+                for(Homologar ho:homologacion){
+                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
+                        pendientes.add(ho);
+                    }
+                }
+            }catch(NoResultException ex){
+                homologacion = null;
+            }
+            return pendientes;
         }
         
 	public BigDecimal getId() {

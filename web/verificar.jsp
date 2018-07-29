@@ -1,19 +1,13 @@
 <%-- 
-    Document   : gastos
-    Created on : 21-07-2018, 1:15:36
+    Document   : verificar
+    Created on : 29-07-2018, 1:40:43
     Author     : Nicolas
 --%>
 
-<%@page import="java.math.BigDecimal"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="cl.inacap.cdn.entities.Homologar"%>
-<%@page import="java.math.BigInteger"%>
-<%@page import="java.util.Date"%>
-<%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.text.NumberFormat"%>
-<%@page import="java.util.Locale"%>
-<%@page import="java.util.List"%>
-<%@page import="cl.inacap.cdn.entities.GastoMes"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -32,13 +26,16 @@
   <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
+  <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/css/daterangepicker.css" />
+
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="#">CDN INACAP</a>
+    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -57,22 +54,13 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-            <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+          <a class="nav-link" href="tables.html">
             <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">
-                Verificar Cuenta 
-                <span class="badge badge-primary badge-pill">
-                    <%
-                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
-                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
-                    out.print(p);
-                    %>
-                </span>
-            </span>
+            <span class="nav-link-text">Verificar Cuenta</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="generarPDF.jsp">
+          <a class="nav-link" href="#collapseComponents">
             <i class="fa fa-folder-open"></i>
             <span class="nav-link-text">Documentos</span>
           </a>
@@ -104,131 +92,65 @@
       </ol>
 
       <!-- CARTA -->
-      <h3>Mayor Contable Mensual</h3>
-      <p>Estado de documento: 
-      <%
-        boolean estado = (Boolean)request.getAttribute("estado");
-        if(estado){
-      %>
-        <strong style="color: #2BB520;">Terminado</strong>
-      <%
-        }else{
-      %>
-      <strong style="color: #C70039;">En Proceso</strong>
-      <%
-        }
-      %>
-      </p>
+      <div class="row">
+        <div class="col-lg-4">
+          <h3>Verificar Cuenta</h3>
+        </div>
+        <div class=" row col-lg-8" >
+          <div class="col-lg-8">
+            
+          </div>
+          <div class="col-lg-4" align="center">
+            
+          </div>
+        </div>
+      </div>
       <br>
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fa fa-table"></i> Gastos Mensuales</div>
+          <i class="fa fa-table"></i> Cuentas por validar</div>
         <div class="card-body">
           <div class="table-responsive">
-            <form method="post" action="Gasto.do">
-              <input type="hidden" value="marcarGastos" name="op">
-              <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
-              <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead align="center">
                 <tr>
-                  <th></th>
                   <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Importe</th>
-                  <th>Fecha Contable</th>
-                  <th>Numero Factura</th>
-                  <th>Rut Proveedor</th>
-                  <th>Nombre Proveedor</th>
-                  <th>Estado</th>
+                  <th>Nombre Gasto</th>
+                  <th>Codigo Centro</th>
+                  <th>Atributo del pago</th>
+                  <th>Homologacion</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody align="center">
-                  <%
-                  List<GastoMes> gastos = (List<GastoMes>)request.getAttribute("gastos");
-                  Locale cl = new Locale("es", "CL");
-                  NumberFormat formatter = NumberFormat.getCurrencyInstance(cl);
-                  SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
-                  for(GastoMes gasto:gastos){
-                  %>
-                <tr>
-                    <td><input type="checkbox" value="<% out.print(gasto.getId()); %>" name="gastos"></td>
-                    <td>
-                    <%
-                        if(!gasto.getIdCompra().equals(new BigInteger("0"))){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td><% out.print(gasto.getGastoId().getNombre().toUpperCase()); %></td>
-                    <td>
-                    <% 
-                        out.print(formatter.format(gasto.getImporte()).substring(2));
-                    %></td>
-                    <td>
-                    <%
-                        out.print(formateador.format(gasto.getFecha()));
-                    %>
-                    </td>
-                    <td>
-                    <%
-                        if(!gasto.getNumFac().equals(new BigInteger("0"))){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <% 
-                        if(gasto.getRutProvedor()!= null){
-                            out.print(gasto.getRutProvedor()); 
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <%
-                        if(gasto.getNombreProvedor()!= null){
-                            out.print(gasto.getNombreProvedor()); 
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <% 
-                        if(gasto.getStatus() != 'P'){
-                    %>
-                            <i class="fa fa-check fa-2x"></i>
-                    <%
-                        }else{
-                    %>
-                            <i class="fa fa-times fa-2x"></i>
-                    <%
-                        }
-                    %></td>
-                </tr>
-                <% 
-                 }
+                <%
+                    ArrayList<Homologar> gastos = (ArrayList<Homologar>)request.getAttribute("gastos");
+                    for(Homologar gasto:gastos){
+                %>
+                    <tr>
+                        <td>
+                        <%
+                            if(gasto.getGastoMesId().getIdCompra().equals(0)){
+                                out.print(gasto.getGastoMesId().getIdCompra());
+                            }else{
+                                out.print("-");
+                            }    
+                        %>
+                        </td>
+                      <td><%=gasto.getGastoMesId().getGastoId().getNombre()%></td>
+                      <td><%=gasto.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%></td>
+                      <td><%=gasto.getGastoMesId().getAtributoPago()%></td>
+                      <td><%=gasto.getCuentaId().getNombre()%></td>
+                      <td><a href="Validar.do?id=<%=gasto.getId()%>&op=2"><button type="button" class="btn btn-primary btn-block">Validar</button></a></td>
+                    </tr>
+                <%
+                   }  
                 %>
               </tbody>
             </table>
-            <br>
-            <button type="submit" class="btn btn-primary" style="margin-left: 1%;">Homologar</button>
-            </form>
           </div>
         </div>
-        <div class="card-footer small text-muted"></div>
-      </div>
-      <div class="col-md-1" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver</strong>
-          </a>
       </div>
     </div>
     <!-- /.container-fluid-->
@@ -275,8 +197,11 @@
     <!-- Custom scripts for this page-->
     <script src="js/sb-admin-datatables.min.js"></script>
 
+    <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
+    <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
+    <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+
   </div>
 </body>
-
 </html>
 

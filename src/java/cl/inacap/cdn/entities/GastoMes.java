@@ -210,10 +210,8 @@ public class GastoMes implements Serializable {
         
         public static boolean validaCuenta(GastoMes gasto){
             boolean validacion = true;
-            System.out.print(gasto.getAtributoPago());
             if(gasto.getAtributoPago()!=null){
                 String[] atp = gasto.getAtributoPago().split(" ");
-                System.out.print(atp[2]);
                 CBanco cuenta = CBanco.findByNumCta(new BigDecimal(atp[2]));
                 CBanco cuenteResult;
                 EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
@@ -225,8 +223,6 @@ public class GastoMes implements Serializable {
                     resultado.setParameter("cuenta", cuenta.getNumCuenta());
                     resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
                     cuenteResult = resultado.getSingleResult();
-                    System.out.print("########################");
-                    System.out.print(cuenteResult);
                 }catch(NoResultException ex){
                     cuenteResult = null;
                 }
@@ -237,6 +233,15 @@ public class GastoMes implements Serializable {
                 }
             }
             return validacion;
+        }
+        
+        public static BigInteger getNumCuenta(GastoMes gasto){
+            BigInteger nCuenta = null;
+            if(gasto.getAtributoPago()!=null){
+                String[] atp = gasto.getAtributoPago().split(" ");
+                nCuenta = new BigInteger(atp[2]);
+            }
+            return nCuenta;
         }
         
 	public BigDecimal getId() {
