@@ -125,6 +125,21 @@ public class Homologar implements Serializable {
 		}
 	}
         
+        public void actualizarEstado(char estado){
+            try{
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                    EntityManager em = emf.createEntityManager();
+                    EntityTransaction trans = em.getTransaction();
+                    trans.begin();
+                    Homologar homologacion = em.merge(this);
+                    homologacion.setEstado(estado); 
+                    trans.commit();
+                    em.close();
+            }catch(Exception ex){
+                    System.out.print(ex);
+            }
+	}
+        
         public static int getGastosP(AnhoProyect anho, String mes){
             int largo = 0;
             List<Homologar> homologacion = null;

@@ -4,6 +4,8 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.List"%>
+<%@page import="cl.inacap.cdn.entities.FuenteF"%>
 <%@page import="java.math.BigInteger"%>
 <%@page import="cl.inacap.cdn.entities.GastoMes"%>
 <%@page import="cl.inacap.cdn.entities.Homologar"%>
@@ -31,7 +33,7 @@
 
 </head>
 
-<body class="fixed-nav sticky-footer bg-dark" id="page-top">
+<body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="cargarCuenta()">
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
     <a class="navbar-brand" href="index.html">Start Bootstrap</a>
@@ -98,24 +100,77 @@
         BigInteger cuenta = GastoMes.getNumCuenta(homol.getGastoMesId());
        %>
        <form class="form-inline" action="Validar.do" method="post">
-          <input type="hidden" name="op" value="3">
+          <input type="hidden" name="op" value="4">
+          <input type="hidden" name="idProyect" value="<%=homol.getGastoMesId().getAnhoProyectId().getProyectoId().getId()%>" id="vaIdProyecto">
+          <input type="hidden" name="idHomol" value="<%=homol.getId()%>">
           <div class="col-md-4">
-             <label style="text-align: left; float: left;">Centro Responsable</label>
-             <select class="custom-select">
-                  <option value="<%=homol.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%>">
-                      <%=homol.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%>
-                  </option>
-              </select>
+            <ul class="list-group">
+                <li class="list-group-item active">Centro Responsable Actual</li>
+                <li class="list-group-item"><%=homol.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%></li>
+            </ul>
           </div>
           <div class="col-md-4">
-             <label style="text-align: left; float: left;">Cuenta Contable</label>
-             <select class="custom-select">
-                  <option value="<%=cuenta%>"><%=cuenta%></option>
-              </select>
+            <ul class="list-group">
+                <li class="list-group-item active">Cuenta Contable Actual</li>
+                <li class="list-group-item"><%=cuenta%></li>
+            </ul>
           </div>
-          <div class="col-md-3"><br>
-             <button type="submit" class="btn btn-primary btn-block">Validar</button>
+          <div class="col-md-4">
+            <ul class="list-group">
+                <li class="list-group-item active">ID Compra</li>
+                <li class="list-group-item">
+                    <% 
+                        if(!homol.getGastoMesId().getIdCompra().equals(0)){
+                            out.print(homol.getGastoMesId().getIdCompra()); 
+                        }else{
+                            out.print("-");
+                        }
+                    %>
+                </li>
+            </ul>
           </div>
+          <div class="col-md-12"><br></div>
+          <div class="form-row align-items-center">
+            <div class="col-md-2 my-1">
+                <label style="text-align: left; float: left;">Centro Responsable</label>
+                <select class="custom-select mr-sm-2" id="vaFuente" name="fuente">
+                    <%
+                      List<FuenteF> fuentes = FuenteF.findAll();
+                      if(fuentes.size()>0){
+                       for(FuenteF fuente:fuentes){
+                    %>
+                           <option value="<%=fuente.getCodCentro()%>">
+                               <%=fuente.getCodCentro()%>
+                           </option>
+                    <%
+                       }
+                      }
+                    %>
+                </select>
+            </div>
+            <div class="col-md-2 my-1">
+                <label style="text-align: left; float: left;">Cuenta Contable</label>
+                <select class="custom-select mr-sm-2" id="vaCuenta" name="cuenta">
+                  <option>-</option>
+                </select>
+            </div>
+            <div class="col-md-2 my-1">
+                <label style="text-align: left; float: left;">Tipo de pago</label>
+                <select class="custom-select mr-sm-2" name="pago">
+                    <option value="CHK">Cheque</option>
+                    <option value="EFT">Transferencia electrónica</option>
+                 </select>
+            </div>
+            <div class="col-auto my-1"><br>
+                <input type="text" class="form-control mr-sm-2" placeholder="Banco" name="banco">
+            </div>
+            <div class="col-auto my-1"><br>
+                <input type="number" class="form-control mr-sm-2" placeholder="número de documento" name="documento">
+            </div>
+            <div class="col-auto my-1"><br>
+              <button type="submit" class="btn btn-primary btn-block mr-sm-2">Modificar</button>
+            </div>
+            </div>
       </form>
     </div>
     <!-- /.container-fluid-->
@@ -151,6 +206,7 @@
     </div>
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/jquery/jquery.form.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -165,7 +221,8 @@
     <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
-
+    <script src="vendor/rut/rut.min.js"></script>
+    <script src="js/main.js"></script>
   </div>
 </body>
 </html>

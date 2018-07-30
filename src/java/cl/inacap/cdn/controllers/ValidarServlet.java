@@ -6,12 +6,21 @@
 package cl.inacap.cdn.controllers;
 
 import cl.inacap.cdn.entities.AnhoProyect;
+import cl.inacap.cdn.entities.Banco;
+import cl.inacap.cdn.entities.CBanco;
+import cl.inacap.cdn.entities.FuenteF;
+import cl.inacap.cdn.entities.GastoMes;
 import cl.inacap.cdn.entities.Homologar;
+import cl.inacap.cdn.entities.Proyecto;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,13 +47,14 @@ public class ValidarServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             if(request.getParameter("op")!=null){
                 int accion = Integer.parseInt(request.getParameter("op"));
-                System.out.print(accion);
                 switch(accion){
                     case 1:
                         BigDecimal bd = new BigDecimal(request.getParameter("anho"));
                         String mes = request.getParameter("mes");
                         ArrayList<Homologar> gastos = Homologar.getGastosPendientes(AnhoProyect.findById(bd.intValue()), mes);
                         request.setAttribute("gastos", gastos);
+                        request.setAttribute("mes", mes);
+                        request.setAttribute("anho", bd);
                         request.getRequestDispatcher("verificar.jsp").forward(request, response);
                     break;
 
@@ -56,8 +66,53 @@ public class ValidarServlet extends HttpServlet {
                         }
                     break;
                     
-                    case 3: 
-                        out.print("listo");
+                    case 3:
+                        Gson gson = new Gson();
+                        Map <String, String> map = new HashMap<String, String>();
+                        if (request.getParameter("idProyect")!=null && request.getParameter("codFuente")!=null) {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            try{
+                                Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                                FuenteF fuente = FuenteF.findById(new BigDecimal(request.getParameter("codFuente")));
+                                CBanco cbanco = CBanco.findCuenta(fuente, proyect);
+                                map.put("cuenta" , cbanco.getNumCuenta().toString());
+                                out.print(gson.toJson(map));
+                                out.flush();
+                                out.close();
+                            }catch(java.lang.StackOverflowError ex){
+                                map.put("error" , ex.toString());
+                                out.print(ex);
+                            }
+                        }else{
+                            map.put("error" , "Parametros equivocados");
+                            out.print(gson.toJson(map));
+                            out.flush();
+                            out.close();
+                        }
+                    break;
+                    
+                    case 4:
+                        if(request.getParameter("idHomol")!=null){
+                            Homologar homologar = Homologar.findById(new BigDecimal(request.getParameter("idHomol")));
+                            GastoMes gastoH = homologar.getGastoMesId();
+                            String pago = request.getParameter("pago");
+                            String banco = request.getParameter("banco").toUpperCase();
+                            String cuenta = request.getParameter("cuenta");
+                            String documento = request.getParameter("documento");
+                            FuenteF fuenteH = FuenteF.findById(new BigDecimal(request.getParameter("fuente")));
+                            String[] gasto = homologar.getGastoMesId().getAtributoPago().split(" ");
+                            String monto = gasto[4];
+                            String atributo = "("+pago+" "+banco+" "+cuenta+" "+documento+" "+monto;
+                            if(gastoH.actualizarAtributoPago(fuenteH, atributo)){
+                                homologar.actualizarEstado('V');
+                            }
+                            ArrayList<Homologar> gastosH = Homologar.getGastosPendientes(gastoH.getAnhoProyectId(), gastoH.getMes().toString());
+                            request.setAttribute("gastos", gastosH);
+                            request.setAttribute("mes", gastoH.getMes());
+                            request.setAttribute("anho", gastoH.getAnhoProyectId().getId());
+                            request.getRequestDispatcher("verificar.jsp").forward(request, response);
+                        }
                     break;
                 }
             }

@@ -86,21 +86,13 @@ public class FuenteF implements Serializable {
     }
      
     public static List<FuenteF> findAll(){
-        
-        System.out.println("");
-        System.out.println("----------  Ingreso a Busqueda de FuenteF  ----------");
         List<FuenteF> ff;
-        
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();
-        
         TypedQuery<FuenteF> result =  em.createNamedQuery("FuenteF.findAll", FuenteF.class);
         ff = result.getResultList();
-        
         em.close();
         emf.close();
-        System.out.println("----------  Fin de Busqueda de FuenteF  ----------");
-        System.out.println("");
         return ff;
     }
     

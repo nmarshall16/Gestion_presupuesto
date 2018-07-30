@@ -54,9 +54,18 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-          <a class="nav-link" href="tables.html">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
             <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">Verificar Cuenta</span>
+            <span class="nav-link-text">
+                Verificar Cuenta 
+                <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+                </span>
+            </span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
@@ -131,7 +140,7 @@
                     <tr>
                         <td>
                         <%
-                            if(gasto.getGastoMesId().getIdCompra().equals(0)){
+                            if(!gasto.getGastoMesId().getIdCompra().equals(0)){
                                 out.print(gasto.getGastoMesId().getIdCompra());
                             }else{
                                 out.print("-");

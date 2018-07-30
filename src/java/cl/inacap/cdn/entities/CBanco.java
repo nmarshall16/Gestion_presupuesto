@@ -77,17 +77,30 @@ public class CBanco implements Serializable {
     public static CBanco findByNumCta(BigDecimal id){
         CBanco cBanco = null;
         try{
-                System.out.println("");
-                System.out.println("----------  Ingreso a Busqueda de Bancos  ----------");
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findByNumCuenta", CBanco.class);
-                result.setParameter("numCuenta", id);
-                cBanco = result.getSingleResult();
-                em.close();
-                emf.close();
-                System.out.println("----------  Fin de Busqueda de Bancos  ----------");
-                System.out.println("");
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<CBanco> result =  em.createNamedQuery("CBanco.findByNumCuenta", CBanco.class);
+            result.setParameter("numCuenta", id);
+            cBanco = result.getSingleResult();
+            em.close();
+            emf.close();
+        }catch(Exception ex){
+                cBanco = null;
+        }
+        return cBanco;
+    }
+    
+    public static CBanco findCuenta(FuenteF fuente, Proyecto proyecto){
+        CBanco cBanco = null;
+        try{
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<CBanco> result = em.createQuery("SELECT c FROM CBanco c WHERE c.fuenteFCodCentro = :fuente AND c.proyectoId = :proyecto", CBanco.class);
+            result.setParameter("fuente", fuente);
+            result.setParameter("proyecto", proyecto);
+            cBanco = result.getSingleResult();
+            em.close();
+            emf.close();
         }catch(Exception ex){
                 cBanco = null;
         }

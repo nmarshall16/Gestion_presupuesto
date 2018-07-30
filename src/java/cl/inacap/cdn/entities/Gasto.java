@@ -82,7 +82,7 @@ public class Gasto implements Serializable {
             this.fuenteFCodCentro = fuenteFCodCentro;
         }
         
-    public Gasto findGasto(BigDecimal fuente, BigInteger cuenta){
+    public static Gasto findGasto(BigDecimal fuente, BigInteger cuenta){
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();

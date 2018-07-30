@@ -79,6 +79,41 @@ $(document).ready(function() {
             return false;
         }
     });
+    
+    $("#vaFuente").change(function(){
+        cargarCuenta();
+    });
+
 });
 
+function cargarCuenta(){
+    var fuente = parseInt($("#vaFuente option:selected").text());
+    var proyecto = parseInt($("#vaIdProyecto").val());
+    $.ajax({
+        url : 'Validar.do',
+        data : {
+            op: 3,
+            idProyect: proyecto,
+            codFuente: fuente,
+        },
+        type : 'POST',
+        dataType : 'json',
+        success : function(data) {
+            if(data['cuenta']!=null){
+                $("#vaCuenta").empty();
+                $("#vaCuenta").append(($('<option>', {value: data['cuenta'], text: data['cuenta']})));
+            }
+            /*
+            $.each(data, function(i, item){
+                $("#datos"+(contarDatosBancarios()-1)).children('.banco').children().append(($('<option>', {value: i, text: item})));
+            });
+            */
+        },
+        error : function(xhr, status, detalle) {
+            /*
+            $("#datos"+(contarDatosBancarios()-1)).children('.banco').children().append($('<option value="otro">*** Agregar Cuenta ***</option>'));
+            */
+        }
+    });
+}
 

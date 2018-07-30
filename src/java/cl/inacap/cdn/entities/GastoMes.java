@@ -244,6 +244,27 @@ public class GastoMes implements Serializable {
             return nCuenta;
         }
         
+        public boolean actualizarAtributoPago(FuenteF fuente, String atributo){
+            boolean validacion = false;
+            try{
+                    Gasto gastoG = Gasto.findGasto(fuente.getCodCentro(), this.getGastoId().getCodCuenta());
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                    EntityManager em = emf.createEntityManager();
+                    EntityTransaction trans = em.getTransaction();
+                    trans.begin();
+                    GastoMes gasto = em.merge(this);
+                    gasto.setAtributoPago(atributo); 
+                    gasto.setGastoId(gastoG);
+                    trans.commit();
+                    em.close();
+                    validacion = true;
+            }catch(Exception ex){
+                    validacion = false;
+                    System.out.print(ex);
+            }
+            return validacion;
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}
