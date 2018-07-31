@@ -131,142 +131,142 @@ public class GastoMes implements Serializable {
 		this.id = id;
 	}
 
-        public static GastoMes findById(BigInteger id){
-        GastoMes gasto;
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
-        try{
-            TypedQuery<GastoMes> result = em.createNamedQuery("GastoMes.findById", GastoMes.class);
-            result.setParameter("id", id);
-            gasto = result.getSingleResult();
-        }catch(NoResultException ex){
-            gasto = null;
-        }
-        em.getTransaction().commit();
-        em.close();
-        emf.close();
-        return gasto;
-        }
-        
-        public void addGastoMes(){
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-            EntityManager em = emf.createEntityManager();
-            EntityTransaction trans = em.getTransaction();
-            trans.begin();
-            em.persist(this);
-            trans.commit();
-            em.close();
-        }
-        
-        public void removeGastosMes(ArrayList<GastoMes> gastos){
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-            EntityManager em = emf.createEntityManager();
-            EntityTransaction trans = em.getTransaction();
-            for(GastoMes gasto: gastos){
-                GastoMes gastoMes = em.find(GastoMes.class, gasto.getId());
-                trans.begin();
-                em.remove(gastoMes);
-                trans.commit();
-            }
-            em.close();
-        }
-        
-        public static List<GastoMes> findGastos(BigInteger mes, AnhoProyect anho){
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-            EntityManager em = emf.createEntityManager();
-            em.getTransaction().begin();
-            TypedQuery<GastoMes> buscarGasto = em.createQuery("SELECT g FROM GastoMes g WHERE g.mes = :mes AND g.anhoProyectId = :anho", GastoMes.class);
-            buscarGasto.setParameter("mes", mes);
-            buscarGasto.setParameter("anho", anho);
-            List<GastoMes> gastos = buscarGasto.getResultList();
-            return gastos;
-        }
-        
-        public void actualizarEstado(char estado){
-            try{
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                EntityTransaction trans = em.getTransaction();
-                trans.begin();
-                GastoMes gasto = em.merge(this);
-                gasto.setStatus(estado);
-                trans.commit();
-                em.close();
-            }catch(Exception ex){
-                System.out.print(ex);
-            }
-        }
-        
-        public static boolean validaEstadoGastos(List<GastoMes> gastos){
-            boolean estado = true;
-            for (GastoMes gasto : gastos) {
-                if(gasto.getStatus().equals('P')){
-                    estado = false;
-                }
-            }
-            return estado;
-        }
-        
-        public static boolean validaCuenta(GastoMes gasto){
-            boolean validacion = true;
-            if(gasto.getAtributoPago()!=null){
-                String[] atp = gasto.getAtributoPago().split(" ");
-                CBanco cuenta = CBanco.findByNumCta(new BigDecimal(atp[2]));
-                CBanco cuenteResult;
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                em.getTransaction().begin();
-                try{
-                    TypedQuery<CBanco> resultado = em.createQuery("SELECT c FROM CBanco c WHERE c.fuenteFCodCentro = :fuente AND c.numCuenta = :cuenta AND c.proyectoId = :proyecto", CBanco.class);
-                    resultado.setParameter("fuente", gasto.getGastoId().getFuenteFCodCentro());
-                    resultado.setParameter("cuenta", cuenta.getNumCuenta());
-                    resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
-                    cuenteResult = resultado.getSingleResult();
-                }catch(NoResultException ex){
-                    cuenteResult = null;
-                }
-                if(cuenteResult!=null){
-                    validacion = true;
-                }else{
-                    validacion = false;
-                }
-            }
-            return validacion;
-        }
-        
-        public static BigInteger getNumCuenta(GastoMes gasto){
-            BigInteger nCuenta = null;
-            if(gasto.getAtributoPago()!=null){
-                String[] atp = gasto.getAtributoPago().split(" ");
-                nCuenta = new BigInteger(atp[2]);
-            }
-            return nCuenta;
-        }
-        
-        public String actualizarAtributoPago(FuenteF fuente, String atributo, Presupuesto presupuesto){
-            String error = "";
-            error = presupuesto.aumentarPresupuesto(this.getImporte().longValue());
-            if(error.equals("")){
-                try{
-                    Gasto gastoG = Gasto.findGasto(fuente.getCodCentro(), this.getGastoId().getCodCuenta());
-                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                    EntityManager em = emf.createEntityManager();
-                    EntityTransaction trans = em.getTransaction();
-                    trans.begin();
-                    GastoMes gasto = em.merge(this);
-                    gasto.setAtributoPago(atributo); 
-                    gasto.setGastoId(gastoG);
-                    trans.commit();
-                    em.close();
-                    Presupuesto nPresupuesto = Presupuesto.findByFuenteAndCuenta(fuente, presupuesto.getCuentaId(), this.getAnhoProyectId());
-                    error = nPresupuesto.restarPresupuesto(gasto.getImporte().longValue());
-                }catch(Exception ex){
-                    error = "Error: "+ex.getMessage();
-                }
-            }
-            return error;
-        }
+	public static GastoMes findById(BigInteger id){
+	GastoMes gasto;
+	EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+	EntityManager em = emf.createEntityManager();
+	em.getTransaction().begin();
+	try{
+		TypedQuery<GastoMes> result = em.createNamedQuery("GastoMes.findById", GastoMes.class);
+		result.setParameter("id", id);
+		gasto = result.getSingleResult();
+	}catch(NoResultException ex){
+		gasto = null;
+	}
+	em.getTransaction().commit();
+	em.close();
+	emf.close();
+	return gasto;
+	}
+
+	public void addGastoMes(){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		trans.begin();
+		em.persist(this);
+		trans.commit();
+		em.close();
+	}
+
+	public void removeGastosMes(ArrayList<GastoMes> gastos){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		for(GastoMes gasto: gastos){
+			GastoMes gastoMes = em.find(GastoMes.class, gasto.getId());
+			trans.begin();
+			em.remove(gastoMes);
+			trans.commit();
+		}
+		em.close();
+	}
+
+	public static List<GastoMes> findGastos(BigInteger mes, AnhoProyect anho){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		TypedQuery<GastoMes> buscarGasto = em.createQuery("SELECT g FROM GastoMes g WHERE g.mes = :mes AND g.anhoProyectId = :anho", GastoMes.class);
+		buscarGasto.setParameter("mes", mes);
+		buscarGasto.setParameter("anho", anho);
+		List<GastoMes> gastos = buscarGasto.getResultList();
+		return gastos;
+	}
+
+	public void actualizarEstado(char estado){
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			EntityTransaction trans = em.getTransaction();
+			trans.begin();
+			GastoMes gasto = em.merge(this);
+			gasto.setStatus(estado);
+			trans.commit();
+			em.close();
+		}catch(Exception ex){
+			System.out.print(ex);
+		}
+	}
+
+	public static boolean validaEstadoGastos(List<GastoMes> gastos){
+		boolean estado = true;
+		for (GastoMes gasto : gastos) {
+			if(gasto.getStatus().equals('P')){
+				estado = false;
+			}
+		}
+		return estado;
+	}
+
+	public static boolean validaCuenta(GastoMes gasto){
+		boolean validacion = true;
+		if(gasto.getAtributoPago()!=null){
+			String[] atp = gasto.getAtributoPago().split(" ");
+			CBanco cuenta = CBanco.findByNumCta(new BigDecimal(atp[2]));
+			CBanco cuenteResult;
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			em.getTransaction().begin();
+			try{
+				TypedQuery<CBanco> resultado = em.createQuery("SELECT c FROM CBanco c WHERE c.fuenteFCodCentro = :fuente AND c.numCuenta = :cuenta AND c.proyectoId = :proyecto", CBanco.class);
+				resultado.setParameter("fuente", gasto.getGastoId().getFuenteFCodCentro());
+				resultado.setParameter("cuenta", cuenta.getNumCuenta());
+				resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
+				cuenteResult = resultado.getSingleResult();
+			}catch(NoResultException ex){
+				cuenteResult = null;
+			}
+			if(cuenteResult!=null){
+				validacion = true;
+			}else{
+				validacion = false;
+			}
+		}
+		return validacion;
+	}
+
+	public static BigInteger getNumCuenta(GastoMes gasto){
+		BigInteger nCuenta = null;
+		if(gasto.getAtributoPago()!=null){
+			String[] atp = gasto.getAtributoPago().split(" ");
+			nCuenta = new BigInteger(atp[2]);
+		}
+		return nCuenta;
+	}
+
+	public String actualizarAtributoPago(FuenteF fuente, String atributo, Presupuesto presupuesto){
+		String error = "";
+		error = presupuesto.aumentarPresupuesto(this.getImporte().longValue());
+		if(error.equals("")){
+			try{
+				Gasto gastoG = Gasto.findGasto(fuente.getCodCentro(), this.getGastoId().getCodCuenta());
+				EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+				EntityManager em = emf.createEntityManager();
+				EntityTransaction trans = em.getTransaction();
+				trans.begin();
+				GastoMes gasto = em.merge(this);
+				gasto.setAtributoPago(atributo); 
+				gasto.setGastoId(gastoG);
+				trans.commit();
+				em.close();
+				Presupuesto nPresupuesto = Presupuesto.findByFuenteAndCuenta(fuente, presupuesto.getCuentaId(), this.getAnhoProyectId());
+				error = nPresupuesto.restarPresupuesto(gasto.getImporte().longValue());
+			}catch(Exception ex){
+				error = "Error: "+ex.getMessage();
+			}
+		}
+		return error;
+	}
         
 	public BigDecimal getId() {
 		return id;

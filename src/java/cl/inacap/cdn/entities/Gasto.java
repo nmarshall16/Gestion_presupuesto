@@ -44,7 +44,8 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Gasto.findAll", query = "SELECT g FROM Gasto g")
     , @NamedQuery(name = "Gasto.findById", query = "SELECT g FROM Gasto g WHERE g.id = :id")
     , @NamedQuery(name = "Gasto.findByCodCuenta", query = "SELECT g FROM Gasto g WHERE g.codCuenta = :codCuenta")
-    , @NamedQuery(name = "Gasto.findByNombre", query = "SELECT g FROM Gasto g WHERE g.nombre = :nombre")})
+    , @NamedQuery(name = "Gasto.findByNombre", query = "SELECT g FROM Gasto g WHERE g.nombre = :nombre")
+	, @NamedQuery(name = "Gasto.findByCtaYFte", query = "SELECT g FROM Gasto g WHERE g.codCuenta = :cuenta AND g.fuenteFCodCentro = :fuente")})
 public class Gasto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -87,7 +88,7 @@ public class Gasto implements Serializable {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         FuenteF financiamiento = FuenteF.findById(fuente);
-        TypedQuery<Gasto> buscarGasto = em.createQuery("SELECT g FROM Gasto g WHERE g.codCuenta = :cuenta AND g.fuenteFCodCentro = :fuente", Gasto.class);
+        TypedQuery<Gasto> buscarGasto = em.createNamedQuery("Gasto.findByCtaYFte", Gasto.class);
         buscarGasto.setParameter("cuenta", cuenta);
         buscarGasto.setParameter("fuente", financiamiento);
         List<Gasto> gastos = buscarGasto.getResultList();

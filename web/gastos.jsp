@@ -73,7 +73,7 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="generarPDF.jsp">
+          <a class="nav-link" href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>">
             <i class="fa fa-folder-open"></i>
             <span class="nav-link-text">Documentos</span>
           </a>
@@ -105,21 +105,15 @@
       </ol>
 
       <!-- CARTA -->
-      <h3>Mayor Contable Mensual</h3>
-      <p>Estado de documento: 
-      <%
-        boolean estado = (Boolean)request.getAttribute("estado");
-        if(estado){
-      %>
-        <strong style="color: #2BB520;">Terminado</strong>
-      <%
-        }else{
-      %>
-      <strong style="color: #C70039;">En Proceso</strong>
-      <%
-        }
-      %>
-      </p>
+      <div class="row">
+		  <div class="col-md-8">
+			  <h3>Mayor Contable Mensual</h3>
+		  </div>
+		  <div class="col-md-4">
+			  <h4>Mes De Proyecto : <strong><%=request.getAttribute("mes")%></strong></h4>
+		  </div>
+	  </div>
+      <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
       <br>
       <%
         if(request.getAttribute("error")!=null){
@@ -171,65 +165,16 @@
                   for(GastoMes gasto:gastos){
                   %>
                 <tr>
-                    <td><input type="checkbox" value="<% out.print(gasto.getId()); %>" name="gastos"></td>
+                    <td><input type="checkbox" value="<%=gasto.getId()%>" name="gastos"></td>
+                    <td><%=(!gasto.getIdCompra().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
+                    <td><%=(gasto.getGastoId().getNombre().toUpperCase())%></td>
+                    <td><%=formatter.format(gasto.getImporte()).substring(2)%></td>
+                    <td><%=formateador.format(gasto.getFecha())%></td>
+                    <td><%=(!gasto.getNumFac().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
+                    <td><%=(gasto.getRutProvedor()!= null)?(gasto.getRutProvedor()):("-")%></td>
+                    <td><%=(gasto.getNombreProvedor()!= null)?(gasto.getNombreProvedor()):("-")%></td>
                     <td>
-                    <%
-                        if(!gasto.getIdCompra().equals(new BigInteger("0"))){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td><% out.print(gasto.getGastoId().getNombre().toUpperCase()); %></td>
-                    <td>
-                    <% 
-                        out.print(formatter.format(gasto.getImporte()).substring(2));
-                    %></td>
-                    <td>
-                    <%
-                        out.print(formateador.format(gasto.getFecha()));
-                    %>
-                    </td>
-                    <td>
-                    <%
-                        if(!gasto.getNumFac().equals(new BigInteger("0"))){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <% 
-                        if(gasto.getRutProvedor()!= null){
-                            out.print(gasto.getRutProvedor()); 
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <%
-                        if(gasto.getNombreProvedor()!= null){
-                            out.print(gasto.getNombreProvedor()); 
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                    </td>
-                    <td>
-                    <% 
-                        if(gasto.getStatus() != 'P'){
-                    %>
-                            <i class="fa fa-check fa-2x"></i>
-                    <%
-                        }else{
-                    %>
-                            <i class="fa fa-times fa-2x"></i>
-                    <%
-                        }
-                    %></td>
+                    <%=(gasto.getStatus() != 'P')?"<i class='fa fa-check fa-2x text-success'></i>":"<i class='fa fa-times fa-2x text-danger'></i>"%></td>
                 </tr>
                 <% 
                  }
