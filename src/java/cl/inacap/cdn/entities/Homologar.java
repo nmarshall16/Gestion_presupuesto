@@ -66,18 +66,21 @@ public class Homologar implements Serializable {
             return homol;
         }
         
-	public void addHomologacion(){
-		try{
-			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-			EntityManager em = emf.createEntityManager();
-			EntityTransaction trans = em.getTransaction();
-			trans.begin();
-			em.persist(this);
-			trans.commit();
-			em.close();
-		}catch(Exception ex){
-			System.out.print(ex);
-		}
+	public String addHomologacion(){
+            try{
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                    EntityManager em = emf.createEntityManager();
+                    EntityTransaction trans = em.getTransaction();
+                    trans.begin();
+                    em.persist(this);
+                    trans.commit();
+                    em.close();
+            }catch(Exception ex){
+                    System.out.print(ex);
+            }
+            Presupuesto presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+            String error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+            return error;
 	}
         
 	public static List<Homologar> findHomologaciones(GastoMes gasto){
@@ -184,6 +187,17 @@ public class Homologar implements Serializable {
                 homologacion = null;
             }
             return pendientes;
+        }
+        
+        public void removeHomologacion(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            Homologar homologar = em.find(Homologar.class, this.getId());
+            em.remove(homologar);
+            trans.commit();
+            em.close();
         }
         
 	public BigDecimal getId() {

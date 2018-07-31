@@ -67,30 +67,38 @@ public class GastoServlet extends HttpServlet {
             String opcion = request.getParameter("op");
             switch(opcion){
                 case "homologar":
-                    boolean errorH = false;
-                    try{
+                    // Homologar gastos 
+                    ArrayList<String> errorH = new ArrayList<>();
+                    try{ 
                         String[] gast = request.getParameterValues("gastos");
                         String cuen = request.getParameter("cuentas");
                         Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
+                        String errorHom = "";
                         for (String resultado : gast) {
                             GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){
-                                List<Homologar> homExc = Homologar.findHomologaciones(gasto);
-                                if(homExc.size()>0){
+                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){ // Se valida si el gasto es un gasto excepcional 
+                                List<Homologar> homExc = Homologar.findHomologaciones(gasto); // Se busca alguna homologación asociada al gasto
+                                if(homExc.size()>0){ 
                                     homExc.get(0).actualizarHomologacion(cuenta);
                                 }else{
                                     Homologar homologar = new Homologar();
                                     homologar.setCuentaId(cuenta);
                                     homologar.setGastoMesId(gasto);
-                                    if(GastoMes.validaCuenta(gasto)){
-                                        homologar.setEstado('V');
+                                    if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                        homologar.setEstado('V'); 
                                     }else{
                                         homologar.setEstado('P');
                                     }
-                                    homologar.addHomologacion();
-                                    gasto.actualizarEstado('R');
+                                    errorHom = homologar.addHomologacion(); // Se homologa el gasto y se modifica el presupuesto
+                                    if(errorHom.equals("")){
+                                            gasto.actualizarEstado('R'); // Se actualiza el estado del gasto para identificarse en la tabla de gastos.jsp
+                                    }else{
+                                        errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                        homologar.removeHomologacion(); // En caso de que exista error se borrara la homologacion realizada para evitar problemas
+                                    }
                                 }
                             }else{
+                                // En caso de no ser un gasto excepcional se realiza el siguiente proceso
                                 Homologar hom = Homologar.findHomologacion(gasto);
                                 if(hom!=null){
                                    hom.actualizarHomologacion(cuenta);
@@ -103,15 +111,22 @@ public class GastoServlet extends HttpServlet {
                                     }else{
                                         homologar.setEstado('P');
                                     }
-                                    homologar.addHomologacion();
-                                    gasto.actualizarEstado('R');
+                                    errorHom = homologar.addHomologacion();
+                                    if(errorHom.equals("")){
+                                            gasto.actualizarEstado('R');
+                                    }else{
+                                        errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                        homologar.removeHomologacion();
+                                    }
                                 }
                             }
                         }
                         gast = request.getParameterValues("gastosExc");
+                        // Se optienen los gastos excepcionales en caso de que existan 
                         if(gast != null){
                             cuen = request.getParameter("cuentasExc");
                             cuenta = Cuenta.findById(new BigInteger(cuen));
+                            // Se realiza el mismo proceso que se realizo anteriormente
                             for (String resultado : gast) {
                                 GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
                                 if(Gastoexc.validarGastoExc(gasto.getGastoId())){
@@ -127,13 +142,19 @@ public class GastoServlet extends HttpServlet {
                                         }else{
                                             homologar.setEstado('P');
                                         }
-                                        homologar.addHomologacion();
+                                        errorHom = homologar.addHomologacion();
+                                        if(errorHom.equals("")){
+                                            gasto.actualizarEstado('R');
+                                        }else{
+                                            errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                            homologar.removeHomologacion();
+                                        }
                                     }
                                 }
                             }
                         }
                     }catch(Exception ex){
-                        errorH = true;
+                        errorH.add("Error: "+ex.getMessage()+" "+ex.toString());
                     }
                     BigInteger mesPend = new BigInteger(request.getParameter("mes"));
                     AnhoProyect anhoPend = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
@@ -146,6 +167,7 @@ public class GastoServlet extends HttpServlet {
                     request.getRequestDispatcher("gastos.jsp").forward(request, response);
                 break;
                 case "marcarGastos":
+                    // Se carga el formulario para homologar los gastos 
                     String[] result = request.getParameterValues("gastos");
                     ArrayList<GastoMes> gastos = new ArrayList<>();
                     ArrayList<GastoMes> excepciones = new ArrayList<>();
@@ -288,12 +310,6 @@ public class GastoServlet extends HttpServlet {
                                     map.put("anho", request.getParameter("idAnho"));
                                     map.put("mes", mes);
                                     response.getWriter().write(new Gson().toJson(map));
-                            } else {
-                                /*
-                                request.setAttribute("mes", mes);
-                                request.setAttribute("anho", request.getParameter("idAnho"));
-                                request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
-                                */
                             }
                         } catch (FileNotFoundException fne) {
                             String detalle = "No se pudo cargar el archivo, por favor cargue "

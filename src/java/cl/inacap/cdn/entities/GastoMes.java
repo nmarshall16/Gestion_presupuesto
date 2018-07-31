@@ -244,9 +244,11 @@ public class GastoMes implements Serializable {
             return nCuenta;
         }
         
-        public boolean actualizarAtributoPago(FuenteF fuente, String atributo){
-            boolean validacion = false;
-            try{
+        public String actualizarAtributoPago(FuenteF fuente, String atributo, Presupuesto presupuesto){
+            String error = "";
+            error = presupuesto.aumentarPresupuesto(this.getImporte().longValue());
+            if(error.equals("")){
+                try{
                     Gasto gastoG = Gasto.findGasto(fuente.getCodCentro(), this.getGastoId().getCodCuenta());
                     EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
                     EntityManager em = emf.createEntityManager();
@@ -257,12 +259,13 @@ public class GastoMes implements Serializable {
                     gasto.setGastoId(gastoG);
                     trans.commit();
                     em.close();
-                    validacion = true;
-            }catch(Exception ex){
-                    validacion = false;
-                    System.out.print(ex);
+                    Presupuesto nPresupuesto = Presupuesto.findByFuenteAndCuenta(fuente, presupuesto.getCuentaId(), this.getAnhoProyectId());
+                    error = nPresupuesto.restarPresupuesto(gasto.getImporte().longValue());
+                }catch(Exception ex){
+                    error = "Error: "+ex.getMessage();
+                }
             }
-            return validacion;
+            return error;
         }
         
 	public BigDecimal getId() {

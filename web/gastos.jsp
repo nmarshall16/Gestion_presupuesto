@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.math.BigDecimal"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
 <%@page import="cl.inacap.cdn.entities.Homologar"%>
@@ -120,6 +121,23 @@
       %>
       </p>
       <br>
+      <%
+        if(request.getAttribute("error")!=null){
+            ArrayList<String> errores = (ArrayList<String>)request.getAttribute("error");
+            if(errores.size()>0){
+      %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <c:forEach items="${requestScope.error}" var="error">
+                    <p>${error}</p>
+                </c:forEach>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+      <%
+            }
+        }
+      %>
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">

@@ -11,6 +11,7 @@ import cl.inacap.cdn.entities.CBanco;
 import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.GastoMes;
 import cl.inacap.cdn.entities.Homologar;
+import cl.inacap.cdn.entities.Presupuesto;
 import cl.inacap.cdn.entities.Proyecto;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -49,6 +50,7 @@ public class ValidarServlet extends HttpServlet {
                 int accion = Integer.parseInt(request.getParameter("op"));
                 switch(accion){
                     case 1:
+                        // Se cargan las homologaciones que se encuentre pendientes por validar en la vista de verificar.jsp
                         BigDecimal bd = new BigDecimal(request.getParameter("anho"));
                         String mes = request.getParameter("mes");
                         ArrayList<Homologar> gastos = Homologar.getGastosPendientes(AnhoProyect.findById(bd.intValue()), mes);
@@ -59,6 +61,7 @@ public class ValidarServlet extends HttpServlet {
                     break;
 
                     case 2:
+                        // Se recibe la cuenta que se quiere validar y se envia a formulario de validacion 
                         if(request.getParameter("id")!=null){
                             Homologar homologacion = Homologar.findById(new BigDecimal(request.getParameter("id")));
                             request.setAttribute("homologacion", homologacion);
@@ -67,6 +70,7 @@ public class ValidarServlet extends HttpServlet {
                     break;
                     
                     case 3:
+                        // Respuesta ajax al solicitar las cuentas asociadas a una fuente de financiamiento
                         Gson gson = new Gson();
                         Map <String, String> map = new HashMap<String, String>();
                         if (request.getParameter("idProyect")!=null && request.getParameter("codFuente")!=null) {
@@ -93,6 +97,7 @@ public class ValidarServlet extends HttpServlet {
                     break;
                     
                     case 4:
+                        // Se reciben el formulario de validacion y se valida el gasto en caso que no ocurra ningun error
                         if(request.getParameter("idHomol")!=null){
                             Homologar homologar = Homologar.findById(new BigDecimal(request.getParameter("idHomol")));
                             GastoMes gastoH = homologar.getGastoMesId();
@@ -103,9 +108,15 @@ public class ValidarServlet extends HttpServlet {
                             FuenteF fuenteH = FuenteF.findById(new BigDecimal(request.getParameter("fuente")));
                             String[] gasto = homologar.getGastoMesId().getAtributoPago().split(" ");
                             String monto = gasto[4];
-                            String atributo = "("+pago+" "+banco+" "+cuenta+" "+documento+" "+monto;
-                            if(gastoH.actualizarAtributoPago(fuenteH, atributo)){
+                            String atributo = "("+pago+" "+banco+" "+cuenta+" "+documento+" "+monto; // Se genera el formato para el atributo de pago 
+                            Presupuesto presupuestoV = Presupuesto.findByFuenteAndCuenta(gastoH.getGastoId().getFuenteFCodCentro(), homologar.getCuentaId(), gastoH.getAnhoProyectId());
+                            // Se cambia el atributo de pago y se actualiza el presupuesto afectado por el gasto 
+                            String errorV = gastoH.actualizarAtributoPago(fuenteH, atributo,presupuestoV);
+                            // En caso que no exista error se cambia el estado de la homologacion a validado
+                            if(errorV.equals("")){
                                 homologar.actualizarEstado('V');
+                            }else{
+                                request.setAttribute("error", errorV);
                             }
                             ArrayList<Homologar> gastosH = Homologar.getGastosPendientes(gastoH.getAnhoProyectId(), gastoH.getMes().toString());
                             request.setAttribute("gastos", gastosH);

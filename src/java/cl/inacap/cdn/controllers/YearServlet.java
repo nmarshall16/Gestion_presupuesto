@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -47,13 +48,13 @@ public class YearServlet extends HttpServlet {
                     // CARGAR VISTA PARA CREACIÓN DE NUEVO AÑO
                     // Obteniendo cuentas
                         request.setAttribute("ctas", Cuenta.findAll());
-						request.setAttribute("fuentes", FuenteF.findAll());
+			request.setAttribute("fuentes", FuenteF.findAll());
                     // Obteniendo id de proyecto
                         BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro"))); 
                     // Setear datos obtenidos y construir vista
                         request.setAttribute("proyecto", Proyecto.findById(idPro));
                         request.setAttribute("anho", String.valueOf(AnhoProyect.countYearsOfProyect(Proyecto.findById(idPro))));
-                        request.getRequestDispatcher("nuevoAno.jsp").forward(request, response);
+                        request.getRequestDispatcher("newYear.jsp").forward(request, response);
                     break;
                 case 2: 
                     // GUARDAR NUEVO AÑO DE PROYECTO
@@ -95,12 +96,12 @@ public class YearServlet extends HttpServlet {
                     }
                     break;
                 case 4: 
-					try{
-						anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-						savePresupuestos(request, response, anho);
-					}catch(IOException | NullPointerException | ServletException ex){
-						
-					}
+                    try{
+                            anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                            savePresupuestos(request, response, anho);
+                    }catch(IOException | NullPointerException | ServletException ex){
+
+                    }
                     break;
                 default: 
                     break;
@@ -120,24 +121,13 @@ public class YearServlet extends HttpServlet {
         // Obteniendo Proyecto
         BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro")));
         proyecto = Proyecto.findById(idPro);
-
         if (proyecto != null) {
             // Obteniendo numero de años de proyecto
             numAnho = AnhoProyect.countYearsOfProyect(proyecto);
-
             //Obteniendo y transformando fechas
             String[] fechas = getFechas(request.getParameter("fechas").split(" - "));
             fechaIni = new Date(fechas[0]);
             fechaTer = new Date(fechas[1]);
-            
-            // DATOS DE PRUEBA PROVISORIOS
-            out.print("Impreso desde saveYear() <br><br>");
-            out.print(BigInteger.valueOf(numAnho)+"<br>");
-            out.print(fechaIni.toString()+"<br>");
-            out.print(fechaTer.toString()+"<br>");
-            out.print(calculateTotal(request)+"<br>");
-            out.print(proyecto+"<br>");
-
             // CREAR AÑO DE PROYECTO Y VALIDAR DATOS
             AnhoProyect anhoPro = new AnhoProyect(
                BigInteger.valueOf(numAnho), 
@@ -147,22 +137,9 @@ public class YearServlet extends HttpServlet {
                calculateTotal(request), 
                proyecto
             );                   
-
             // Guardar Nuevo Año de proyecto
             anhoPro = AnhoProyect.insAnho(anhoPro);
-            
-            // PROBANDO DATOS DE NUEVO AÑO INGRESADO
-            AnhoProyect aPro = AnhoProyect.findById(anhoPro.getId().intValue());
-
-            // DATOS DE PRUEBA PROVISORIOS
-            out.print(aPro.getId()+"<br>");
-            out.print(aPro.getInicio()+"<br>");
-            out.print(aPro.getTermino()+"<br>");
-            out.print(aPro.getNum()+"<br>");
-            out.print("Id Pro "+aPro.getProyectoId().getId()+"<br>");
-            
             request.setAttribute("mensaje", "Año Añadido Correctamente");
-            
             return anhoPro;
         }
         request.setAttribute("mensaje", "El Año No Se Ha Podido Guardar");
@@ -175,32 +152,29 @@ public class YearServlet extends HttpServlet {
     */
     private void savePresupuestos(HttpServletRequest request, HttpServletResponse response, AnhoProyect anho)
             throws ServletException, IOException, NullPointerException{
-        
         PrintWriter out = response.getWriter();
-        out.print("<br>Impreso desde saveYear() <br><br>");
-        Presupuesto presu	= null;
         List<Cuenta> ctas	= Cuenta.findAll();
-        List<FuenteF> ff	= FuenteF.findAll();
-        BigInteger totalF	= new BigInteger("0");
-		
-        String[] sercotec   = request.getParameterValues("sercotec");
-        String[] inacap     = request.getParameterValues("inacap");
-        String[] pecuniario = request.getParameterValues("pecuniarios");
-		
-        for (int i = 0; i <= ctas.size()-1 ; i++ ) {
-            for (int j = 0; j <= ff.size()-1 ; j++) {
-                switch(i){
-                    case 0: totalF = new BigInteger(sercotec[j]); break;
-                    case 1: totalF = new BigInteger(inacap[j]); break;
-                    case 2: totalF = new BigInteger(pecuniario[j]); break;
+	String[] fuentes   = request.getParameterValues("fuentes");
+        BigInteger montoP = null;
+        String[] presupues = null;
+        FuenteF fuenteF = null;
+        for(Cuenta cuenta:ctas){
+            for(String fuente:fuentes){
+                try{
+                    fuenteF = FuenteF.findById(new BigDecimal(fuente));
+                    if(fuenteF!=null){
+                        montoP = new BigInteger(request.getParameter(cuenta.getId()+"-"+fuente));
+                    }
+                }catch(Exception ex){
+                    montoP = new BigInteger("0");
                 }
                 Presupuesto presupuesto = new Presupuesto(
-                    totalF, 
-                    totalF, 
+                    montoP, 
+                    montoP, 
                     BigInteger.valueOf(0), 
                     anho, 
-                    ctas.get(j), 
-                    ff.get(i)
+                    cuenta, 
+                    fuenteF
                 );
                 Presupuesto.insPresupuesto(presupuesto);
             }
@@ -212,21 +186,21 @@ public class YearServlet extends HttpServlet {
     *  Calcular total de presupuesto de nuevo año
     */
     private BigInteger calculateTotal(HttpServletRequest request){
-        
         int total = 0;
-        String[] sercotec   = request.getParameterValues("sercotec");
-        String[] inacap     = request.getParameterValues("inacap");
-        String[] pecuniario = request.getParameterValues("pecuniarios");
-        
-        List<Cuenta> ctas = Cuenta.findAll();
-        List<FuenteF> ff = FuenteF.findAll();
-                
-        for (int i = 0; i <= ctas.size()-1 ; i++ ) {
-            for (int j = 0; j <= ff.size()-1 ; j++) {
-                switch(i){
-                    case 0: total += Integer.parseInt(sercotec[j]); break;
-                    case 1: total += Integer.parseInt(inacap[j]); break;
-                    case 2: total += Integer.parseInt(pecuniario[j]); break;
+        String[] fuentes   = request.getParameterValues("fuentes");
+        List<Cuenta> ctas = Cuenta.findAll(); 
+        int monto = 0;
+        boolean validacion = true;
+        for(Cuenta cuenta:ctas){
+            for(String fuente:fuentes){
+                try{
+                    monto = Integer.parseInt(request.getParameter(cuenta.getId()+"-"+fuente));
+                    validacion = true;
+                }catch(NumberFormatException ex){
+                    validacion = false;
+                }
+                if(validacion){
+                    total += monto;
                 }
             }
         }

@@ -13,9 +13,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <% 
-	List<Cuenta>		cuentas			= (List)request.getAttribute("ctas");
-	List<FuenteF>		fuentes			= (List)request.getAttribute("fuentes");
-	List<Presupuesto>	presupuestos	= (List)request.getAttribute("presupuestos");
+	List<Cuenta> cuentas = (List)request.getAttribute("ctas");
+	List<FuenteF> fuentes = (List)request.getAttribute("fuentes");
+	List<Presupuesto> presupuestos = (List)request.getAttribute("presupuestos");
 %>
 
 <!DOCTYPE html>

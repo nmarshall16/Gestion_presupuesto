@@ -93,6 +93,9 @@
     <%  if (request.getAttribute("ctas") != null) { %> 
       <!-- CARTA -->
       <form action="Year.do" method="post">
+        <c:forEach items="${requestScope.fuentes}" var="fte">
+            <input type="hidden" name="fuentes" value="${fte.codCentro}">
+        </c:forEach>
         <div class="row">
           <div class="col-lg-4">
             <h3>Añadir Nuevo Año</h3>
@@ -130,16 +133,21 @@
               <tr>
                 <th scope="col">Cuentas</th>
                 <c:forEach items="${requestScope.fuentes}" var="fte">
-					<th scope="col">${fte.nombre}</th>
-				</c:forEach>
+                    <th scope="col">${fte.nombre}</th>
+		</c:forEach>
               </tr>
             </thead>
             <tfoot>
               <tr>
                 <td>Total:</td>
+                <c:forEach items="${requestScope.fuentes}" var="fte">
+                    <td id="T${fte.nombre}">$0</td>
+                </c:forEach>
+                <!--
                 <td id="Tsercotec">$0</td>
                 <td id="Tinacap">$0</td>
                 <td id="Tpecuniarios">$0</td>
+                -->
               </tr>
                <tr>
                 <td>Total General:</td>
@@ -147,16 +155,14 @@
               </tr>
             </tfoot>
             <tbody>
-
-			<c:forEach items="${requestScope.ctas}" var="cta">
-				<tr id="${cta.id}">
-					<th scope="row">${cta.nombre}</th>
-					<td><input type="number" name="sercotec" class="form-control" value="0"></td>
-					<td><input type="number" name="inacap" class="form-control" value="0"></td>
-					<td><input type="number" name="pecuniarios" class="form-control" value="0"></td>
-				</tr>
-			</c:forEach>
-
+                <c:forEach items="${requestScope.ctas}" var="cta">
+                    <tr id="${cta.id}">
+			<th scope="row">${cta.nombre}</th>
+                        <c:forEach items="${requestScope.fuentes}" var="fte">
+                            <td><input type="number" name="${cta.id}-${fte.codCentro}" class="form-control" value="0"></td>
+                        </c:forEach>
+                    </tr>
+		</c:forEach>
             </tbody>
           </table>
         </div>

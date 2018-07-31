@@ -99,9 +99,21 @@
         </li>
         <li class="breadcrumb-item active">Tables</li>
       </ol>
-
+      
       <!-- CARTA -->
       <div class="row">
+      <%
+        if(request.getAttribute("error")!=null){
+      %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <p><%=request.getAttribute("error")%></p>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+      <%
+        }
+      %>
         <div class="col-lg-4">
           <h3>Verificar Cuenta</h3>
         </div>
