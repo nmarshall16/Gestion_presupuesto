@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.util.List"%>
 <%@page import="cl.inacap.cdn.entities.Cuenta"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -23,7 +24,8 @@
   <!-- Page level plugin CSS-->
   <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
+  <link href="css/sb-admin.css" rel="stylesheet">  
+  <link href="css/custom.css" rel="stylesheet">
 
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
   <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/css/daterangepicker.css" />
@@ -89,43 +91,76 @@
         <li class="breadcrumb-item active">Tables</li>
       </ol>
 
+		<% String mensaje = (String)request.getAttribute("mensaje");
+			if(mensaje != null && mensaje.contains("Existe")){ %>
+		<div class="row">
+			<div class="col-md-2"></div>
+			<div class="alert alert-danger col-md-8 text-center"><%=mensaje%></div>
+			<div class="col-md-2"></div>
+		</div>
+		<% } %>
       <!-- CARTA -->
-      <h3>Generar Documento</h3><br>
+      <h3>El Documento A Generar Contendrá:</h3><br>
       <!-- Example DataTables Card-->
-      <form action="PDF" method="post">
-      <div class="row">
-        <div class="col-md-6">
-           <div class="card">
-              <div class="card-header" align="center">
-                <strong>Seleccionar Cuenta</strong>
-              </div>
-              <select class="custom-select" multiple size="7" name="cuenta">
-              <%
-                  List<Cuenta> cuentas = Cuenta.findAll();
-                  for(Cuenta cuenta:cuentas){
-              %>
-              <option value="<% out.print(cuenta.getId()); %>"><% out.print(cuenta.getNombre()); %></option>
-              <%
-                  }
-              %>
-              </select>
-            </div>
-        </div>
-      </div>
+      <form action="PDF" method="POST">
+		  <input type='hidden' value='<%=request.getParameter("mes")%>' name='mes'>
+		  <input type='hidden' value='<%=request.getParameter("anho")%>' name='anho'>
+		<div class="row">
+			<div class="col-md-6 col-sm-12">
+				<table id="tablaColumnas" class="table table-hover">
+					<thead>
+						<tr>
+							<th style="width: 5em">N°</th>
+							<th>Columna</th>
+							<th style="width: 5em"><button type="button" class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#nuevaColumna"><i class="fa fa-plus"></i></button></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${requestScope.columnas}" var="col">
+							<tr>							
+								<td>${col.key}</td>
+								<td>${col.value}</td>
+								<td>
+									<button type="button" class="btn btn-sm btn-danger ml-1 btnDel">
+										<i class="fa fa-trash"></i>
+									</button>
+									<i class='fa fa-arrows-v pull-right text-info'></i>
+									<input type="hidden" value="${col.value}" name="newCols">
+								</td>
+							</tr>
+						</c:forEach>
+					</tbody>
+					<tfoot>
+
+					</tfoot>
+				</table>
+			</div>
+			<div class="col-md-6 col-sm-12">
+			   <div class="card">
+				  <div class="card-header" align="center">
+					<strong>Seleccionar Cuenta</strong>
+				  </div>
+				  <select class="custom-select" multiple size="7" name="cuenta">
+					<c:forEach items="${requestScope.cuentas}" var="cta">
+						<option value="${cta.id}">${cta.nombre}</option>
+					</c:forEach>
+				  </select>
+				</div>
+			</div>
+		</div>
       <br>
-      <div class="row">
-        <div class="col-lg-2" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
-          </a>
-      </div>
-      <div class="col-lg-8">
-      </div>
-      <div class="col-lg-2" align="center">
-          <button type="submit"><i class="fa fa-file-text fa-2x"></i><br><strong>Generar Documento</strong></button>
-      </div>
-      </div>
-      </form>
+		<div class="row">
+			<div class="col-lg-2" align="center">
+				<a href="#" style="text-decoration: none;">
+					<i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
+				</a>
+			</div>
+			<div class="col-lg-8"></div>
+			<div class="col-lg-2" align="center">
+				<button type="submit" class="btn btn-link"><i class="fa fa-file-text fa-2x"></i><br><strong>Generar Documento</strong></button>
+			</div>
+		</div>
+	</form>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->
@@ -140,6 +175,31 @@
     <a class="scroll-to-top rounded" href="#page-top">
       <i class="fa fa-angle-up"></i>
     </a>
+	
+	<!-- Small modal -->
+	<div id="nuevaColumna" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="nuevaColumna" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="exampleModalLabel">Nueva Columna</h5>
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-md-12">
+							<input class="form-control" type="text" id="newCol" value="" placeholder="Ingrese Nombre De Columna">
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+					<button type="button" class="btn btn-primary" id="btnNewCol">Crear Columna</button>
+				</div>
+			</div>
+		</div>
+	</div>
     <!-- Logout Modal-->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -174,7 +234,50 @@
     <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
     <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+	<script>
+		$(document).ready(function(){
+			
+			var tabla = $( "#tablaColumnas tbody" ).sortable( {
+				update: function(event, ui){
+						$(this).children().each(function(index) {
+						$(this).find('td').first().html(index + 1);
+					});
+				}
+			});
+			
+			$('#btnNewCol').click(function(){
+				var num = $('#tablaColumnas tbody').children().last().children().first().text();
+				$('#tablaColumnas tbody').append(
+					"<tr>"
+						+"<td>"+(parseInt(num)+1)+"</td>"
+						+"<td>"+$('#newCol').val().toUpperCase().replace(/ /g, "_")+"</td>"						
+						+"<td>"
+							+"<button type='button' class='btn btn-sm btn-danger ml-1 btnDel'>"
+								+"<i class='fa fa-trash'></i>"
+							+"</button>"
+							+"<i class='fa fa-arrows-v pull-right text-info'></i>"
+							+"<input type='hidden' value='"+$('#newCol').val().toUpperCase().replace(/ /g, "_")+"' name='newCols'>"
+						+"</td>"
+					+"</tr>"
+				);
+				$('#nuevaColumna').modal('hide');
+				$('#newCol').val('');
+			});
+			
+			$('.btnDel').click(function(){
+				$(this).parent().parent().remove();
+				var cant = $('tbody').children().length;
+				$('tbody').children().children().first().text(1);
+				for(var i = 2 ; i <= cant ; i++){
+					$('tbody').children().eq(i-1).children().first().text(i);
+				}
+			});
+		});
+		
+	</script>
+	
   </div>
 </body>
 </html>

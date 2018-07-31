@@ -14,3 +14,7 @@ and open the template in the editor.
     color:#AAA;
     background:#F5F5F5;
 }
+
+#tablaColumnas td{
+	padding: .35rem;
+}
