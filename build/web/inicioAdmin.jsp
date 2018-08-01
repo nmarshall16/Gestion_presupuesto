@@ -40,7 +40,7 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos Eliminados">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="Proyect.do?accion=cargarElimandos">
             <i class="fa fa-fw fa-archive"></i>
             <span class="nav-link-text">Proyectos Eliminados</span>
           </a>
@@ -84,7 +84,7 @@
       <!-- CARTA -->
       <div class="row">
         <div class="col-lg-8 col-sm-8">
-          <h2>Proyectos Activos</h2>
+          <h2><%=request.getAttribute("tipoP")%></h2>
         </div>
         <div class="col-lg-4 col-sm-4">
           <a href="Proyect.do?accion=crearProyecto" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Nuevo Proyecto</p></a>

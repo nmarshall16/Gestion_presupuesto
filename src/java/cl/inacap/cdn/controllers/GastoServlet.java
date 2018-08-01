@@ -164,6 +164,7 @@ public class GastoServlet extends HttpServlet {
                     request.setAttribute("anho", anhoPend.getId());
                     request.setAttribute("gastos", gastosPend);
                     request.setAttribute("estado", GastoMes.validaEstadoGastos(gastosPend));
+                    request.setAttribute("tipo", "G");
                     request.getRequestDispatcher("gastos.jsp").forward(request, response);
                 break;
                 case "marcarGastos":

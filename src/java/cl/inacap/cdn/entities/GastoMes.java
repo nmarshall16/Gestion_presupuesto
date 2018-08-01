@@ -225,19 +225,21 @@ public class GastoMes implements Serializable {
 		if(gasto.getAtributoPago()!=null){
 			String[] atp = gasto.getAtributoPago().split(" ");
 			CBanco cuenta = CBanco.findByNumCta(new BigDecimal(atp[2]));
-			CBanco cuenteResult;
-			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-			EntityManager em = emf.createEntityManager();
-			em.getTransaction().begin();
-			try{
-				TypedQuery<CBanco> resultado = em.createQuery("SELECT c FROM CBanco c WHERE c.fuenteFCodCentro = :fuente AND c.numCuenta = :cuenta AND c.proyectoId = :proyecto", CBanco.class);
-				resultado.setParameter("fuente", gasto.getGastoId().getFuenteFCodCentro());
-				resultado.setParameter("cuenta", cuenta.getNumCuenta());
-				resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
-				cuenteResult = resultado.getSingleResult();
-			}catch(NoResultException ex){
-				cuenteResult = null;
-			}
+			CBanco cuenteResult = null;
+                        if(cuenta!=null){
+                            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                            EntityManager em = emf.createEntityManager();
+                            em.getTransaction().begin();
+                            try{
+                                    TypedQuery<CBanco> resultado = em.createQuery("SELECT c FROM CBanco c WHERE c.fuenteFCodCentro = :fuente AND c.numCuenta = :cuenta AND c.proyectoId = :proyecto", CBanco.class);
+                                    resultado.setParameter("fuente", gasto.getGastoId().getFuenteFCodCentro());
+                                    resultado.setParameter("cuenta", cuenta.getNumCuenta());
+                                    resultado.setParameter("proyecto", gasto.getAnhoProyectId().getProyectoId());
+                                    cuenteResult = resultado.getSingleResult();
+                            }catch(NoResultException ex){
+                                    cuenteResult = null;
+                            }
+                        }
 			if(cuenteResult!=null){
 				validacion = true;
 			}else{

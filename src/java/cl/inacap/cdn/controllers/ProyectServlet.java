@@ -68,133 +68,139 @@ public class ProyectServlet extends HttpServlet {
                             request.getRequestDispatcher("proyecto.jsp").forward(request, response);
                         break;
                         case "crearProyecto":
-							request.setAttribute("titulo", "Crear Proyecto");
-							request.setAttribute("proyecto", null);
-							request.setAttribute("mensaje", null);
+                            request.setAttribute("titulo", "Crear Proyecto");
+                            request.setAttribute("proyecto", null);
+                            request.setAttribute("mensaje", null);
                             request.setAttribute("bancos", Banco.findAll());                            
-							request.setAttribute("fuentes", FuenteF.findAll());                            
-							request.setAttribute("errores", errores);
+                            request.setAttribute("fuentes", FuenteF.findAll());                            
+                            request.setAttribute("errores", errores);
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
-						case "guardarProyecto":
-							errores.clear();
-							try{
-								if (valNewProyect(request).isEmpty()) {
-									// Guardar Nuevo Proyecto
-									if(request.getParameter("idProyect") == null){	
-										pro = Proyecto.insProyecto(
-											new Proyecto(
-												request.getParameter("nameProyect").trim(),
-												request.getParameter("codProyect").trim(),
-												df.parse(request.getParameter("fechaInicio")),
-												df.parse(request.getParameter("fechaTermino")),
-												'1'
-											)
-										);
-									}else{
-									// Actualizar Proyecto Exitente
-										pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
-										if (pro != null) {
-											if(valNewProyect(request).isEmpty()){
-												try{
-													pro.setNombre(request.getParameter("nameProyect").trim());
-													pro.setCodigo(request.getParameter("codProyect").trim());
-													pro.setFechaIni(df.parse(request.getParameter("fechaInicio")));
-													pro.setFechaFin(df.parse(request.getParameter("fechaTermino")));
-													Proyecto.updateProyecto(pro);
-												}catch(ParseException ex){
+                        case "guardarProyecto":
+                            errores.clear();
+                            try{
+                                if (valNewProyect(request).isEmpty()) {
+                                    // Guardar Nuevo Proyecto
+                                    if(request.getParameter("idProyect") == null){	
+                                        pro = Proyecto.insProyecto(
+                                            new Proyecto(
+                                                    request.getParameter("nameProyect").trim(),
+                                                    request.getParameter("codProyect").trim(),
+                                                    df.parse(request.getParameter("fechaInicio")),
+                                                    df.parse(request.getParameter("fechaTermino")),
+                                                    '1'
+                                            )
+                                        );
+                                    }else{
+                                    // Actualizar Proyecto Exitente
+                                        pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                                        if (pro != null) {
+                                            if(valNewProyect(request).isEmpty()){
+                                                try{
+                                                    pro.setNombre(request.getParameter("nameProyect").trim());
+                                                    pro.setCodigo(request.getParameter("codProyect").trim());
+                                                    pro.setFechaIni(df.parse(request.getParameter("fechaInicio")));
+                                                    pro.setFechaFin(df.parse(request.getParameter("fechaTermino")));
+                                                    Proyecto.updateProyecto(pro);
+                                                }catch(ParseException ex){
 
-												}
-											}
-										}
-									}
-									
-									response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&accion=mostrarProyecto");
-								}else{
-									request.setAttribute("errores", errores);
-									request.setAttribute("bancos", Banco.findAll());
-									request.getRequestDispatcher("Proyect.do?accion=crearProyecto").forward(request, response);
-								}
-							}catch(IOException | ParseException | ServletException e){
-								// AGREGAR SENTENCIAS EN CASO DE ERROR!
-								out.print(e.getClass()+"<br>");
-								// Imprimiendo detalle de error
-								StackTraceElement[] stack = e.getStackTrace();
-								String trace = "";
-								for(StackTraceElement linea : stack){
-								   trace += linea.toString()+"<br>";
-								}
-								out.print(trace);
-								out.print(e.initCause(e.getCause()));
-								out.print("<br>");
-							}
-						break;
-						case "eliminarProyecto":
-							pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
-							if (pro != null) {
-								Proyecto.hideProyecto(pro);
-							}
-							response.sendRedirect(request.getContextPath()+"/Proyect.do");
-						break;
-						case "modificarProyecto":
-							pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
-							if (pro != null){
-								request.setAttribute("titulo", "Modificar Proyecto");
-								request.setAttribute("proyecto", Proyecto.findById(new BigDecimal(request.getParameter("idProyect"))));
-								request.setAttribute("bancos", Banco.findAll());
-								request.setAttribute("errores", errores);
-							}else{
-								request.setAttribute("titulo", null);
-							}
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&accion=mostrarProyecto");
+                                }else{
+                                    request.setAttribute("errores", errores);
+                                    request.setAttribute("bancos", Banco.findAll());
+                                    request.getRequestDispatcher("Proyect.do?accion=crearProyecto").forward(request, response);
+                                }
+                            }catch(IOException | ParseException | ServletException e){
+                                // AGREGAR SENTENCIAS EN CASO DE ERROR!
+                                out.print(e.getClass()+"<br>");
+                                // Imprimiendo detalle de error
+                                StackTraceElement[] stack = e.getStackTrace();
+                                String trace = "";
+                                for(StackTraceElement linea : stack){
+                                   trace += linea.toString()+"<br>";
+                                }
+                                out.print(trace);
+                                out.print(e.initCause(e.getCause()));
+                                out.print("<br>");
+                            }
+                        break;
+                        case "eliminarProyecto":
+                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                            if (pro != null) {
+                                Proyecto.hideProyecto(pro);
+                            }
+                            response.sendRedirect(request.getContextPath()+"/Proyect.do");
+                        break;
+                        case "modificarProyecto":
+                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                            if (pro != null){
+                                request.setAttribute("titulo", "Modificar Proyecto");
+                                request.setAttribute("proyecto", Proyecto.findById(new BigDecimal(request.getParameter("idProyect"))));
+                                request.setAttribute("bancos", Banco.findAll());
+                                request.setAttribute("errores", errores);
+                            }else{
+                                request.setAttribute("titulo", null);
+                            }
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
-						break;
-						case "getCuentas":
-							gson = new Gson();
-							map = new HashMap<String, String>();
-							Banco banco = Banco.findById(new BigDecimal(request.getParameter("banco")));
-							if (banco != null) {
-								List<CBanco> cuentasB = CBanco.findAllByBanco(banco);
-								if (!cuentasB.isEmpty()) {
-									response.setContentType("application/json");
-									response.setCharacterEncoding("UTF-8");
-									try{
-										int cont = 1;
-										for (CBanco cta : cuentasB) {
-											map.put("cuenta"+cont , cta.getNumCuenta().toString());
-											cont++;
-										}
-										out.print(gson.toJson(map));
-										out.flush();
-										out.close();
-									}catch(java.lang.StackOverflowError ex){
-										out.print(ex);
-									}
-								}
-							}
-						break;
-						case "getBancos":
-							gson = new Gson();
-							map = new HashMap<String, String>();
-							List<Banco> bancos = Banco.findAll();
-							if (!bancos.isEmpty()) {
-								response.setContentType("application/json");
-								response.setCharacterEncoding("UTF-8");
-								try{
-									for (Banco bco : bancos) {
-										map.put(bco.getId().toString() , bco.getNombre());
-									}
-									out.print(gson.toJson(map));
-									out.flush();
-									out.close();
-								}catch(java.lang.StackOverflowError ex){
-									out.print(ex);
-								}
-							}
-						break;
-						default:
-						break;
+                        break;
+                        case "getCuentas":
+                            gson = new Gson();
+                            map = new HashMap<String, String>();
+                            Banco banco = Banco.findById(new BigDecimal(request.getParameter("banco")));
+                            if (banco != null) {
+                                List<CBanco> cuentasB = CBanco.findAllByBanco(banco);
+                                if (!cuentasB.isEmpty()) {
+                                    response.setContentType("application/json");
+                                    response.setCharacterEncoding("UTF-8");
+                                    try{
+                                        int cont = 1;
+                                        for (CBanco cta : cuentasB) {
+                                                map.put("cuenta"+cont , cta.getNumCuenta().toString());
+                                                cont++;
+                                        }
+                                        out.print(gson.toJson(map));
+                                        out.flush();
+                                        out.close();
+                                    }catch(java.lang.StackOverflowError ex){
+                                        out.print(ex);
+                                    }
+                                }
+                            }
+                        break;
+                        case "getBancos":
+                            gson = new Gson();
+                            map = new HashMap<String, String>();
+                            List<Banco> bancos = Banco.findAll();
+                            if (!bancos.isEmpty()) {
+                                response.setContentType("application/json");
+                                response.setCharacterEncoding("UTF-8");
+                                try{
+                                    for (Banco bco : bancos) {
+                                        map.put(bco.getId().toString() , bco.getNombre());
+                                    }
+                                    out.print(gson.toJson(map));
+                                    out.flush();
+                                    out.close();
+                                }catch(java.lang.StackOverflowError ex){
+                                    out.print(ex);
+                                }
+                            }
+                        break;
+                        case "cargarElimandos":
+                            request.setAttribute("tipoP", "Proyectos Eliminados");
+                            request.setAttribute("proyectos", Proyecto.findByEstado('0'));
+                            request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                        break;
+                        default:
+                        break;
                     }
                 }else{
+                    request.setAttribute("tipoP", "Proyectos Activos");
                     request.setAttribute("proyectos", Proyecto.findByEstado('1'));
                     request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
                 }
