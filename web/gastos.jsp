@@ -65,6 +65,10 @@
                 <span class="badge badge-primary badge-pill">
                     <%
                     BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    char tipo = request.getAttribute("tipo").toString().charAt(0);
+                    Locale cl = new Locale("es", "CL");
+                    NumberFormat formatter = NumberFormat.getCurrencyInstance(cl);
+                    SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
                     int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
                     out.print(p);
                     %>
@@ -112,7 +116,7 @@
 		  <div class="col-md-4">
 			  <h4>Mes De Proyecto : <strong><%=request.getAttribute("mes")%></strong></h4>
 		  </div>
-	  </div>
+      </div>
       <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
       <br>
       <%
@@ -135,7 +139,19 @@
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fa fa-table"></i> Gastos Mensuales</div>
+          <i class="fa fa-table"></i>
+        <%
+            switch(tipo){
+                case 'G':
+                    out.print("Gastos Mensuales");
+                break;
+
+                case 'A':
+                    out.print("Aportes Mensuales");
+                break;
+            }
+        %>
+       </div>
         <div class="card-body">
           <div class="table-responsive">
             <form method="post" action="Gasto.do">
@@ -143,43 +159,80 @@
               <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
               <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-              <thead align="center">
-                <tr>
-                  <th></th>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Importe</th>
-                  <th>Fecha Contable</th>
-                  <th>Numero Factura</th>
-                  <th>Rut Proveedor</th>
-                  <th>Nombre Proveedor</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody align="center">
-                  <%
-                  List<GastoMes> gastos = (List<GastoMes>)request.getAttribute("gastos");
-                  Locale cl = new Locale("es", "CL");
-                  NumberFormat formatter = NumberFormat.getCurrencyInstance(cl);
-                  SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
-                  for(GastoMes gasto:gastos){
-                  %>
-                <tr>
-                    <td><input type="checkbox" value="<%=gasto.getId()%>" name="gastos"></td>
-                    <td><%=(!gasto.getIdCompra().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
-                    <td><%=(gasto.getGastoId().getNombre().toUpperCase())%></td>
-                    <td><%=formatter.format(gasto.getImporte()).substring(2)%></td>
-                    <td><%=formateador.format(gasto.getFecha())%></td>
-                    <td><%=(!gasto.getNumFac().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
-                    <td><%=(gasto.getRutProvedor()!= null)?(gasto.getRutProvedor()):("-")%></td>
-                    <td><%=(gasto.getNombreProvedor()!= null)?(gasto.getNombreProvedor()):("-")%></td>
-                    <td>
-                    <%=(gasto.getStatus() != 'P')?"<i class='fa fa-check fa-2x text-success'></i>":"<i class='fa fa-times fa-2x text-danger'></i>"%></td>
-                </tr>
-                <% 
-                 }
-                %>
-              </tbody>
+              <%
+                switch(tipo){
+                    case 'G':
+              %>
+                    <thead align="center">
+                        <tr>
+                          <th></th>
+                          <th>ID</th>
+                          <th>Nombre</th>
+                          <th>Importe</th>
+                          <th>Fecha Contable</th>
+                          <th>Numero Factura</th>
+                          <th>Rut Proveedor</th>
+                          <th>Nombre Proveedor</th>
+                          <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody align="center">
+                        <%
+                        List<GastoMes> gastos = (List<GastoMes>)request.getAttribute("gastos");
+                        for(GastoMes gasto:gastos){
+                        %>
+                      <tr>
+                          <td><input type="checkbox" value="<%=gasto.getId()%>" name="gastos"></td>
+                          <td><%=(!gasto.getIdCompra().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
+                          <td><%=(gasto.getGastoId().getNombre().toUpperCase())%></td>
+                          <td><%=formatter.format(gasto.getImporte()).substring(2)%></td>
+                          <td><%=formateador.format(gasto.getFecha())%></td>
+                          <td><%=(!gasto.getNumFac().equals(new BigInteger("0")))?(gasto.getIdCompra()):("-")%></td>
+                          <td><%=(gasto.getRutProvedor()!= null)?(gasto.getRutProvedor()):("-")%></td>
+                          <td><%=(gasto.getNombreProvedor()!= null)?(gasto.getNombreProvedor()):("-")%></td>
+                          <td>
+                          <%=(gasto.getStatus() != 'P')?"<i class='fa fa-check fa-2x text-success'></i>":"<i class='fa fa-times fa-2x text-danger'></i>"%></td>
+                      </tr>
+                      <% 
+                       }
+                      %>
+                    </tbody>
+              <%
+                    break;
+
+                    case 'A':
+              %>
+                    <thead align="center">
+                        <tr>
+                          <th></th>
+                          <th>Fecha del asiento</th>
+                          <th>Descripción linea</th>
+                          <th>Importe</th>
+                          <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody align="center">
+                        <%
+                        List<GastoMes> aportes = (List<GastoMes>)request.getAttribute("gastos");
+                        for(GastoMes gasto:aportes){
+                        %>
+                      <tr>
+                          <td><input type="checkbox" value="<%=gasto.getId()%>" name="gastos"></td>
+                          <td><%=formateador.format(gasto.getFecha())%></td>
+                          <td><%=(gasto.getDescripcion())%></td>
+                          <td><%=formatter.format(gasto.getImporte()).substring(2)%></td>
+                          <td>
+                            <%=(gasto.getStatus() != 'P')?"<i class='fa fa-check fa-2x text-success'></i>":"<i class='fa fa-times fa-2x text-danger'></i>"%>
+                          </td>
+                      </tr>
+                      <% 
+                       }
+                      %>
+                    </tbody>
+              <%
+                    break;
+                }
+              %>
             </table>
             <br>
             <button type="submit" class="btn btn-primary" style="margin-left: 1%;">Homologar</button>

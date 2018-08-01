@@ -205,7 +205,8 @@ public class GastoServlet extends HttpServlet {
                         AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
                         Proyecto proyecto = anho.getProyectoId();
                         BigInteger mes = new BigInteger(request.getParameter("mes"));
-                        final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+mes+"."+ext; // Se genera el nombre del archivo
+                        char tipoG = request.getParameter("tipo").charAt(0);
+                        final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+mes+"_"+tipoG+"."+ext; // Se genera el nombre del archivo
                         OutputStream salida = null;
                         InputStream filecontent = null;
                         final PrintWriter writer = response.getWriter();
@@ -222,96 +223,202 @@ public class GastoServlet extends HttpServlet {
                             FileInputStream file = new FileInputStream(new File(path+"\\"+fileName)); // Se indica el archivo
                             XSSFWorkbook wb = new XSSFWorkbook(file);
                             XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
-                            Row validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
+                            Row validacion;
                             boolean error = false;
                             String detalleError = "No error"; 
-                            // Se valida el encabezado del archivo
-                            if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
-                            && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
-                            && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
-                            && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
-                            && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
-                            && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
-                            && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
-                            && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
-                            && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
-                            && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
-                            && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
-                            && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
-                            && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
-                            && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
-                            ){
-                                int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
-                                ArrayList<GastoMes> gastosAdd = new ArrayList<>();
-                                Date fecha;
-                                int fi = 0;
-                                for(int i = 6; i <= numFilas; i++){
-                                    Row fila = sheet.getRow(i);
-                                    if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
-                                        // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
-                                        GastoMes gastoMes = new GastoMes();
-                                        gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
-                                        gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
-                                        try{
-                                        fecha = fila.getCell(6).getDateCellValue();
-                                        }catch(Exception e){
-                                            fecha= null;
+                            switch(tipoG){
+                                case 'G':
+                                    validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
+                                    // Se valida el encabezado del archivo
+                                    if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
+                                    && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
+                                    && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
+                                    && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
+                                    && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
+                                    && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
+                                    && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
+                                    && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
+                                    && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
+                                    && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
+                                    && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
+                                    && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
+                                    && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
+                                    && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
+                                    ){
+                                        int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
+                                        ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                        Date fecha;
+                                        int fi = 0;
+                                        for(int i = 6; i <= numFilas; i++){
+                                            Row fila = sheet.getRow(i);
+                                            if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
+                                                // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
+                                                GastoMes gastoMes = new GastoMes();
+                                                gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
+                                                gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
+                                                try{
+                                                fecha = fila.getCell(6).getDateCellValue();
+                                                }catch(Exception e){
+                                                    fecha= null;
+                                                }
+                                                if(fecha!=null){
+                                                    gastoMes.setFecha(fecha);
+                                                }
+                                                gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
+                                                gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
+                                                gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
+                                                gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
+                                                gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
+                                                gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
+                                                gastoMes.setAnhoProyectId(anho);
+                                                gastoMes.setMes(mes);
+                                                gastoMes.setStatus('P');
+                                                gastoMes.setTipo('G');
+                                                Gasto gasto = new Gasto();
+                                                gasto = gasto.findGasto(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()), BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()));
+                                                // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
+                                                if(gasto != null){
+                                                    gastoMes.setGastoId(gasto);
+                                                }else{
+                                                    FuenteF financiamiento = FuenteF.findById(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()));
+                                                    Gasto newGasto = new Gasto(
+                                                    BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()),
+                                                    fila.getCell(4).getStringCellValue().toUpperCase(),
+                                                    financiamiento
+                                                    );
+                                                    newGasto.addGasto();
+                                                    gastoMes.setGastoId(newGasto);
+                                                }
+                                                gastoMes.addGastoMes(); // Se añade a la base de datos
+                                                gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
+                                            }else{
+                                                error = true;
+                                                fi = i;
+                                                break;
+                                            }
                                         }
-                                        if(fecha!=null){
-                                            gastoMes.setFecha(fila.getCell(6).getDateCellValue());
+                                        if(error){
+                                            GastoMes gastosB = new GastoMes();
+                                            gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
+                                            detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
                                         }
-                                        gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
-                                        gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
-                                        gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
-                                        gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
-                                        gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
-                                        gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
-                                        gastoMes.setAnhoProyectId(anho);
-                                        gastoMes.setMes(mes);
-                                        gastoMes.setStatus('P');
-                                        gastoMes.setTipo('G');
-                                        Gasto gasto = new Gasto();
-                                        gasto = gasto.findGasto(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()), BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()));
-                                        // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
-                                        if(gasto != null){
-                                            gastoMes.setGastoId(gasto);
-                                        }else{
-                                            FuenteF financiamiento = FuenteF.findById(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()));
-                                            Gasto newGasto = new Gasto(
-                                            BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()),
-                                            fila.getCell(4).getStringCellValue().toUpperCase(),
-                                            financiamiento
-                                            );
-                                            newGasto.addGasto();
-                                            gastoMes.setGastoId(newGasto);
-                                        }
-                                        gastoMes.addGastoMes(); // Se añade a la base de datos
-                                        gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
                                     }else{
                                         error = true;
-                                        fi = i;
-                                        break;
+                                        detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
                                     }
-                                }
-                                if(error){
-                                    GastoMes gastosB = new GastoMes();
-                                    gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
-                                    detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
-                                }
-                            }else{
-                                error = true;
-                                detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
+                                break;
+                                
+                                case 'A':
+                                    validacion = sheet.getRow(1); // Se obtiene la Secta fila del archivo
+                                    // Se valida el encabezado del archivo
+                                    if(validacion.getCell(0).getStringCellValue().toLowerCase().equals("un")
+                                    && validacion.getCell(1).getStringCellValue().toLowerCase().equals("asiento")
+                                    && validacion.getCell(2).getStringCellValue().toLowerCase().equals("cuenta")
+                                    && validacion.getCell(3).getStringCellValue().toLowerCase().equals("descr")
+                                    && validacion.getCell(4).getStringCellValue().toLowerCase().equals("centro resp")
+                                    && validacion.getCell(5).getStringCellValue().toLowerCase().equals("sede")
+                                    && validacion.getCell(6).getStringCellValue().toLowerCase().equals("producto")
+                                    && validacion.getCell(7).getStringCellValue().toLowerCase().equals("filial")
+                                    && validacion.getCell(8).getStringCellValue().toLowerCase().equals("cta banco")
+                                    && validacion.getCell(9).getStringCellValue().toLowerCase().equals("impte")
+                                    && validacion.getCell(10).getStringCellValue().toLowerCase().equals("ref")
+                                    && validacion.getCell(11).getStringCellValue().toLowerCase().equals("descr línea")
+                                    && validacion.getCell(12).getStringCellValue().toLowerCase().equals("estado")
+                                    && validacion.getCell(14).getStringCellValue().toLowerCase().equals("f asnto")
+                                    && validacion.getCell(15).getStringCellValue().toLowerCase().equals("orig")
+                                    && validacion.getCell(22).getStringCellValue().toLowerCase().equals("proy")
+                                    ){
+                                        int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
+                                        ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                        Date fecha;
+                                        BigInteger sede;
+                                        BigDecimal fuenteG;
+                                        BigInteger codCuent;
+                                        int fi = 0;
+                                        for(int i = 2; i <= numFilas; i++){
+                                            Row fila = sheet.getRow(i);
+                                            if(!fila.getCell(22).getStringCellValue().equals("")){
+                                                if(fila.getCell(22).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
+                                                    // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
+                                                    System.out.println("Si entro");
+                                                    GastoMes gastoMes = new GastoMes();
+                                                    gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(9).getNumericCellValue()));
+                                                    try{
+                                                    fecha = fila.getCell(14).getDateCellValue();
+                                                    sede = new BigInteger(fila.getCell(5).getStringCellValue());
+                                                    fuenteG = new BigDecimal(fila.getCell(4).getStringCellValue());
+                                                    codCuent = new BigInteger(fila.getCell(2).getStringCellValue());
+                                                    }catch(Exception e){
+                                                        System.out.println(e.toString());
+                                                        fecha = null;
+                                                        sede = null;
+                                                        codCuent = null;
+                                                        fuenteG = null;
+                                                        error = true;
+                                                        break;
+                                                    }
+                                                    gastoMes.setFecha(fecha);
+                                                    gastoMes.setSede(sede);
+                                                    gastoMes.setUnidadNegocio(fila.getCell(0).getStringCellValue());
+                                                    gastoMes.setAsiento(fila.getCell(1).getStringCellValue());
+                                                    gastoMes.setProducto(fila.getCell(6).getStringCellValue());
+                                                    gastoMes.setFilial(fila.getCell(7).getStringCellValue());
+                                                    gastoMes.setCuentaBanco(fila.getCell(8).getStringCellValue());
+                                                    gastoMes.setReferencia(fila.getCell(10).getStringCellValue());
+                                                    gastoMes.setDescripcion(fila.getCell(11).getStringCellValue());
+                                                    gastoMes.setEstado(fila.getCell(12).getStringCellValue());
+                                                    gastoMes.setOrigen(fila.getCell(15).getStringCellValue());
+                                                    gastoMes.setAnhoProyectId(anho);
+                                                    gastoMes.setMes(mes);
+                                                    gastoMes.setStatus('P');
+                                                    gastoMes.setTipo('A');
+                                                    Gasto gasto = new Gasto();
+                                                    gasto = Gasto.findGasto(fuenteG, codCuent);
+                                                    // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
+                                                    if(gasto != null){
+                                                        gastoMes.setGastoId(gasto);
+                                                    }else{
+                                                        FuenteF financiamiento = FuenteF.findById(fuenteG);
+                                                        Gasto newGasto = new Gasto(
+                                                        codCuent,
+                                                        fila.getCell(3).getStringCellValue().toUpperCase(),
+                                                        financiamiento
+                                                        );
+                                                        newGasto.addGasto();
+                                                        gastoMes.setGastoId(newGasto);
+                                                    }
+                                                    gastoMes.addGastoMes(); // Se añade a la base de datos
+                                                    gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
+                                                }else{
+                                                    error = true;
+                                                    fi = i;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if(error){
+                                            GastoMes gastosB = new GastoMes();
+                                            gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
+                                            detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
+                                        }
+                                    }else{
+                                        error = true;
+                                        detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
+                                    }
+                                break;
                             }
                             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
                                 // Return ajax response (e.g. write JSON or XML).
                                 Map <String, Object> map = new HashMap<String, Object>();
-                                    map.put("error", error);
-                                    map.put("detalle", detalleError);
-                                    map.put("anho", request.getParameter("idAnho"));
-                                    map.put("mes", mes);
-                                    response.getWriter().write(new Gson().toJson(map));
+                                map.put("error", error);
+                                map.put("detalle", detalleError);
+                                map.put("anho", request.getParameter("idAnho"));
+                                map.put("mes", mes);
+                                map.put("tipo", tipoG);
+                                response.getWriter().write(new Gson().toJson(map));
                             }
                         } catch (FileNotFoundException fne) {
+                            System.out.println(fne);
                             String detalle = "No se pudo cargar el archivo, por favor cargue "
                                     + "el archivo nuevamente y verifique que el archivo no "
                                     + "este protegido.";
@@ -343,11 +450,12 @@ public class GastoServlet extends HttpServlet {
                         }
                     }
                     }catch(NullPointerException ex){
+                        System.out.println(ex);
                         if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
                             errorAjax(response, "No se a cargado ningun archivo");
                         }
                     }catch(Exception ex){
-                    
+                        System.out.println(ex.toString());
                     }
                 break;
             }

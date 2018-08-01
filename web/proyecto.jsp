@@ -128,36 +128,36 @@
                 <i class="fa fa-table"></i> <% out.print(proyecto.getNombre()); %>
             </div>
             <div class=" row card-body">
-				<div class="row col-md-9 col-sm-8">
-					<div class="col-md-12 col-sm-12">
-						<p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
-					</div>
-					<div class="col-md-12 col-sm-12">
-						<p>N° Cuenta Corriente: <strong><% //out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
-					</div>
-					<div class="col-md-12 col-sm-12">
-						<p>Banco: <strong><% //out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
-					</div>
-					<div class="col-md-12 col-sm-12">
-						<p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
-					</div>
-					<div class="col-md-12 col-sm-12">
-						<p>Fecha Termino Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaFin())); %></strong></p>
-					</div>              
-				</div>
-				<div class="row">
-					<div class="col-md-12 col-sm-12">
-						<a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=proyecto.getId()%>&accion=modificarProyecto" style="text-decoration: none;">
-							<p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p>
-						</a>
-					</div>
-					<div class="col-md-12 col-sm-12 text-center">
-						<button class="btn btn-link text-danger" data-toggle="modal" data-target="#eliminarProyecto" style="text-decoration: none;">
-							<i class="fa fa-trash fa-2x"></i>
-							<br>Eliminar
-						</button>
-					</div>	
-				</div>
+                <div class="row col-md-9 col-sm-8">
+                    <div class="col-md-12 col-sm-12">
+                        <p>Codigo de Proyecto: <strong><% out.print(proyecto.getCodigo()); %></strong></p>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <p>N° Cuenta Corriente: <strong><% //out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <p>Banco: <strong><% //out.print(proyecto.getCBancoNumCuenta().getNumCuenta()); %></strong></p>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <p>Fecha Inicio Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaIni())); %></strong></p>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <p>Fecha Termino Proyecto: <strong><% out.print(dateFormato.format(proyecto.getFechaFin())); %></strong></p>
+                    </div>              
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=proyecto.getId()%>&accion=modificarProyecto" style="text-decoration: none;">
+                            <p align="center"><i class="fa fa-cog fa-2x"></i><br>Modificar</p>
+                        </a>
+                    </div>
+                    <div class="col-md-12 col-sm-12 text-center">
+                        <button class="btn btn-link text-danger" data-toggle="modal" data-target="#eliminarProyecto" style="text-decoration: none;">
+                            <i class="fa fa-trash fa-2x"></i>
+                            <br>Eliminar
+                        </button>
+                    </div>	
+                </div>
             </div>
           </div>
         </div>
@@ -182,6 +182,7 @@
                                     <th>Año Proyecto</th>
                                     <th>Presupuesto</th>
                                     <th>Mes</th>
+                                    <th>Tipo</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -190,6 +191,7 @@
                                     <th>Año Proyecto</th>
                                     <th>Presupuesto</th>
                                     <th>Mes</th>
+                                    <th>Tipo</th>
                                     <th></th>
                                 </tr>
                             </tfoot>
@@ -212,6 +214,12 @@
                                             <option value="10">Octubre</option>
                                             <option value="11">Noviembre</option>
                                             <option value="12">Diciembre</option>
+                                        </select>
+                                    </td>
+                                    <td class="tipo">
+                                        <select class="custom-select">
+                                            <option selected value="G">Gastos</option>
+                                            <option value="A">Aportes</option>
                                         </select>
                                     </td>
                                     <td><button type="button" class="btn btn-primary btn-block selectAnho" value="<% out.print(anho.getId()); %>">Seleccionar</button></td>

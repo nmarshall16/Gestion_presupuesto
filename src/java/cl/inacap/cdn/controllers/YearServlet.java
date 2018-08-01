@@ -79,20 +79,25 @@ public class YearServlet extends HttpServlet {
                     }
                     break;
                 case 3:
-                    BigInteger mes = new BigInteger(request.getParameter("mes"));
-                    anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                    List<GastoMes> gastos = GastoMes.findGastos(mes, anho);
-                    if(gastos.size() > 0){
-                        request.setAttribute("mes", mes);
-                        request.setAttribute("anho", anho.getId());
-                        request.setAttribute("gastos", gastos);
-                        request.setAttribute("estado", GastoMes.validaEstadoGastos(gastos));
-                        request.getRequestDispatcher("gastos.jsp").forward(request, response);
-                    }else{
-                        request.setAttribute("mes", mes);
-                        request.setAttribute("anho", anho.getId());
-                        request.setAttribute("opcion", "cargarGastos");
-                        request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                    if(request.getParameter("mes")!=null && request.getParameter("idAnho")!=null && request.getParameter("mes")!=null){
+                        BigInteger mes = new BigInteger(request.getParameter("mes"));
+                        anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                        char tipoD = request.getParameter("tipo").charAt(0);
+                        List<GastoMes> gastos = GastoMes.findGastos(mes, anho,tipoD);
+                        if(gastos.size() > 0){
+                            request.setAttribute("mes", mes);
+                            request.setAttribute("anho", anho.getId());
+                            request.setAttribute("gastos", gastos);
+                            request.setAttribute("estado", GastoMes.validaEstadoGastos(gastos));
+                            request.setAttribute("tipo", tipoD);
+                            request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                        }else{
+                            request.setAttribute("mes", mes);
+                            request.setAttribute("anho", anho.getId());
+                            request.setAttribute("opcion", "cargarGastos");
+                            request.setAttribute("tipo", tipoD);
+                            request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                        }
                     }
                     break;
                 case 4: 

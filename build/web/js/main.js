@@ -14,13 +14,15 @@ $(document).ready(function() {
     $(".selectAnho").on('click', function(){
         var fila = $(this).parent().parent();
         var meses = $(fila).children(".meses").children(); // Se optiene el select con los meses del año que se haya selecionado
-        $(location).attr('href', 'Year.do?idAnho='+$(this).val()+'&mes='+$(meses).val()+'&op=3');
+        var tipo = $(fila).children(".tipo").children(); // Se optiene el select con los meses del año que se haya selecionado
+        $(location).attr('href', 'Year.do?idAnho='+$(this).val()+'&mes='+$(meses).val()+'&tipo='+$(tipo).val()+'&op=3');
     });
     $("#uploadFileForm").ajaxForm({
        beforeSend: function(){
            $('#cargaModal').modal('show');
        },
        success: function(data){
+           console.log(data);
            var datos = $.parseJSON(data);
            if(datos.error){
                $(".error").text("ERROR: "+datos.detalle);
@@ -29,7 +31,7 @@ $(document).ready(function() {
            }else{
                $('#cargaModal').modal('toggle');
                $(".alert-success").show('slow/400/fast');
-               $(location).attr('href', 'Year.do?idAnho='+datos.anho+'&mes='+datos.mes+'&op=3');
+               $(location).attr('href', 'Year.do?idAnho='+datos.anho+'&mes='+datos.mes+'&tipo='+datos.tipo+'&op=3');
            }
        },
        error: function(data){

@@ -88,7 +88,20 @@
       </ol>
 
       <!-- CARTA -->
-      <h3>Mayor Contable Mensual</h3>
+      <h3>
+      <%
+        char tipo = request.getAttribute("tipo").toString().charAt(0);
+        switch(tipo){
+            case 'G':
+                out.print("Mayor Contable Mensual");
+            break;
+            
+            case 'A':
+                out.print("Aportes No Pecuniarios");
+            break;
+        }
+      %>
+      </h3>
       <p>No se encontro ningun archivo cargado, porfavor cargue su archivo aquí</p>
       <!-- Example DataTables Card-->
       <div class="alert alert-danger" role="alert" style="display: none;">
@@ -122,6 +135,7 @@
             <input type="file" name="archivo">
             <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
             <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
+            <input type="hidden" name="tipo" value="<%=request.getAttribute("tipo")%>">
             <input type="hidden" name="op" value="<%=request.getAttribute("opcion")%>">
           </div>
           <div class="form-group col-md-6">
