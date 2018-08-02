@@ -4,8 +4,11 @@
     Author     : dell
 --%>
 
+<%@page import="java.util.Locale"%>
+<%@page import="java.text.NumberFormat"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -79,17 +82,31 @@
 				<div class="row mt-4 ml-2">
 					<div class="col-lg-9 col-sm-9">
 						<h2>Completar Datos De Nuevas Columnas</h2>
-						<p class='text-info'>Hemos Detectado Nuevas Columas, Por Favor Complete Para Generar Documeto PDF</p>
+						<p class='text-danger'>Hemos Detectado Nuevas Columas, Por Favor Complete Para Generar Documeto PDF</p>
 					</div>
 					<div class="col-lg-3 col-sm-3">
 						<button type="submit" class="btn btn-link"><i class="fa fa-file-text fa-2x"></i><br>Generar Documento</button>
 					</div>
 				</div>
+				
+				<%=(request.getParameter("cuenta")!=null)?request.getParameter("cuenta"):""%>
+				<%=(request.getParameter("centro")!=null)?request.getParameter("centro"):""%>
+				<%=(request.getParameter("anho")!=null)?request.getParameter("anho"):""%>
+				<%=(request.getParameter("mes")!=null)?request.getParameter("mes"):""%>
+				
+				<input type="hidden" value="<%=(request.getParameter("cuenta")!=null)?request.getParameter("cuenta"):""%>" name="cuenta">
+				<input type="hidden" value="<%=(request.getParameter("centro")!=null)?request.getParameter("centro"):""%>" name="centro">
+				<input type="hidden" value="<%=(request.getParameter("anho")!=null)?request.getParameter("anho"):""%>" name="anho">
+				<input type="hidden" value="<%=(request.getParameter("mes")!=null)?request.getParameter("mes"):""%>" name="mes">
+				<input type="hidden" value="2" name="op">
 				<div class="row">
 					<div class="col-md-12 mt-4 ml-2">
-						<table id="tablaGastos" class="table table-hover">
+						<table id="tablaGastos" class="table" style="border-top: none;">
 							<thead>
-								<th>GASTO</th>
+							<th>
+								<br>ID COMPRA
+								<br><small>CÓD. CUENTA</small><small class="text-muted"> - Importe</small>
+							</th>
 								<c:forEach items="${requestScope.newCols}" var="col">
 									<th>${col}</th>
 								</c:forEach>
@@ -103,9 +120,14 @@
 							<tbody>
 								<c:forEach items="${requestScope.gastos}" var="gasto">
 									<tr>
-										<th>${gasto.importe}</th>
+										<th>
+											${gasto.gastoMesId.idCompra == 0?'-':gasto.gastoMesId.idCompra}
+											<br><small>${gasto.gastoMesId.gastoId.codCuenta}</small>
+											<small class="text-muted"> - $${gasto.gastoMesId.importe}</small><br>
+											${gasto.gastoMesId.id}
+										</th>
 									<c:forEach items="${requestScope.newCols}" var="col">
-										<td><input type='text' name="${col}" class="form-control"></td>
+										<td><c:choose><c:when test="${col == 'TIPO_DOCUMENTO'}"><select class="form-control" name="${gasto.gastoMesId.id}-${col}"><option value="0" selected disabled>--Seleccione Tipo Doc--</option><option value="1">Víatico</option><option value="2">Remuneración</option><option value="3">Factura</option><option value="4">Boleta De Honorarios</option><option value="5">Comprobante</option></select></c:when><c:when test="${col != 'TIPO_DOCUMENTO'}"><input type='<c:choose><c:when test = "${fn:containsIgnoreCase(col, 'fecha_')}">datetime-local</c:when><c:when test = "${fn:containsIgnoreCase(col, 'num_')}">number</c:when></c:choose>' name="${gasto.gastoMesId.id}-${col}" class="form-control " <c:if test = "${fn:containsIgnoreCase(col, 'fecha_')}"> min='2000-01-01'</c:if>></c:when></c:choose></td>
 									</c:forEach>
 									</tr>
 								</c:forEach>

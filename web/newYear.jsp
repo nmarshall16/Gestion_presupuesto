@@ -23,7 +23,8 @@
 
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
   <link rel="stylesheet" type="text/css" href="vendor/datetimepicker/css/daterangepicker.css" />
-
+	<!-- Custom CSS -->
+  <link href="css/custom.css" rel="stylesheet">
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
@@ -130,39 +131,34 @@
         <div class="card mb-3">
           <table id="cuentas" class="table table-hover">
             <thead>
-              <tr>
-                <th scope="col">Cuentas</th>
-                <c:forEach items="${requestScope.fuentes}" var="fte">
-                    <th scope="col">${fte.nombre}</th>
-		</c:forEach>
-              </tr>
+				<tr>
+					<th scope="col">Cuentas</th>
+					<c:forEach items="${requestScope.fuentes}" var="fte">
+						<th scope="col">${fte.nombre}</th>
+					</c:forEach>
+				</tr>
             </thead>
             <tfoot>
-              <tr>
-                <td>Total:</td>
-                <c:forEach items="${requestScope.fuentes}" var="fte">
-                    <td id="T${fte.nombre}">$0</td>
-                </c:forEach>
-                <!--
-                <td id="Tsercotec">$0</td>
-                <td id="Tinacap">$0</td>
-                <td id="Tpecuniarios">$0</td>
-                -->
-              </tr>
-               <tr>
-                <td>Total General:</td>
-                <td id="total" colspan="3">$0</td>
-              </tr>
+				<tr>
+					<td>Total:</td>
+					<c:forEach items="${requestScope.fuentes}" var="fte">
+						<td id="T${fte.nombre}">$0</td>
+					</c:forEach>
+				</tr>
+				<tr>
+					<td>Total General:</td>
+					<td id="total" colspan="3">$0</td>
+				</tr>
             </tfoot>
             <tbody>
                 <c:forEach items="${requestScope.ctas}" var="cta">
                     <tr id="${cta.id}">
-			<th scope="row">${cta.nombre}</th>
+						<th scope="row">${cta.nombre}</th>
                         <c:forEach items="${requestScope.fuentes}" var="fte">
-                            <td><input type="number" name="${cta.id}-${fte.codCentro}" class="form-control" value="0"></td>
-                        </c:forEach>
+						<td><input type="number" name="${cta.id}-${fte.codCentro}" class="form-control" value="0"></td>
+						</c:forEach>
                     </tr>
-		</c:forEach>
+				</c:forEach>
             </tbody>
           </table>
         </div>
@@ -209,9 +205,8 @@
           </a>
       </div>
       <% } %>
-    </div>
-    <!-- /.container-fluid-->
-    <!-- /.content-wrapper-->
+   
+    
     <footer class="sticky-footer">
       <div class="container">
         <div class="text-center">
@@ -241,26 +236,26 @@
         </div>
       </div>
     </div>
+	</div><!-- /.container-fluid-->
+</div><!-- /.content-wrapper-->
     
-    
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <!-- Page level plugin JavaScript-->
-    <script src="vendor/datatables/jquery.dataTables.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin.min.js"></script>
-    <!-- Custom scripts for this page-->
-    <script src="js/sb-admin-datatables.min.js"></script>
+  
+	<!-- Bootstrap core JavaScript-->
+	<script src="vendor/jquery/jquery.min.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!-- Core plugin JavaScript-->
+	<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+	<!-- Page level plugin JavaScript-->
+	<script src="vendor/datatables/jquery.dataTables.js"></script>
+	<script src="vendor/datatables/dataTables.bootstrap4.js"></script>
+	<!-- Custom scripts for all pages-->
+	<script src="js/sb-admin.min.js"></script>
+	<!-- Custom scripts for this page-->
+	<script src="js/sb-admin-datatables.min.js"></script>
 
-    <script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
-    <script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
-    <script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
-    <script type="text/javascript" src="vendor/calculador/calculador.js"></script>
-
-  </div>
+	<script type="text/javascript" src="vendor/datetimepicker/js/moment.min.js"></script>
+	<script type="text/javascript" src="vendor/datetimepicker/js/daterangepicker.js"></script>
+	<script type="text/javascript" src="vendor/datetimepicker/js/demo.js"></script>
+	<script type="text/javascript" src="vendor/calculador/calculador.js"></script>
 </body>
 </html>

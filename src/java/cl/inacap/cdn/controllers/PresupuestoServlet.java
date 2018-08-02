@@ -49,7 +49,7 @@ public class PresupuestoServlet extends HttpServlet {
 							// Cargar vista de presupuestos
 							request.setAttribute("ctas", Cuenta.findAll());			
 							request.setAttribute("fuentes", FuenteF.findAll());
-							request.setAttribute("presupuestos", Presupuesto.findAllByAnho(new AnhoProyect(new BigDecimal(request.getParameter("anhoProyecto")))));
+							request.setAttribute("presupuestos", Presupuesto.findAllByAnho(AnhoProyect.findById(Integer.parseInt(request.getParameter("anhoProyecto")))));
 						}catch(Exception ex){
 							request.setAttribute("mensaje", "Problemas Al Cargar Presupuestos Del Año Indicado");			
 						}

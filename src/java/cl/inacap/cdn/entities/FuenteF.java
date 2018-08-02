@@ -71,7 +71,8 @@ public class FuenteF implements Serializable {
         this.presupuestoList = presupuestoList;
         this.gastoList = gastosList;
     }
-     public static FuenteF findById(BigDecimal codigo){
+	
+	public static FuenteF findById(BigDecimal codigo){
         FuenteF fuenteF;
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();

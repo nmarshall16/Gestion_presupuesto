@@ -174,19 +174,20 @@
 					<div id="datos1" class="form-row">
 						<div class="form-group col-md-4 banco">
 							<label for="banco">Banco</label>
-							<select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="banco">
-								<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
-								<c:forEach items="${requestScope.bancos}" var="banco">
+							<div class="input-group bco">
+								<select id="banco" type="text" class="form-control bank <%=(proyecto!=null)?"lock":""%>" name="banco" onchange="selectBanco(this)">
+									<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Banco --</option>
+									<c:forEach items="${requestScope.bancos}" var="banco">
 									<option value="${banco.id}">${banco.nombre}</option>
-								</c:forEach>
-							</select>
+									</c:forEach>
+									<option value="otro">** Agregar Banco **</option>
+								</select>
+							</div>
 						</div>
 						<div class="form-group col-md-3 cuenta">
 							<label for="cuenta">Cuenta</label>
 							<div class="input-group cta">
-								<select type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="cuenta">
-									<option value="0" disabled <%=(proyecto == null) ? "selected" : "" %>>-- Seleccione Cuenta --</option>
-								</select>
+								<input type="number" min="0" class="form-control <%=(proyecto!=null)?"lock":""%>" placeholder="Ingrese Cuenta" name="cuenta">
 							</div>
 						</div>
 						<div class="form-group col-md-4 fuente">
@@ -286,50 +287,47 @@
 	<script type="text/javascript" src="js/myScript.js"></script>
 	
 	<script>
-		$("select[name=banco]").change(function () {
-			var id = $(this).val();
-			console.log($("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children());
+	   
+		function selectBanco(elem) {
+			if ($(elem).val() === "otro") {
+				$(elem).replaceWith(
+					'<input type="text" class="form-control" name="banco" placeholder="Ingresar Nuevo Banco">'
+					+"<div class='input-group-append'>"
+						+"<button class='btn btn-outline-danger' type='button' onclick='selectBack(this)'><i class='fa fa-times'></i></button>"
+					+"</div>"
+				);
+			}
+		}
+		
+		function selectBack(btn){
+			$(btn).parent().parent('.bco').html(
+				'<select id="banco" class="form-control bank" name="banco" onchange="selectBanco(this)">'
+					+'<option value="0" disabled selected>-- Seleccione Banco --</option>'
+				+'</select>'
+			);
+			cargarBancos();
+		}
+		
+		function cargarBancos(){
 			$.ajax({
 				url : 'Proyect.do',
 				data : {
-					accion:'getCuentas',
-					banco:id,
+					accion:'getBancos',
 				},
 				type : 'POST',
 				dataType : 'json',
 				success : function(data) {
-					for(var cta in data){
-						$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append(($('<option>', {value: data[cta], text: data[cta]})));
+					for(var bco in data){
+						$("#datos"+(contarDatosBancarios()-1)).children('.banco').children('.input-group').children('.form-control').append(($('<option>', {value: bco, text: data[bco]})));
 					}
-					$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append($('<option value="otro">*** Agregar Cuenta ***</option>'));
+					$("#datos"+(contarDatosBancarios()-1)).children('.banco').children('.input-group').children('.form-control').append($('<option value="otro">*** Agregar Cuenta ***</option>'));
 				},
 				error : function(xhr, status, detalle) {
-					$("#datos"+(contarDatosBancarios()-1)).children('.cuenta').children('.cta').children().append($('<option value="otro">*** Agregar Cuenta ***</option>'));
+					$("#datos"+(contarDatosBancarios()-1)).children('.banco').children('.input-group').children('.form-control').append($('<option value="otro">*** Agregar Cuenta ***</option>'));
 				}
 			});
-		});
-	
-		
-		function selectBack(btn){
-			console.log($(btn));
-			$(this).parent().parent('.cta').replaceWith(
-				'<select class="form-control" name="cuenta">'
-					+'<option value="0" disabled selected>-- Seleccione Cuenta --</option>'
-				+'</select>'
-			);
-			$('.cta .input-group-append').remove('');
-			cargarCuentas();
 		}
 		
-		$("select[name=cuenta]").change(function (){
-			if ($(this).val() === "otro") {
-				$(this).replaceWith('<input type="text" class="form-control" name="cuenta" placeholder="Ingresar Nueva Cuenta">');
-				$('.cta').append($("<div class='input-group-append'>"
-						+"<button class='btn btn-outline-danger' type='button' onclick='selectBack(this)'><i class='fa fa-times'></i></button>"
-					+"</div>")
-				);
-			}
-		});
 	</script>
   </div>
 </body>

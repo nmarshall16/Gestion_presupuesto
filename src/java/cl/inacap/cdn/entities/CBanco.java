@@ -70,10 +70,13 @@ public class CBanco implements Serializable {
         this.id = id;
     }
 
-    public BigDecimal getId() {
-        return id;
-    }
-
+	public CBanco(BigInteger numCuenta, Banco bancoId, FuenteF fuenteFCodCentro, Proyecto proyectoId) {
+		this.numCuenta = numCuenta;
+		this.bancoId = bancoId;
+		this.fuenteFCodCentro = fuenteFCodCentro;
+		this.proyectoId = proyectoId;
+	}
+	
     public static CBanco findByNumCta(BigDecimal id){
         CBanco cBanco = null;
         try{
@@ -138,6 +141,10 @@ public class CBanco implements Serializable {
 		em.close();
 		return cBanco;
 	}
+	
+	public BigDecimal getId() {
+        return id;
+    }
     
     public void setId(BigDecimal id) {
         this.id = id;

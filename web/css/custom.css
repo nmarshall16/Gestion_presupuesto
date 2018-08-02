@@ -8,6 +8,14 @@ and open the template in the editor.
     Author     : dell
 */
 
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+input[type=number]{-moz-appearance:textfield;}
+
 .lock{
 	cursor: not-allowed;
 	pointer-events:none;

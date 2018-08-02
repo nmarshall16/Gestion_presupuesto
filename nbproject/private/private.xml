@@ -3,20 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Gasto.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/GastoServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/gastos.jsp</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/ValidarServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/newYear.jsp</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/AnhoProyect.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/verificar.jsp</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/presupuesto.jsp</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/FuenteF.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/GastoMes.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/YearServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Homologar.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/PresupuestoServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Presupuesto.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/generarPDF.jsp</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/completePDF.jsp</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/nuevoProyecto.jsp</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/web/gastos.jsp</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/controllers/PdfServlet.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/Homologar.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/controllers/LoginServlet.java</file>
+            <file>file:/C:/Users/dell/Documents/NetBeansProjects/CDN/Gestion_presupuesto/src/java/cl/inacap/cdn/entities/FuenteF.java</file>
         </group>
     </open-files>
 </project-private>

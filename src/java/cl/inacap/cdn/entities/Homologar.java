@@ -24,7 +24,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
 	@NamedQuery(name = "Homologar.findAll", query = "SELECT h FROM Homologar h")
 	, @NamedQuery(name = "Homologar.findById", query = "SELECT h FROM Homologar h WHERE h.id = :id")
-	, @NamedQuery(name = "Homologar.findByEstado", query = "SELECT h FROM Homologar h WHERE h.estado = :estado")})
+	, @NamedQuery(name = "Homologar.findByEstado", query = "SELECT h FROM Homologar h WHERE h.estado = :estado")
+	, @NamedQuery(name = "Homologar.findAllByCtaFteV", query = "SELECT DISTINCT h FROM Homologar h INNER JOIN h.gastoMesId gm INNER JOIN gm.gastoId g INNER JOIN g.fuenteFCodCentro f WHERE h.cuentaId = :cuenta AND h.estado = :estado AND f.codCentro = :fuenteCod AND gm.mes = :mes AND gm.anhoProyectId = :anho")
+	, @NamedQuery(name = "Homologar.findAllByCtaV", query = "SELECT DISTINCT h FROM Homologar h INNER JOIN h.gastoMesId gm WHERE h.cuentaId = :cuenta AND h.estado = :estado AND gm.mes = :mes AND gm.anhoProyectId = :anho")})
 public class Homologar implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -52,35 +54,35 @@ public class Homologar implements Serializable {
 		this.id = id;
 	}
         
-        public static Homologar findById(BigDecimal id){
-            Homologar homol;
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-            EntityManager em = emf.createEntityManager();
-            em.getTransaction().begin();
-            TypedQuery<Homologar> result = em.createNamedQuery("Homologar.findById", Homologar.class);
-            result.setParameter("id", id);
-            homol = result.getSingleResult();
-            em.getTransaction().commit();
-            em.close();
-            emf.close();
-            return homol;
-        }
+	public static Homologar findById(BigDecimal id){
+		Homologar homol;
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		TypedQuery<Homologar> result = em.createNamedQuery("Homologar.findById", Homologar.class);
+		result.setParameter("id", id);
+		homol = result.getSingleResult();
+		em.getTransaction().commit();
+		em.close();
+		emf.close();
+		return homol;
+	}
         
 	public String addHomologacion(){
-            try{
-                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                    EntityManager em = emf.createEntityManager();
-                    EntityTransaction trans = em.getTransaction();
-                    trans.begin();
-                    em.persist(this);
-                    trans.commit();
-                    em.close();
-            }catch(Exception ex){
-                    System.out.print(ex);
-            }
-            Presupuesto presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
-            String error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
-            return error;
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			EntityTransaction trans = em.getTransaction();
+			trans.begin();
+			em.persist(this);
+			trans.commit();
+			em.close();
+		}catch(Exception ex){
+			System.out.print(ex);
+		}
+		Presupuesto presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+		String error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+		return error;
 	}
         
 	public static List<Homologar> findHomologaciones(GastoMes gasto){
@@ -97,6 +99,33 @@ public class Homologar implements Serializable {
 		}
 		return homologacion;
 	}
+	
+	public static List<Homologar> findHomologacionesV(Cuenta cuenta, FuenteF fte, AnhoProyect anho, int mes){
+		List<Homologar> homologacion = null;
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			em.getTransaction().begin();
+			TypedQuery<Homologar> result = null;
+			if(cuenta != null && fte != null){
+				result = em.createNamedQuery("Homologar.findAllByCtaFteV", Homologar.class);
+				result.setParameter("fuenteCod", fte.getCodCentro());
+				result.setParameter("cuenta", cuenta);
+				result.setParameter("estado", 'V');
+			}else{
+				result = em.createNamedQuery("Homologar.findAllByCtaV", Homologar.class);
+				result.setParameter("cuenta", cuenta);
+				result.setParameter("estado", 'V');
+			}
+			result.setParameter("anho", anho);
+			result.setParameter("mes", mes);
+			homologacion = result.getResultList();
+		}catch(NoResultException ex){
+			homologacion = null;
+		}
+		return homologacion;
+	}
+	
 
 	public static Homologar findHomologacion(GastoMes gasto){
 		Homologar homologacion = null;
@@ -128,77 +157,77 @@ public class Homologar implements Serializable {
 		}
 	}
         
-        public void actualizarEstado(char estado){
-            try{
-                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                    EntityManager em = emf.createEntityManager();
-                    EntityTransaction trans = em.getTransaction();
-                    trans.begin();
-                    Homologar homologacion = em.merge(this);
-                    homologacion.setEstado(estado); 
-                    trans.commit();
-                    em.close();
-            }catch(Exception ex){
-                    System.out.print(ex);
-            }
+	public void actualizarEstado(char estado){
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			EntityTransaction trans = em.getTransaction();
+			trans.begin();
+			Homologar homologacion = em.merge(this);
+			homologacion.setEstado(estado); 
+			trans.commit();
+			em.close();
+		}catch(Exception ex){
+			System.out.print(ex);
+		}
 	}
         
-        public static int getGastosP(AnhoProyect anho, String mes){
-            int largo = 0;
-            List<Homologar> homologacion = null;
-            ArrayList<Homologar> pendientes = new ArrayList<>();
-            try{
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                em.getTransaction().begin();
-                TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
-                buscarGasto.setParameter("estado", 'P');
-                homologacion = buscarGasto.getResultList();
-                for(Homologar ho:homologacion){
-                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
-                        pendientes.add(ho);
-                    }
-                }
-            }catch(NoResultException ex){
-                homologacion = null;
-            }
-            if(pendientes.size()>0){
-                largo = pendientes.size();
-            }
-            return largo;
-        }
-        
-        public static ArrayList<Homologar> getGastosPendientes(AnhoProyect anho, String mes){
-            List<Homologar> homologacion = null;
-            ArrayList<Homologar> pendientes = new ArrayList<>();
-            try{
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-                EntityManager em = emf.createEntityManager();
-                em.getTransaction().begin();
-                TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
-                buscarGasto.setParameter("estado", 'P');
-                homologacion = buscarGasto.getResultList();
-                for(Homologar ho:homologacion){
-                    if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
-                        pendientes.add(ho);
-                    }
-                }
-            }catch(NoResultException ex){
-                homologacion = null;
-            }
-            return pendientes;
-        }
-        
-        public void removeHomologacion(){
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-            EntityManager em = emf.createEntityManager();
-            EntityTransaction trans = em.getTransaction();
-            trans.begin();
-            Homologar homologar = em.find(Homologar.class, this.getId());
-            em.remove(homologar);
-            trans.commit();
-            em.close();
-        }
+	public static int getGastosP(AnhoProyect anho, String mes){
+		int largo = 0;
+		List<Homologar> homologacion = null;
+		ArrayList<Homologar> pendientes = new ArrayList<>();
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			em.getTransaction().begin();
+			TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
+			buscarGasto.setParameter("estado", 'P');
+			homologacion = buscarGasto.getResultList();
+			for(Homologar ho:homologacion){
+				if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
+					pendientes.add(ho);
+				}
+			}
+		}catch(NoResultException ex){
+			homologacion = null;
+		}
+		if(pendientes.size()>0){
+			largo = pendientes.size();
+		}
+		return largo;
+	}
+
+	public static ArrayList<Homologar> getGastosPendientes(AnhoProyect anho, String mes){
+		List<Homologar> homologacion = null;
+		ArrayList<Homologar> pendientes = new ArrayList<>();
+		try{
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+			EntityManager em = emf.createEntityManager();
+			em.getTransaction().begin();
+			TypedQuery<Homologar> buscarGasto = em.createQuery("SELECT h FROM Homologar h WHERE h.estado = :estado", Homologar.class);
+			buscarGasto.setParameter("estado", 'P');
+			homologacion = buscarGasto.getResultList();
+			for(Homologar ho:homologacion){
+				if(ho.getGastoMesId().getAnhoProyectId().equals(anho) && ho.getGastoMesId().getMes().equals(new BigInteger(mes))){
+					pendientes.add(ho);
+				}
+			}
+		}catch(NoResultException ex){
+			homologacion = null;
+		}
+		return pendientes;
+	}
+
+	public void removeHomologacion(){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction trans = em.getTransaction();
+		trans.begin();
+		Homologar homologar = em.find(Homologar.class, this.getId());
+		em.remove(homologar);
+		trans.commit();
+		em.close();
+	}
         
 	public BigDecimal getId() {
 		return id;

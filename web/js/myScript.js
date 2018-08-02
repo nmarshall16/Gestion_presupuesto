@@ -14,14 +14,16 @@ function agregarDatosBancarios(){
 	$('#datosBancarios').append(
 		"<div id='datos"+contarDatosBancarios()+"' class='form-row'>"
 			+"<div class='form-group col-md-4 banco'>"
-				+"<select type='text' class='form-control' name='banco'>"
-					+"<option value='0' disabled selected>-- Seleccione Banco --</option>"
-				+"</select>"
+				+"<div class='input-group bco'>"
+					+"<select type='text' class='form-control' name='banco' onchange='selectBanco(this)'>"
+						+"<option value='0' disabled selected>-- Seleccione Banco --</option>"
+					+"</select>"
+				+"</div>"
 			+"</div>"
 			+"<div class='form-group col-md-3 cuenta'>"
-				+"<select type='text' class='form-control' name='cuenta'>"
-					+"<option value='0' disabled selected>-- Seleccione Cuenta --</option>"
-				+"</select>"
+				+"<div class='input-group cta'>"
+					+"<input type='number' min='0' class='form-control' placeholder='Ingrese Cuenta' name='cuenta'>"
+				+"</div>"
 			+"</div>"
 			+"<div class='form-group col-md-4 fuente'>"
 				+"<select type='text' class='form-control' name='fuente'>"
@@ -34,8 +36,11 @@ function agregarDatosBancarios(){
 			+"<input name='idDivDato' type='hidden' value='datos"+contarDatosBancarios()+"' class='form-row'>"
 		+"</div>"
 	);
+	var fuentes = $('select[name=fuente]').children(':gt(-5)');
+	$('#datosBancarios').children().last().children().eq(2).children().append(fuentes);
+	console.log(fuentes);
 	changeCant(contarDatosBancarios());
-	getBancos();
+	cargarBancos();
 };
 
 function getBancos(){
