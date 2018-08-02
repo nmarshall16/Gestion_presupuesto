@@ -63,6 +63,16 @@ $(document).ready(function() {
             return false;
         }		
     });
+    $("#usuarioForm").submit(function(){
+        console.log("hola");
+        if($("#inputClave").val()!==""){
+            if($("#inputClave").val() !== $("#inputConfirmacion").val()){
+                $("#claveError").show('slow/400/fast');
+                $('body,html').animate({scrollTop : 0}, 500);
+                return false;
+            }
+        }
+    });
     $( "form" ).submit(function() {
         var filas = $(".filaExcepcion");
         var error = false;
@@ -85,7 +95,12 @@ $(document).ready(function() {
     $("#vaFuente").change(function(){
         cargarCuenta();
     });
-
+    
+    $(document).on('click', '.deleteUsuario', function(){
+        var rutUsu = $(this).val();
+        $("#modalEliminar").attr('href', 'Usuario.do?idUsuario='+rutUsu+'&op=5');
+        $('#eliminarUsuario').modal('show'); 
+    });
 });
 
 function cargarCuenta(){

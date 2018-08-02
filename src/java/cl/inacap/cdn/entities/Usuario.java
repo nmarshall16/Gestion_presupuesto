@@ -60,22 +60,108 @@ public class Usuario implements Serializable {
 	public Usuario(BigDecimal rut) {
 		this.rut = rut;
 	}
-
-    public static Usuario findById(BigDecimal rut){
-        Usuario usuario;
         
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
+        public Usuario(BigDecimal rut, char dv, String nombre, String apellido, String clave, TipoUsuario tipo) {
+		this.rut = rut;
+                this.dv = dv;
+                this.nombre = nombre;
+                this.apellido = apellido;
+                this.clave = clave;
+                this.tipoUsuarioId = tipo;
+	}
 
-        usuario = em.find(Usuario.class, rut);
+        public static Usuario findById(BigDecimal rut){
+            Usuario usuario;
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                em.getTransaction().begin();
+                usuario = em.find(Usuario.class, rut);
+                em.getTransaction().commit();
+                em.close();
+                emf.close();
+            }catch(NoResultException ex){
+                usuario = null;
+            }
+            return usuario;
+        }
         
-        em.getTransaction().commit();
-        em.close();
-        emf.close();
-        return usuario;
-    }
-    
+        public static List<Usuario> findAll(){
+            List<Usuario> usuarios;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<Usuario> result =  em.createNamedQuery("Usuario.findAll", Usuario.class);
+            usuarios = result.getResultList();
+            em.close();
+            emf.close();
+            if(usuarios.isEmpty()){
+                return null;
+            }else{
+                return usuarios;
+            }
+        }
+        
+        public void addUsuario(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            em.persist(this);
+            trans.commit();
+            em.close();
+        }
+        
+        public static boolean validarUsuario(BigDecimal rut){
+            Usuario usuario;
+            boolean validar = false;
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                em.getTransaction().begin();
+                usuario = em.find(Usuario.class, rut);
+                em.getTransaction().commit();
+                em.close();
+                emf.close();
+            }catch(NoResultException ex){
+                usuario = null;
+            }
+            if(usuario!=null){
+                validar = true;
+            }
+            return validar;
+        }
+        
+        public void modificarUsuario(Usuario newUsuario){
+            try{
+                    EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                    EntityManager em = emf.createEntityManager();
+                    EntityTransaction trans = em.getTransaction();
+                    trans.begin();
+                    Usuario usuario = em.merge(this);
+                    usuario.setRut(newUsuario.getRut());
+                    usuario.setDv(newUsuario.getDv());
+                    usuario.setNombre(newUsuario.getNombre());
+                    usuario.setApellido(newUsuario.getApellido());
+                    usuario.setClave(newUsuario.getClave());
+                    usuario.setTipoUsuarioId(newUsuario.getTipoUsuarioId());
+                    trans.commit();
+                    em.close();
+            }catch(Exception ex){
+                    System.out.print(ex);
+            }
+	}
+        
+        public void removeUsuario(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            Usuario usuario = em.find(Usuario.class, this.getRut());
+            em.remove(usuario);
+            trans.commit();
+            em.close();
+        }
+        
 	public BigDecimal getRut() {
 		return rut;
 	}

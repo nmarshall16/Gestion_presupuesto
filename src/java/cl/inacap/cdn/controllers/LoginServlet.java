@@ -6,6 +6,7 @@ package cl.inacap.cdn.controllers;
  * and open the template in the editor.
  */
 
+import cl.inacap.cdn.entities.MD5;
 import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,29 +41,35 @@ public class LoginServlet extends HttpServlet {
                 run = run.replace(".", "");
                 String[] rutDv = run.split("-");
                 BigDecimal rut = new BigDecimal(rutDv[0]);
-                
-                Usuario usuario = Usuario.findById(rut);
-                
-                if(usuario != null){
-                    if(usuario.getClave().equals(request.getParameter("clave"))){
-                        switch( usuario.getTipoUsuarioId().getId().intValue() ){
-                            case 1:
-                                request.getSession(true).setAttribute("user", usuario);
-                                response.sendRedirect("Proyect.do");
-                                break;
-                            case 2:
-                                break;
-                            case 3:
-                                break;
+                String alerta = "";
+                try{
+                    Usuario usuario = Usuario.findById(rut);
+                    if(usuario != null){
+                        String clave = MD5.Encriptar(request.getParameter("clave"));
+                        if(usuario.getClave().equals(clave)){
+                            switch( usuario.getTipoUsuarioId().getId().intValue() ){
+                                case 1:
+                                    request.getSession(true).setAttribute("user", usuario);
+                                    response.sendRedirect("Proyect.do");
+                                    break;
+                                case 2:
+                                    break;
+                                case 3:
+                                    break;
+                            }
+                        }else{
+                            alerta = "Clave Incorrecta";
                         }
-                        out.print("Se iniciado Sesión con exito "+usuario.getNombre());
                     }else{
-                        out.print("Clave Incorrecta");
+                        alerta = "Usuario Invalido";
                     }
-                }else{
-                    out.print("Usuario Invalido");
+                }catch(Exception ex){
+                    alerta = ex.getMessage();
                 }
-                
+                if(!alerta.equals("")){
+                    request.setAttribute("alerta", alerta);
+                    request.getRequestDispatcher("index.jsp").forward(request, response);
+                }
             }
         }
     }

@@ -50,7 +50,34 @@ public class TipoUsuario implements Serializable {
 	public TipoUsuario(BigDecimal id) {
 		this.id = id;
 	}
-
+        
+        public static TipoUsuario findById(BigDecimal id){
+            TipoUsuario tUsuario;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            tUsuario = em.find(TipoUsuario.class, id);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            return tUsuario;
+        }
+        
+        public static List<TipoUsuario> findAll(){
+            List<TipoUsuario> tipos;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<TipoUsuario> result =  em.createNamedQuery("TipoUsuario.findAll", TipoUsuario.class);
+            tipos = result.getResultList();
+            em.close();
+            emf.close();
+            if(tipos.isEmpty()){
+                return null;
+            }else{
+                return tipos;
+            }
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}

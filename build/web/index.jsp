@@ -25,6 +25,15 @@
             <div class="card card-login mx-auto mt-5">
                 <div class="card-header" align="center">CDN INACAP</div>
                 <div class="card-body">
+                    <% 
+                        if(request.getAttribute("alerta")!=null){
+                    %>
+                            <div class="alert alert-danger" role="alert">
+                               <i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=request.getAttribute("alerta")%>
+                            </div>
+                    <%
+                        }
+                    %>
                     <form action="Login.do" method="post">
                         <div class="form-group">
                             <input class="form-control" type="text" placeholder="Rut" name="rut" id="rut">

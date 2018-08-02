@@ -52,7 +52,7 @@
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="Usuario.do?op=1">
             <i class="fa fa-fw fa-users"></i>
             <span class="nav-link-text">Usuarios</span>
           </a>
