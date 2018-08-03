@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Nicolas
  */
+@WebServlet(urlPatterns = {"/index.html"})
 public class ProyectServlet extends HttpServlet {
 	DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 	List<String> errores = new ArrayList<>();
@@ -49,25 +51,20 @@ public class ProyectServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             // Consultar sesión de usuario
-            Usuario u = (Usuario)request.getSession(true).getAttribute("user");
+            try{
+                Usuario u = (Usuario)request.getSession(true).getAttribute("user");
             if (u != null) {
-                String action = request.getParameter("accion");
-                /* Se recibe el parametro accion enviado desde el jsp si el paremetro
-                es null se cargara el inicio del administrador con todos los proyectos activos */
-                if(action != null){
-                    /*
-                    Acciones del switch 
-                        - mostrarProyecto: Busca un proyecto determinado y carga la
-                          vista con todos sus datos y funcionalidades.
-                        - 
-                    */
-                    switch(action){
-                        case "mostrarProyecto":
-                            BigDecimal idProyecto = new BigDecimal(Integer.parseInt(request.getParameter("idProyect")));
-                            request.setAttribute("proyecto", Proyecto.findById(idProyecto));
-                            request.getRequestDispatcher("proyecto.jsp").forward(request, response);
+                if(request.getParameter("op") != null){
+                    int op = Integer.parseInt(request.getParameter("op"));
+                    switch(op){
+                        // Mostrar Proyectos eliminados
+                        case 1:
+                            request.setAttribute("tipoP", "Proyectos Eliminados");
+                            request.setAttribute("proyectos", Proyecto.findByEstado('0'));
+                            request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
                         break;
-                        case "crearProyecto":
+                        // Crear Proyecto 
+                        case 2:
                             request.setAttribute("titulo", "Crear Proyecto");
                             request.setAttribute("proyecto", null);
                             request.setAttribute("mensaje", null);
@@ -76,7 +73,30 @@ public class ProyectServlet extends HttpServlet {
                             request.setAttribute("errores", errores);
                             request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
                         break;
-                        case "guardarProyecto":
+                        
+                        // Eliminar Proyecto
+                        case 3:
+                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                            if (pro != null) {
+                                Proyecto.hideProyecto(pro);
+                            }
+                            response.sendRedirect(request.getContextPath()+"/Proyect.do");
+                        break;
+                        // Modificar Proyecto
+                        case 4:
+                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
+                            if (pro != null){
+                                request.setAttribute("titulo", "Modificar Proyecto");
+                                request.setAttribute("proyecto", Proyecto.findById(new BigDecimal(request.getParameter("idProyect"))));
+                                request.setAttribute("bancos", Banco.findAll());
+                                request.setAttribute("errores", errores);
+                            }else{
+                                request.setAttribute("titulo", null);
+                            }
+                            request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
+                        break;
+                        // Guardar Proyecto
+                        case 5:
                             errores.clear();
                             try{
                                 if (valNewProyect(request).isEmpty()) {
@@ -108,12 +128,17 @@ public class ProyectServlet extends HttpServlet {
                                             }
                                         }
                                     }
-                                    
-                                    response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&accion=mostrarProyecto");
+                                    response.sendRedirect("Proyect.do?idProyect="+pro.getId()+"&op=4");
                                 }else{
                                     request.setAttribute("errores", errores);
                                     request.setAttribute("bancos", Banco.findAll());
-                                    request.getRequestDispatcher("Proyect.do?accion=crearProyecto").forward(request, response);
+                                    if(request.getParameter("idProyect")!=null){
+                                        request.setAttribute("errores", request.getParameter("idProyect"));
+                                        request.getRequestDispatcher("Proyect.do?op=4").forward(request, response);
+                                    }else{
+                                        request.getRequestDispatcher("Proyect.do?op=2").forward(request, response);
+                                    }
+                                    //request.getRequestDispatcher("Proyect.do?op=5").forward(request, response);
                                 }
                             }catch(IOException | ParseException | ServletException e){
                                 // AGREGAR SENTENCIAS EN CASO DE ERROR!
@@ -129,26 +154,8 @@ public class ProyectServlet extends HttpServlet {
                                 out.print("<br>");
                             }
                         break;
-                        case "eliminarProyecto":
-                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
-                            if (pro != null) {
-                                Proyecto.hideProyecto(pro);
-                            }
-                            response.sendRedirect(request.getContextPath()+"/Proyect.do");
-                        break;
-                        case "modificarProyecto":
-                            pro = Proyecto.findById(new BigDecimal(request.getParameter("idProyect")));
-                            if (pro != null){
-                                request.setAttribute("titulo", "Modificar Proyecto");
-                                request.setAttribute("proyecto", Proyecto.findById(new BigDecimal(request.getParameter("idProyect"))));
-                                request.setAttribute("bancos", Banco.findAll());
-                                request.setAttribute("errores", errores);
-                            }else{
-                                request.setAttribute("titulo", null);
-                            }
-                            request.getRequestDispatcher("nuevoProyecto.jsp").forward(request, response);
-                        break;
-                        case "getCuentas":
+                        // Obtener cuentas 
+                        case 6:
                             gson = new Gson();
                             map = new HashMap<String, String>();
                             Banco banco = Banco.findById(new BigDecimal(request.getParameter("banco")));
@@ -172,7 +179,8 @@ public class ProyectServlet extends HttpServlet {
                                 }
                             }
                         break;
-                        case "getBancos":
+                        // Obtener Bancos
+                        case 7:
                             gson = new Gson();
                             map = new HashMap<String, String>();
                             List<Banco> bancos = Banco.findAll();
@@ -191,22 +199,30 @@ public class ProyectServlet extends HttpServlet {
                                 }
                             }
                         break;
-                        case "cargarElimandos":
-                            request.setAttribute("tipoP", "Proyectos Eliminados");
-                            request.setAttribute("proyectos", Proyecto.findByEstado('0'));
-                            request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                        //Mostrar Proyecto
+                        case 8:
+                            BigDecimal idProyecto = new BigDecimal(Integer.parseInt(request.getParameter("idProyect")));
+                            request.setAttribute("proyecto", Proyecto.findById(idProyecto));
+                            request.getRequestDispatcher("proyecto.jsp").forward(request, response);
                         break;
                         default:
                         break;
                     }
                 }else{
-                    request.setAttribute("tipoP", "Proyectos Activos");
-                    request.setAttribute("proyectos", Proyecto.findByEstado('1'));
-                    request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                    List<Proyecto> proyectos = Proyecto.findByEstado('1');
+                    if(proyectos.size()>1){
+                        request.setAttribute("tipoP", "Proyectos Activos");
+                        request.setAttribute("proyectos", Proyecto.findByEstado('1'));
+                        request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                    }
                 }
             }else{
-                String mensaje = "Su Sesión Ha Expirado\nInicie Sesión Nuevamente";
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             }
+            }catch(Exception ex){
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
+            
         }
     }
 

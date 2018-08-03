@@ -4,6 +4,9 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.Cuenta"%>
 <%@page import="java.math.BigInteger"%>
@@ -18,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Proyecto</title>
+    <title>CDN INACAP</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -34,42 +37,87 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">CDN INACAP</a>
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Mayor General</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
+          <a class="nav-link" href="Proyect.do">
+            <i class="fa fa-fw fa-home"></i>
+            <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="charts.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Aporte No Pecuniario</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
+        </li>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
+            <span class="nav-link-text">
+                Verificar Cuenta
+            <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+            </span>
+            </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-          <a class="nav-link" href="tables.html">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">Verificar Cuenta</span>
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="#collapseComponents">
-            <i class="fa fa-folder-open"></i>
-            <span class="nav-link-text">Documentos</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
+            <i class="fa fa-fw fa-sitemap"></i>
+            <span class="nav-link-text">Tipos de Usuario</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
-          <a class="nav-link" href="#collapseExamplePages">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Volver</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
+          <a class="nav-link" href="Usuario.do?op=1">
+            <i class="fa fa-fw fa-users"></i>
+            <span class="nav-link-text">Usuarios</span>
           </a>
         </li>
       </ul>
@@ -80,21 +128,24 @@
           </a>
         </li>
       </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
+        </li>
+      </ul>
     </div>
   </nav>
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+            <a href="Year.do?idAnho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&tipo=<%=request.getAttribute("tipo")%>&op=3">Gastos</a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item active">Homologar</li>
       </ol>
-
-      <!-- CARTA -->
-      <h3>Homologar</h3>
-      <p>Seleccione la cuenta a la cual estan asociados estos gastos</p>
       <div class="alert alert-danger alert-dismissible fade show" role="alert" id="errorDiv" style="display:none;">
           <p style="font-size: 12px;"><i class="fa fa-times-circle" aria-hidden="true"></i><strong id="errorJS"></strong></p>
       </div>
@@ -118,156 +169,165 @@
       <%
         }
       %>
-      <form method="post" action="Gasto.do" id="homologar">
-        <input type="hidden" name="op" value="homologar">
-        <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>" id="mes">
-        <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>" id="idAnho">
-        <input type="hidden" name="tipo" value="<%=tipo%>">
-        <div class="row" id="contentException">
-          <%
-          List<GastoMes> excepciones = (List<GastoMes>)request.getAttribute("excepciones");
-          if(excepciones.size()>0){
-          %>
-          <div class="col-md-5">
-            <div class="card">
-              <div class="card-header" align="center">
-                <strong>GASTOS EXCEPCIONALES</strong>
-              </div>
-              <table class="table">
-                <thead align="center">
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Nombre</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody align="center">
-                  <%
-                    for(GastoMes gasto:excepciones){
-                  %>
-                  <tr id="exc-<% out.print(gasto.getId()); %>" class="filaExcepcion">
-                      <th scope="row">
-                      <label style="font-size: 13px;">
-                      <%
-                        
-                        if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                      %>
-                      </label>
-                      <input type="hidden" name="gastosExc" value="<% out.print(gasto.getId()); %>" >
-                      </th>
-                      <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
-                    <td><button type="button" class="btn btn-outline-primary deleteExcepcion" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                  </tr>
-                  <%
-                    }
-                  %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="col-md-2" align="center">
-          </div>
-          <div class="col-md-5">
-            <div class="card">
-              <div class="card-header" align="center">
-                <strong>NOMBRE DE CUENTAS</strong>
-              </div>
-                <select class="custom-select" multiple size="7" name="cuentasExc" id="cuentasExc">
-                  <%
-                  List<Cuenta> cuentas = (List<Cuenta>)request.getAttribute("cuentas");
-                  for(Cuenta cuenta:cuentas){
-                  %>
-                  <option value="<% out.print(cuenta.getId()); %>"><% out.print(cuenta.getNombre()); %></option>
-                <%
-                 }
-                %>
-              </select>
-            </div>
-            <br>
-          </div>
-          <%
-          } // Terminan los gasto excepcionales
-          %>
-          </div>
-          <div class="row">
-          <div class="col-md-5">
-            <div class="card">
-              <div class="card-header" align="center">
-                <strong>GASTOS SELECCIONADOS</strong>
-              </div>
-              <table class="table">
-                <thead align="center">
-                  <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Nombre</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody align="center">
-                  <%
-                    List<GastoMes> gastos = (List<GastoMes>)request.getAttribute("gastos");
-                    for(GastoMes gasto:gastos){
-                  %>
-                  <tr id="row-<% out.print(gasto.getId()); %>" class="filaGasto">
-                      <th scope="row">
-                      <label style="font-size: 13px;">
-                      <% 
-                        if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
-                            out.print(gasto.getIdCompra());
-                        }else{
-                            out.print("-");
-                        }
-                      %>
-                      </label>
-                      <input type="hidden" value="<% out.print(gasto.getId()); %>" name="gastos">
-                      </th>
-                      <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
-                      <td><button type="button" class="btn btn-outline-primary deleteGasto" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                  </tr>
-                  <%
-                    }
-                  %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="col-md-2" align="center">
-            <button type="submit" class="btn btn-outline-primary"><i class="fa fa-random fa-3x"></i><br><strong>Asociar</strong></button>
-          </div>
-          <div class="col-md-5">
-            <div class="card">
-              <div class="card-header" align="center">
-                <strong>NOMBRE DE CUENTAS</strong>
-              </div>
-                <select class="custom-select" multiple size="7" name="cuentas" id="cuentas">
-                  <%
-                  List<Cuenta> cuentas = (List<Cuenta>)request.getAttribute("cuentas");
-                  for(Cuenta cuenta:cuentas){
-                  %>
-                  <option value="<% out.print(cuenta.getId()); %>"><% out.print(cuenta.getNombre()); %></option>
-                <%
-                 }
-                %>
-              </select>
-            </div>
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-12">
+            <h3>Homologar</h3>
+            <label>Seleccione la cuenta a la cual estan asociados estos gastos</label>
           </div>
         </div>
-      </form>
-      <br>
-      <div class="row">
-        <div class="col-lg-2" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver</strong>
-          </a>
-      </div>
-      <div class="col-lg-8">
-      </div>
-      <div class="col-lg-2" align="center">
-      </div>
+      </div><br>
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-12">
+              <form method="post" action="Gasto.do" id="homologar">
+                <input type="hidden" name="op" value="homologar">
+                <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>" id="mes">
+                <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>" id="idAnho">
+                <input type="hidden" name="tipo" value="<%=tipo%>">
+                <div class="row" id="contentException">
+                  <%
+                  List<GastoMes> excepciones = (List<GastoMes>)request.getAttribute("excepciones");
+                  if(excepciones.size()>0){
+                  %>
+                  <div class="col-md-5">
+                    <div class="card">
+                      <div class="card-header" align="center">
+                        <strong>GASTOS EXCEPCIONALES</strong>
+                      </div>
+                      <table class="table">
+                        <thead align="center">
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody align="center">
+                          <%
+                            for(GastoMes gasto:excepciones){
+                          %>
+                          <tr id="exc-<% out.print(gasto.getId()); %>" class="filaExcepcion">
+                              <th scope="row">
+                              <label style="font-size: 13px;">
+                              <%
+
+                                if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
+                                    out.print(gasto.getIdCompra());
+                                }else{
+                                    out.print("-");
+                                }
+                              %>
+                              </label>
+                              <input type="hidden" name="gastosExc" value="<% out.print(gasto.getId()); %>" >
+                              </th>
+                              <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
+                            <td><button type="button" class="btn btn-outline-primary deleteExcepcion" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                          </tr>
+                          <%
+                            }
+                          %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="col-md-2" align="center">
+                  </div>
+                  <div class="col-md-5">
+                    <div class="card">
+                      <div class="card-header" align="center">
+                        <strong>NOMBRE DE CUENTAS</strong>
+                      </div>
+                        <select class="custom-select" multiple size="7" name="cuentasExc" id="cuentasExc">
+                          <%
+                          List<Cuenta> cuentas = (List<Cuenta>)request.getAttribute("cuentas");
+                          for(Cuenta cuenta:cuentas){
+                          %>
+                          <option value="<% out.print(cuenta.getId()); %>"><% out.print(cuenta.getNombre()); %></option>
+                        <%
+                         }
+                        %>
+                      </select>
+                    </div>
+                    <br>
+                  </div>
+                  <%
+                  } // Terminan los gasto excepcionales
+                  %>
+                  </div>
+                  <div class="row">
+                  <div class="col-md-5">
+                    <div class="card">
+                      <div class="card-header" align="center">
+                        <strong>GASTOS SELECCIONADOS</strong>
+                      </div>
+                      <table class="table">
+                        <thead align="center">
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody align="center">
+                          <%
+                            List<GastoMes> gastos = (List<GastoMes>)request.getAttribute("gastos");
+                            for(GastoMes gasto:gastos){
+                          %>
+                          <tr id="row-<% out.print(gasto.getId()); %>" class="filaGasto">
+                              <th scope="row">
+                              <label style="font-size: 13px;">
+                              <% 
+                                if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
+                                    out.print(gasto.getIdCompra());
+                                }else{
+                                    out.print("-");
+                                }
+                              %>
+                              </label>
+                              <input type="hidden" value="<% out.print(gasto.getId()); %>" name="gastos">
+                              </th>
+                              <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
+                              <td><button type="button" class="btn btn-outline-primary deleteGasto" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                          </tr>
+                          <%
+                            }
+                          %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="col-md-2" align="center">
+                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-random fa-3x"></i><br><strong>Asociar</strong></button>
+                  </div>
+                  <div class="col-md-5">
+                    <div class="card">
+                      <div class="card-header" align="center">
+                        <strong>NOMBRE DE CUENTAS</strong>
+                      </div>
+                        <select class="custom-select" multiple size="7" name="cuentas" id="cuentas">
+                          <%
+                          List<Cuenta> cuentas = (List<Cuenta>)request.getAttribute("cuentas");
+                          for(Cuenta cuenta:cuentas){
+                          %>
+                          <option value="<% out.print(cuenta.getId()); %>"><% out.print(cuenta.getNombre()); %></option>
+                        <%
+                         }
+                        %>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row">
+                <div class="form-group col-md-11">
+                    <a href="Year.do?idAnho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&tipo=<%=tipo%>&op=3">
+                        <button type="button" class="btn btn-outline-primary"><i class="fa fa-times fa-lg"></i><br>Cancelar</button>
+                    </a>
+                </div>
+              </div>
+              </form>
+          </div>
+        </div>
       </div>
     </div>
     <!-- /.container-fluid-->

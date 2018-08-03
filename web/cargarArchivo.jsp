@@ -4,6 +4,9 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -13,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Proyecto</title>
+    <title>CDN INACAP</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -29,42 +32,87 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Mayor General</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
+          <a class="nav-link" href="Proyect.do">
+            <i class="fa fa-fw fa-home"></i>
+            <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="charts.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Aporte No Pecuniario</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
+        </li>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
+            <span class="nav-link-text">
+                Verificar Cuenta
+            <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+            </span>
+            </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-          <a class="nav-link" href="tables.html">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">Verificar Cuenta</span>
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="#collapseComponents">
-            <i class="fa fa-folder-open"></i>
-            <span class="nav-link-text">Documentos</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
+            <i class="fa fa-fw fa-sitemap"></i>
+            <span class="nav-link-text">Tipos de Usuario</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
-          <a class="nav-link" href="#collapseExamplePages">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Volver</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
+          <a class="nav-link" href="Usuario.do?op=1">
+            <i class="fa fa-fw fa-users"></i>
+            <span class="nav-link-text">Usuarios</span>
           </a>
         </li>
       </ul>
@@ -75,34 +123,24 @@
           </a>
         </li>
       </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
+        </li>
+      </ul>
     </div>
   </nav>
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+            <a href="Proyect.do">Proyecto</a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item active">Cargar Archivo</li>
       </ol>
-
-      <!-- CARTA -->
-      <h3>
-      <%
-        char tipo = request.getAttribute("tipo").toString().charAt(0);
-        switch(tipo){
-            case 'G':
-                out.print("Mayor Contable Mensual");
-            break;
-            
-            case 'A':
-                out.print("Aportes No Pecuniarios");
-            break;
-        }
-      %>
-      </h3>
-      <p>No se encontro ningun archivo cargado, porfavor cargue su archivo aquí</p>
       <!-- Example DataTables Card-->
       <div class="alert alert-danger" role="alert" style="display: none;">
         <label class="error"></label>
@@ -110,43 +148,44 @@
       <div class="alert alert-success" role="alert" style="display: none;">
           Se han cargado los gastos correctamente
       </div>
-      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-      <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-    </div>
-      <form enctype="multipart/form-data" id="uploadFileForm" method="post" action="Gasto.do">
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <input type="file" name="archivo">
+      <!-- CARTA -->
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-12">
+            <h3>
+            <%
+        char tipo = request.getAttribute("tipo").toString().charAt(0);
+        switch(tipo){
+            case 'G':
+                out.print("Aportes Pecuniarios");
+            break;
+            
+            case 'A':
+                out.print("Aportes No Pecuniarios");
+            break;
+        }
+      %>
+            </h3>
+            <label>No se encontro ningun archivo cargado, porfavor cargue su archivo aquí</label>
+          </div>
+          <form enctype="multipart/form-data" id="uploadFileForm" method="post" action="Gasto.do" class="form-inline">
             <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
             <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
             <input type="hidden" name="tipo" value="<%=request.getAttribute("tipo")%>">
             <input type="hidden" name="op" value="<%=request.getAttribute("opcion")%>">
+            <div class="col-md-12">
+              <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFileLang" lang="es" name="archivo">
+                    <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+                </div>
           </div>
-          <div class="form-group col-md-6">
+          <div class="col-md-12">
+              <br>
+              <button type="submit" class="btn btn-primary btn-sm btn-block">Cargar Archivo</button>
           </div>
-          <div class="form-group col-md-2">
-            <button type="submit" class="btn btn-primary btn-sm btn-block">Cargar Archivo</button>
-          </div>
-          <div class="form-group col-md-6">
-          </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

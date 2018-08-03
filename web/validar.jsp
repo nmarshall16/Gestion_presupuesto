@@ -4,6 +4,8 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="java.util.List"%>
 <%@page import="cl.inacap.cdn.entities.FuenteF"%>
 <%@page import="java.math.BigInteger"%>
@@ -18,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Proyecto</title>
+  <title>CDN INACAP</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -34,42 +36,87 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top" onload="cargarCuenta()">
-  <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Mayor General</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
+          <a class="nav-link" href="Proyect.do">
+            <i class="fa fa-fw fa-home"></i>
+            <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="charts.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Aporte No Pecuniario</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
+        </li>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
+            <span class="nav-link-text">
+                Verificar Cuenta
+            <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+            </span>
+            </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-          <a class="nav-link" href="tables.html">
-            <i class="fa fa-exclamation-triangle"></i>
-            <span class="nav-link-text">Verificar Cuenta</span>
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="#collapseComponents">
-            <i class="fa fa-folder-open"></i>
-            <span class="nav-link-text">Documentos</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
+            <i class="fa fa-fw fa-sitemap"></i>
+            <span class="nav-link-text">Tipos de Usuario</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
-          <a class="nav-link" href="#collapseExamplePages">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Volver</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
+          <a class="nav-link" href="Usuario.do?op=1">
+            <i class="fa fa-fw fa-users"></i>
+            <span class="nav-link-text">Usuarios</span>
           </a>
         </li>
       </ul>
@@ -80,98 +127,114 @@
           </a>
         </li>
       </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
+        </li>
+      </ul>
     </div>
   </nav>
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
+        <li class="breadcrumb-item active">Validar Cuenta</li>
       </ol>
-
-      <!-- CARTA -->
-      <h3>Validar Cuenta</h3><br>
-      <!-- Example DataTables Card-->
-       <%
-        Homologar homol = (Homologar)request.getAttribute("homologacion");
-        BigInteger cuenta = GastoMes.getNumCuenta(homol.getGastoMesId());
-       %>
-       <form class="form-inline" action="Validar.do" method="post">
-          <input type="hidden" name="op" value="4">
-          <input type="hidden" name="idProyect" value="<%=homol.getGastoMesId().getAnhoProyectId().getProyectoId().getId()%>" id="vaIdProyecto">
-          <input type="hidden" name="idHomol" value="<%=homol.getId()%>">
-          <div class="col-md-4">
-            <ul class="list-group">
-                <li class="list-group-item active">Centro Responsable Actual</li>
-                <li class="list-group-item"><%=homol.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%></li>
-            </ul>
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-12">
+            <h3>Validar Cuenta</h3>
           </div>
-          <div class="col-md-4">
-            <ul class="list-group">
-                <li class="list-group-item active">Cuenta Contable Actual</li>
-                <li class="list-group-item"><%=cuenta%></li>
-            </ul>
+        </div>
+      </div><br>
+      <div class="card">
+        <div class="row card-body">
+          <%
+            Homologar homol = (Homologar)request.getAttribute("homologacion");
+            BigInteger cuenta = GastoMes.getNumCuenta(homol.getGastoMesId());
+           %>
+           <div class="col-md-4">
+                <ul class="list-group">
+                    <li class="list-group-item active">Centro Responsable Actual</li>
+                    <li class="list-group-item"><%=homol.getGastoMesId().getGastoId().getFuenteFCodCentro().getCodCentro()%></li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <ul class="list-group">
+                    <li class="list-group-item active">Cuenta Contable Actual</li>
+                    <li class="list-group-item"><%=cuenta%></li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <ul class="list-group">
+                    <li class="list-group-item active">ID Compra</li>
+                    <li class="list-group-item">
+                        <% 
+                            if(!homol.getGastoMesId().getIdCompra().equals(0)){
+                                out.print(homol.getGastoMesId().getIdCompra()); 
+                            }else{
+                                out.print("-");
+                            }
+                        %>
+                    </li>
+                </ul>
+              </div>
+          <div class="col-md-12">
+           <br><hr>
+           <form action="Validar.do" method="post">
+              <input type="hidden" name="op" value="4">
+              <input type="hidden" name="idProyect" value="<%=homol.getGastoMesId().getAnhoProyectId().getProyectoId().getId()%>" id="vaIdProyecto">
+              <input type="hidden" name="idHomol" value="<%=homol.getId()%>">
+              <div class="form-row">
+                <div class="form-group col-md-2">
+                  <label style="text-align: left; float: left;">Centro Responsable</label>
+                    <select class="custom-select mr-sm-2" id="vaFuente" name="fuente">
+                        <%
+                          List<FuenteF> fuentes = FuenteF.findAll();
+                          if(fuentes.size()>0){
+                           for(FuenteF fuente:fuentes){
+                        %>
+                               <option value="<%=fuente.getCodCentro()%>">
+                                   <%=fuente.getCodCentro()%>
+                               </option>
+                        <%
+                           }
+                          }
+                        %>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                  <label style="text-align: left; float: left;">Cuenta Contable</label>
+                    <select class="custom-select mr-sm-2" id="vaCuenta" name="cuenta">
+                      <option>-</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                  <label style="text-align: left; float: left;">Tipo de pago</label>
+                    <select class="custom-select mr-sm-2" name="pago">
+                        <option value="CHK">Cheque</option>
+                        <option value="EFT">Transferencia electrónica</option>
+                     </select>
+                </div>
+                  <div class="form-group col-md-2">
+                  <label style="text-align: left; float: left;">Banco</label>
+                  <input type="text" class="form-control mr-sm-2" placeholder="Banco" name="banco">
+                </div>
+                <div class="form-group col-md-2">
+                  <label style="text-align: left; float: left;">N° Documento</label>
+                  <input type="number" class="form-control mr-sm-2" placeholder="número de documento" name="documento">
+                </div>
+                    <div class="form-group col-md-2">
+                    <label style="text-align: left; float: left;">-</label>
+                  <button type="submit" class="btn btn-primary btn-block mr-sm-2">Modificar</button>
+                </div>
+              </div>
+          </form>
           </div>
-          <div class="col-md-4">
-            <ul class="list-group">
-                <li class="list-group-item active">ID Compra</li>
-                <li class="list-group-item">
-                    <% 
-                        if(!homol.getGastoMesId().getIdCompra().equals(0)){
-                            out.print(homol.getGastoMesId().getIdCompra()); 
-                        }else{
-                            out.print("-");
-                        }
-                    %>
-                </li>
-            </ul>
-          </div>
-          <div class="col-md-12"><br></div>
-          <div class="form-row align-items-center">
-            <div class="col-md-2 my-1">
-                <label style="text-align: left; float: left;">Centro Responsable</label>
-                <select class="custom-select mr-sm-2" id="vaFuente" name="fuente">
-                    <%
-                      List<FuenteF> fuentes = FuenteF.findAll();
-                      if(fuentes.size()>0){
-                       for(FuenteF fuente:fuentes){
-                    %>
-                           <option value="<%=fuente.getCodCentro()%>">
-                               <%=fuente.getCodCentro()%>
-                           </option>
-                    <%
-                       }
-                      }
-                    %>
-                </select>
-            </div>
-            <div class="col-md-2 my-1">
-                <label style="text-align: left; float: left;">Cuenta Contable</label>
-                <select class="custom-select mr-sm-2" id="vaCuenta" name="cuenta">
-                  <option>-</option>
-                </select>
-            </div>
-            <div class="col-md-2 my-1">
-                <label style="text-align: left; float: left;">Tipo de pago</label>
-                <select class="custom-select mr-sm-2" name="pago">
-                    <option value="CHK">Cheque</option>
-                    <option value="EFT">Transferencia electrónica</option>
-                 </select>
-            </div>
-            <div class="col-auto my-1"><br>
-                <input type="text" class="form-control mr-sm-2" placeholder="Banco" name="banco">
-            </div>
-            <div class="col-auto my-1"><br>
-                <input type="number" class="form-control mr-sm-2" placeholder="número de documento" name="documento">
-            </div>
-            <div class="col-auto my-1"><br>
-              <button type="submit" class="btn btn-primary btn-block mr-sm-2">Modificar</button>
-            </div>
-            </div>
-      </form>
+        </div>
+      </div><br>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

@@ -197,28 +197,47 @@ public class GastoServlet extends HttpServlet {
                     ArrayList<GastoMes> gastos = new ArrayList<>();
                     ArrayList<GastoMes> excepciones = new ArrayList<>();
                     ArrayList<String> advertencias = new ArrayList<>();
-                    for (String resultado : result) {
-                        GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                        if(gasto.getStatus()!='P'){
-                            advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
+                    if(result!=null){
+                        for (String resultado : result) {
+                            GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                            if(gasto.getStatus()!='P'){
+                                advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
+                            }
+                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){
+                               excepciones.add(gasto);
+                               advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
+                            }
+                            gastos.add(gasto);
                         }
-                        if(Gastoexc.validarGastoExc(gasto.getGastoId())){
-                           excepciones.add(gasto);
-                           advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
+                        List<Cuenta> cuentas = Cuenta.findAll();
+                        BigInteger mesHo = new BigInteger(request.getParameter("mes"));
+                        AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                        request.setAttribute("tipo", request.getParameter("tipo"));
+                        request.setAttribute("mes", mesHo);
+                        request.setAttribute("anho", anhoHo.getId());
+                        request.setAttribute("gastos", gastos);
+                        request.setAttribute("excepciones", excepciones);
+                        request.setAttribute("advertencias", advertencias);
+                        request.setAttribute("cuentas", cuentas);
+                        request.getRequestDispatcher("homologar.jsp").forward(request, response);
+                    }else{
+                        ArrayList<String> errorG = new ArrayList<>();
+                        errorG.add("Debe Seleccionar al menos un gasto antes de homologar");
+                        BigInteger mes = new BigInteger(request.getParameter("mes"));
+                        AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                        char tipoD = request.getParameter("tipo").charAt(0);
+                        List<GastoMes> gastoz = GastoMes.findGastos(mes, anho,tipoD);
+                        if(gastoz.size() > 0){
+                            request.setAttribute("error", errorG);
+                            request.setAttribute("mes", mes);
+                            request.setAttribute("anho", anho.getId());
+                            request.setAttribute("gastos", gastoz);
+                            request.setAttribute("estado", GastoMes.validaEstadoGastos(gastoz));
+                            request.setAttribute("tipo", tipoD);
+                            request.getRequestDispatcher("gastos.jsp").forward(request, response);
                         }
-                        gastos.add(gasto);
                     }
-                    List<Cuenta> cuentas = Cuenta.findAll();
-                    BigInteger mesHo = new BigInteger(request.getParameter("mes"));
-                    AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                    request.setAttribute("tipo", request.getParameter("tipo"));
-                    request.setAttribute("mes", mesHo);
-                    request.setAttribute("anho", anhoHo.getId());
-                    request.setAttribute("gastos", gastos);
-                    request.setAttribute("excepciones", excepciones);
-                    request.setAttribute("advertencias", advertencias);
-                    request.setAttribute("cuentas", cuentas);
-                    request.getRequestDispatcher("homologar.jsp").forward(request, response);
+                    
                 break;
                 case "cargarGastos":
                     try{

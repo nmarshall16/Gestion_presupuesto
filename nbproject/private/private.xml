@@ -3,12 +3,21 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/FuenteF.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/GastoMes.java</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/infoUsuario.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Proyecto.java</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/proyecto.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/ProyectServlet.java</file>
             <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/GastoServlet.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Usuario.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Homologar.java</file>
-            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/entities/Presupuesto.java</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/gastos.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/newYear.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/infoTipoUsu.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/usuarios.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/presupuesto.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/inicioAdmin.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/cargarArchivo.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/web/nuevoProyecto.jsp</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/YearServlet.java</file>
+            <file>file:/C:/Users/Nicolas/Documents/NetBeansProjects/CDN/src/java/cl/inacap/cdn/controllers/LoginServlet.java</file>
         </group>
     </open-files>
 </project-private>

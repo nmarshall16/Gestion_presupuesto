@@ -36,6 +36,10 @@ public class LoginServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
+            if(request.getParameter("op")!=null && request.getParameter("op").equals("2")){
+                request.getSession(true).removeAttribute("user");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
             if(request.getParameter("rut")!= null && request.getParameter("clave")!= null){
                 String run = request.getParameter("rut");
                 run = run.replace(".", "");
@@ -68,7 +72,7 @@ public class LoginServlet extends HttpServlet {
                 }
                 if(!alerta.equals("")){
                     request.setAttribute("alerta", alerta);
-                    request.getRequestDispatcher("index.jsp").forward(request, response);
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
             }
         }

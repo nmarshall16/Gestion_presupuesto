@@ -36,39 +36,47 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  
-  <!-- Navigation-->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="#">CDN INACAP</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
-          <a class="nav-link" href="index.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Mayor General</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
+          <a class="nav-link" href="Proyect.do">
+            <i class="fa fa-fw fa-home"></i>
+            <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Charts">
-          <a class="nav-link" href="charts.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Aporte No Pecuniario</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
           </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tables">
-            <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
-            <i class="fa fa-exclamation-triangle"></i>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
             <span class="nav-link-text">
-                Verificar Cuenta 
+             Verificar Cuenta 
                 <span class="badge badge-primary badge-pill">
                     <%
                     BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
-                    char tipo = request.getAttribute("tipo").toString().charAt(0);
-                    Locale cl = new Locale("es", "CL");
-                    NumberFormat formatter = NumberFormat.getCurrencyInstance(cl);
-                    SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
                     int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
                     out.print(p);
                     %>
@@ -76,16 +84,39 @@
             </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Components">
-          <a class="nav-link" href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>">
-            <i class="fa fa-folder-open"></i>
-            <span class="nav-link-text">Documentos</span>
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Example Pages">
-          <a class="nav-link" href="#collapseExamplePages">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Volver</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
+            <i class="fa fa-fw fa-sitemap"></i>
+            <span class="nav-link-text">Tipos de Usuario</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
+          <a class="nav-link" href="Usuario.do?op=1">
+            <i class="fa fa-fw fa-users"></i>
+            <span class="nav-link-text">Usuarios</span>
           </a>
         </li>
       </ul>
@@ -96,30 +127,29 @@
           </a>
         </li>
       </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </nav> 
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+            <a href="Proyect.do">Proyecto</a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item active">Gastos</li>
       </ol>
-
-      <!-- CARTA -->
-      <div class="row">
-		  <div class="col-md-8">
-			  <h3>Mayor Contable Mensual</h3>
-		  </div>
-		  <div class="col-md-4">
-			  <h4>Mes De Proyecto : <strong><%=request.getAttribute("mes")%></strong></h4>
-		  </div>
-      </div>
-      <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
-      <br>
       <%
+          char tipo = request.getAttribute("tipo").toString().charAt(0);
+            Locale cl = new Locale("es", "CL");
+            NumberFormat formatter = NumberFormat.getCurrencyInstance(cl);
+            SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
         if(request.getAttribute("error")!=null){
             ArrayList<String> errores = (ArrayList<String>)request.getAttribute("error");
             if(errores.size()>0){
@@ -136,6 +166,22 @@
             }
         }
       %>
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-10">
+            <h3>Mayor Contable Mensual</h3>
+            <p>Mes De Proyecto :
+                <% out.print(request.getAttribute("mes")); %>
+            </p>
+            <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
+          </div>
+          <div class="col-md-2">
+              <a href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>" style="text-decoration: none;">
+                <p align="center"><i class="fa fa-file-text fa-2x"></i><br>Generar Documento</p>
+              </a>
+          </div>
+        </div>
+      </div><br>
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
@@ -143,11 +189,11 @@
         <%
             switch(tipo){
                 case 'G':
-                    out.print("Gastos Mensuales");
+                    out.print("Aportes Pecuniarios");
                 break;
 
                 case 'A':
-                    out.print("Aportes Mensuales");
+                    out.print("Aportes No Pecuniarios");
                 break;
             }
         %>
@@ -241,11 +287,6 @@
           </div>
         </div>
         <div class="card-footer small text-muted"></div>
-      </div>
-      <div class="col-md-1" align="center">
-          <a href="#" style="text-decoration: none;">
-          <i class="fa fa-reply-all fa-2x"></i><br><strong>Volver</strong>
-          </a>
       </div>
     </div>
     <!-- /.container-fluid-->

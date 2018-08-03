@@ -6,7 +6,7 @@
     </servlet>
     <servlet>
         <servlet-name>ProyectServlet</servlet-name>
-        <servlet-class>cl.inacap.cdn.controllers.ProyectServlet</servlet-class>
+        <servlet-class>cl.inacap.cdn.controllers.ProyectServlet</servlet-class>    
     </servlet>
     <servlet>
         <servlet-name>YearServlet</servlet-name>

@@ -63,7 +63,7 @@ public class YearServlet extends HttpServlet {
                         AnhoProyect anho = saveYear(request, response);
                     // GUARDAR PRESUPUESTOS
                         savePresupuestos(request, response, anho);
-                        response.sendRedirect("Proyect.do?idProyect="+anho.getProyectoId().getId()+"&accion=mostrarProyecto");
+                        response.sendRedirect("Proyect.do?idProyect="+anho.getProyectoId().getId()+"&op=8");
                     } catch (NullPointerException | IOException | ServletException e) {
                     // AGREGAR SENTENCIAS EN CASO DE ERROR!
                         out.print(e.getClass()+"<br>");

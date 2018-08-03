@@ -4,6 +4,9 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="cl.inacap.cdn.entities.Permiso"%>
 <%@page import="cl.inacap.cdn.entities.Usuario"%>
 <%@page import="cl.inacap.cdn.entities.TipoUsuario"%>
@@ -17,7 +20,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Proyecto</title>
+    <title>CDN INACAP</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -29,43 +32,87 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  
-  <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">CDN INACAP</a>
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="Proyect.do">
             <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos Eliminados">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Proyectos Eliminados</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
+        </li>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
+            <span class="nav-link-text">
+                Verificar Cuenta
+            <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+            </span>
+            </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de usuarios">
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
           <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
             <i class="fa fa-fw fa-sitemap"></i>
-            <span class="nav-link-text">Tipos de usuarios</span>
+            <span class="nav-link-text">Tipos de Usuario</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="Usuario.do?op=1">
             <i class="fa fa-fw fa-users"></i>
             <span class="nav-link-text">Usuarios</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cerrar Sesión">
-          <a class="nav-link" href="#">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Cerrar Sesión</span>
           </a>
         </li>
       </ul>
@@ -74,6 +121,12 @@
           <a class="nav-link text-center" id="sidenavToggler">
             <i class="fa fa-fw fa-angle-left"></i>
           </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
         </li>
       </ul>
     </div>
@@ -85,12 +138,10 @@
         List<Permiso> permisos = (List<Permiso>)request.getAttribute("permisos");
     %>
     <div class="container-fluid">
-      <!-- Breadcrumbs-->
       <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item active">Tables</li>
+        <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="TipoUsu.do?op=1">Tipo de Usuarios</a></li>
+        <li class="breadcrumb-item active">Informacion Tipo Usuario</li>
       </ol>
       <div class="alert alert-danger alert-dismissible fade show" role="alert" id="claveError" style="display: none;">
           <p>Las contraseñas no coinciden por favor valide de que ambas contraseñas sean iguales</p>

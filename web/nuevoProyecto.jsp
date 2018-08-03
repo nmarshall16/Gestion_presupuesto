@@ -4,6 +4,9 @@
     Author     : dell
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
+<%@page import="java.math.BigDecimal"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.Banco"%>
@@ -19,7 +22,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Nuevo Proyecto</title>
+    <title>CDN INACAP</title>
   <!-- Bootstrap core CSS-->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Custom fonts for this template-->
@@ -42,42 +45,87 @@
 </head>
 
 <body class="fixed-nav sticky-footer bg-dark" id="page-top">
-  <!-- Navigation-->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand" href="Proyect.do">CDN INACAP</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav navbar-sidenav" id="exampleAccordion">
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Inicio">
-          <a class="nav-link" href="<%=request.getContextPath()%>/Proyect.do">
+          <a class="nav-link" href="Proyect.do">
             <i class="fa fa-fw fa-home"></i>
             <span class="nav-link-text">Inicio</span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos Eliminados">
-          <a class="nav-link" href="charts.html">
-            <i class="fa fa-fw fa-archive"></i>
-            <span class="nav-link-text">Proyectos Eliminados</span>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#proyectosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-university"></i>
+            <span class="nav-link-text">Proyectos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="proyectosNav">
+            <li>
+              <a href="Proyect.do">Proyectos Activos</a>
+            </li>
+            <li>
+              <a href="Proyect.do?op=1">Proyectos Eliminados</a>
+            </li>
+            <li>
+              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+            </li>
+          </ul>
+        </li>
+        <% 
+            if(request.getAttribute("anho")!=null && request.getAttribute("mes")!=null){
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Verificar Cuenta">
+          <a class="nav-link" href="Validar.do?anho=<%=request.getAttribute("anho")%>&mes=<%=request.getAttribute("mes")%>&op=1">
+            <i class="fa fa-fw fa-exclamation-triangle"></i>
+            <span class="nav-link-text">
+                Verificar Cuenta
+            <span class="badge badge-primary badge-pill">
+                    <%
+                    BigDecimal bd = new BigDecimal(request.getAttribute("anho").toString());
+                    int p = Homologar.getGastosP(AnhoProyect.findById(bd.intValue()), request.getAttribute("mes").toString());
+                    out.print(p);
+                    %>
+            </span>
+            </span>
           </a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de usuario">
-          <a class="nav-link" href="tables.html">
+        <%
+          }  
+        %>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Gastos">
+          <a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#gastosNav" data-parent="#exampleAccordion">
+            <i class="fa fa-fw fa-sort-alpha-asc"></i>
+            <span class="nav-link-text">Gastos</span>
+          </a>
+          <ul class="sidenav-second-level collapse" id="gastosNav">
+            <li>
+              <a href="#">Gastos</a>
+            </li>
+            <li>
+              <a href="#">Gastos Excepcionales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
+          <a class="nav-link" href="#">
+            <i class="fa fa-fw fa-suitcase"></i>
+            <span class="nav-link-text">Cuentas</span>
+          </a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de Usuario">
+          <a class="nav-link" href="TipoUsu.do?op=1">
             <i class="fa fa-fw fa-sitemap"></i>
-            <span class="nav-link-text">Tipos de usuario</span>
+            <span class="nav-link-text">Tipos de Usuario</span>
           </a>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Usuarios">
-          <a class="nav-link" href="#collapseComponents">
+          <a class="nav-link" href="Usuario.do?op=1">
             <i class="fa fa-fw fa-users"></i>
             <span class="nav-link-text">Usuarios</span>
-          </a>
-        </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cerrar Sesión">
-          <a class="nav-link" href="#collapseExamplePages">
-            <i class="fa fa-fw fa-sign-out"></i>
-            <span class="nav-link-text">Cerrar Sesión</span>
           </a>
         </li>
       </ul>
@@ -86,6 +134,12 @@
           <a class="nav-link text-center" id="sidenavToggler">
             <i class="fa fa-fw fa-angle-left"></i>
           </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#exampleModal">
+            <i class="fa fa-fw fa-sign-out"></i>Salir</a>
         </li>
       </ul>
     </div>
@@ -104,28 +158,7 @@
 		  <%=(proyecto != null)?("<li class='breadcrumb-item'><a href='"+request.getContextPath()+"/Proyect.do?idProyect="+proyecto.getId()+"'>"+proyecto.getNombre()+"</a></li>"):("")%>
 		  <li class="breadcrumb-item active"><%=request.getAttribute("titulo")%></li>
 		</ol>
-
-		<!-- CARTA -->
-		<div class="row">
-			<div class="col-lg-9 col-md-9 col-sm-9">
-				<h3><%=request.getAttribute("titulo")%></h3>
-				<%= (proyecto != null) ? 
-				"<div class='col-sm-12 col-md-12 col-lg-12 card pt-2'>"
-					+"<p><strong>Id Proyecto</strong> : "+proyecto.getId()+"</p>"
-					+"<p><strong>Nombre Proyecto</strong> : "+proyecto.getNombre()+"</p>"
-				+"</div>" : "" %>
-				<br>
-			</div>
-			<div class="col-lg-3 col-md-3 col-sm-3">
-				<% if ((request.getAttribute("titulo") != null) && (request.getAttribute("titulo") == "Modificar Proyecto")){ %>  
-				<p class="text-info"><strong>Modificar Proyecto</strong></p>
-				<input id="switch" type='checkbox' data-toggle='toggle' data-on='<i class="fa fa-unlock"></i> Habilitado' data-off='<i class="fa fa-lock"></i> Bloqueado' data-onstyle='success' data-offstyle='danger'>				
-				<% } %>
-			</div>
-			
-		</div>
-		
-		<% if (!((List<String>)request.getAttribute("errores")).isEmpty()) { %>
+                <% if (!((List<String>)request.getAttribute("errores")).isEmpty()) { %>
 		<div class="alert alert-danger alert-dismissible fade show" role="alert">
 			<p><strong>Debes Completar Todos Los Datos</strong><p>
 			<ul>
@@ -138,32 +171,63 @@
 			</button>
 		</div>
 		<% } %>
-		
-	<form action="Proyect.do?<%=(proyecto != null)?"idProyect="+proyecto.getId()+"&":""%>accion=guardarProyecto" method="post">
-        <div class="form-row">
-			<div class="form-group col-md-6">
-				<label for="nameProyect">Nombre del Proyecto</label>
-				<input <%=(proyecto!=null)?("value='"+proyecto.getNombre()+"'"):("")%>
-				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="nameProyect" id="nameProyect">
-			</div>
-			<div class="form-group col-md-6">
-				<label for="codProyect">Codigo de Proyecto</label>
-				<input <%=(proyecto!=null)?("value='"+proyecto.getCodigo()+"'"):("")%>
-				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="codProyect" id="codProyect">
-			</div>
-        </div>
-        <div class="form-row">
-			<div class="form-group col-md-6">
-				<label for="fechaInicio">Fecha de Inicio</label>
-				<input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaIni())+"'"):("")%>
-				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
-			</div>
-			<div class="form-group col-md-6">
-				<label for="fechaTermino">Fecha de Termino</label>
-				<input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaFin())+"'"):("")%>
-				type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
-			</div>
-        </div>
+                <div class="card">
+                    <div class="row card-body">
+                        <div class="col-lg-9 col-md-9 col-sm-9">
+                              <h3><%=request.getAttribute("titulo")%></h3>
+                              <%= (proyecto != null) ? 
+                              "<div class='col-sm-12 col-md-12 col-lg-12 card pt-2'>"
+                                      +"<p><strong>Id Proyecto</strong> : "+proyecto.getId()+"</p>"
+                                      +"<p><strong>Nombre Proyecto</strong> : "+proyecto.getNombre()+"</p>"
+                              +"</div>" : "" %>
+                              <br>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-3">
+                              <% if ((request.getAttribute("titulo") != null) && (request.getAttribute("titulo") == "Modificar Proyecto")){ %>  
+                              <p class="text-info"><strong>Modificar Proyecto</strong></p>
+                              <input id="switch" type='checkbox' data-toggle='toggle' data-on='<i class="fa fa-unlock"></i> Habilitado' data-off='<i class="fa fa-lock"></i> Bloqueado' data-onstyle='success' data-offstyle='danger'>				
+                              <% } %>
+                      </div>
+                    </div>
+                </div>
+                <br>
+                <div class="card">
+                    <div class="card-header">
+                    Información del Proyecto
+                    </div>
+                    <div class="row card-body">
+                      <div class="col-md-12">
+                      <form action="Proyect.do" method="post">
+                    <%
+                        if(proyecto!=null){
+                            out.print("<input type='hidden' name='idProyect' value='"+proyecto.getId()+"'>");
+                        }
+                    %>
+                    <input type="hidden" name="op" value="5">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                                <label for="nameProyect">Nombre del Proyecto</label>
+                                <input <%=(proyecto!=null)?("value='"+proyecto.getNombre()+"'"):("")%>
+                                type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="nameProyect" id="nameProyect">
+                        </div>
+                        <div class="form-group col-md-6">
+                                <label for="codProyect">Codigo de Proyecto</label>
+                                <input <%=(proyecto!=null)?("value='"+proyecto.getCodigo()+"'"):("")%>
+                                type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" name="codProyect" id="codProyect">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                                <label for="fechaInicio">Fecha de Inicio</label>
+                                <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaIni())+"'"):("")%>
+                                type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaInicio" name="fechaInicio" placeholder="Seleccionar Fecha">
+                        </div>
+                        <div class="form-group col-md-6">
+                                <label for="fechaTermino">Fecha de Termino</label>
+                                <input <%=(proyecto!=null)?("value='"+dateFormato.format(proyecto.getFechaFin())+"'"):("")%>
+                                type="text" class="form-control <%=(proyecto!=null)?"lock":""%>" id="fechaTermino" name="fechaTermino" placeholder="Seleccionar Fecha">
+                        </div>
+                    </div>
 		<div class="card mb-3">
 			<div class="card-header">
 				<i class="fa fa-university"></i>
@@ -208,22 +272,21 @@
 				<input name="cantDatos" type="hidden" value="1">
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-lg-2" align="center">
-				<a href="<%=request.getContextPath()%>/Proyect.do" style="text-decoration: none;">
-					<i class="fa fa-reply-all fa-2x"></i><br><strong>Volver Sin Guardar</strong>
-				</a>
-			</div>
-			<div class="col-lg-8">
-			</div>
-			<div class="col-lg-2" align="center">
-				<button type="submit" class="btn btn-link" style="text-decoration: none;">
-					<i class="fa fa-floppy-o fa-2x"></i><br><strong>Guardar Cambios</strong>
-				</button>
-			</div>
-		</div>
+                <div class="form-row">
+                <div class="form-group col-md-11">
+                    <a href="Proyect.do">
+                        <button type="button" class="btn btn-outline-primary"><i class="fa fa-times fa-lg"></i><br>Cancelar</button>
+                    </a>
+                </div>
+                <div class="form-group col-md-1">
+                  <button type="submit" class="btn btn-outline-primary"><i class="fa fa-floppy-o fa-lg"></i><br>Guardar</button>
+                </div>
+              </div>
 	</form>
-		
+                      </div>
+                    </div>
+                  </div>
+                 <br>
 	<% }else{ %>
 	<div class="row">
 		<div class="col-md-12 text-center mt-5">

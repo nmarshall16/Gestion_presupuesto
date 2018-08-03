@@ -204,6 +204,13 @@ public class Proyecto implements Serializable {
         return proyecto;
     }
     
+    public CBanco findCuentaSercotec(){
+        FuenteF sercotec = FuenteF.findById(new BigDecimal("400060800"));
+        CBanco cuenta = null;
+        cuenta = CBanco.findCuenta(sercotec, this);
+        return cuenta;
+    }    
+        
 	public BigDecimal getId() {
 		return id;
 	}
