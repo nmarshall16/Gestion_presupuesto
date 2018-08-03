@@ -26,7 +26,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 	, @NamedQuery(name = "Presupuesto.findById", query = "SELECT p FROM Presupuesto p WHERE p.id = :id")
 	, @NamedQuery(name = "Presupuesto.findByMontoDis", query = "SELECT p FROM Presupuesto p WHERE p.montoDis = :montoDis")
 	, @NamedQuery(name = "Presupuesto.findByMontoTot", query = "SELECT p FROM Presupuesto p WHERE p.montoTot = :montoTot")
-	, @NamedQuery(name = "Presupuesto.findByTotalGasta", query = "SELECT p FROM Presupuesto p WHERE p.totalGasta = :totalGasta")})
+	, @NamedQuery(name = "Presupuesto.findByTotalGasta", query = "SELECT p FROM Presupuesto p WHERE p.totalGasta = :totalGasta")
+	, @NamedQuery(name = "Presupuesto.findByFuenteAndCuentaAndAnho", query = "SELECT p FROM Presupuesto p WHERE p.fuenteFCodCentro =:fuente AND p.cuentaId = :cuenta AND p.anhoProyectId = :anho ")
+	, @NamedQuery(name = "Presupuesto.findByCuentaAndAnho", query = "SELECT p FROM Presupuesto p WHERE p.cuentaId = :cuenta AND p.anhoProyectId = :anho ")})
 public class Presupuesto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -141,6 +143,32 @@ public class Presupuesto implements Serializable {
 			result.setParameter("cuenta", cuenta);
 			result.setParameter("anho", anho);
 			presupuestos = result.getSingleResult();
+		}catch(NoResultException ex){
+			presupuestos = null;
+		}
+		em.close();
+		emf.close();
+		return presupuestos;
+	}
+	
+	public static List<Presupuesto> findByFuenteAndCuentaAndAnho(FuenteF fuente, Cuenta cuenta, AnhoProyect anho){
+		List<Presupuesto> presupuestos;
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		TypedQuery<Presupuesto> result = null;
+			
+		try{
+			if(fuente != null){
+				result =  em.createNamedQuery("Presupuesto.findByFuenteAndCuentaAndAnho", Presupuesto.class);
+				result.setParameter("fuente", fuente);
+			}else{
+				result =  em.createNamedQuery("Presupuesto.findByCuentaAndAnho", Presupuesto.class);
+			}
+			result.setParameter("cuenta", cuenta);
+			result.setParameter("anho", anho);
+	
+			presupuestos = result.getResultList();
 		}catch(NoResultException ex){
 			presupuestos = null;
 		}

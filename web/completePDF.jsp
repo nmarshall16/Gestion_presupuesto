@@ -77,28 +77,36 @@
 		</div>
 	</nav>
 	<div class="content-wrapper">
-		<form action="" method="POST">
-			<div class="container-fluid">
+		<div class="container-fluid">
+			<% if(request.getAttribute("mensaje")!= null){ %>
+			<div class="row">
+				<div class="col-md-3"></div>
+				<div class="alert alert-danger col-md-6">
+					<%=request.getAttribute("mensaje")%>
+				</div>
+				<div class="col-md-3"></div>
+			</div>
+			<% } %>
+			<form action="" method="POST">
 				<div class="row mt-4 ml-2">
-					<div class="col-lg-9 col-sm-9">
+					<div class="col-lg-8 col-sm-8">
 						<h2>Completar Datos De Nuevas Columnas</h2>
 						<p class='text-danger'>Hemos Detectado Nuevas Columas, Por Favor Complete Para Generar Documeto PDF</p>
 					</div>
-					<div class="col-lg-3 col-sm-3">
-						<button type="submit" class="btn btn-link"><i class="fa fa-file-text fa-2x"></i><br>Generar Documento</button>
+					<div class="col-lg-2 col-sm-2">
+						<button type="submit" class="btn btn-link" name="btn" value="PDF"><i class="fa fa-file-text fa-2x"></i><br>Generar PDF</button>
+					</div>
+					<div class="col-lg-2 col-sm-2">
+						<button type="submit" class="btn btn-link" name="btn" value="EXCEL"><i class="fa fa-file-excel-o fa-2x"></i><br>Generar Excel</button>
 					</div>
 				</div>
-				
-				<%=(request.getParameter("cuenta")!=null)?request.getParameter("cuenta"):""%>
-				<%=(request.getParameter("centro")!=null)?request.getParameter("centro"):""%>
-				<%=(request.getParameter("anho")!=null)?request.getParameter("anho"):""%>
-				<%=(request.getParameter("mes")!=null)?request.getParameter("mes"):""%>
-				
 				<input type="hidden" value="<%=(request.getParameter("cuenta")!=null)?request.getParameter("cuenta"):""%>" name="cuenta">
 				<input type="hidden" value="<%=(request.getParameter("centro")!=null)?request.getParameter("centro"):""%>" name="centro">
 				<input type="hidden" value="<%=(request.getParameter("anho")!=null)?request.getParameter("anho"):""%>" name="anho">
 				<input type="hidden" value="<%=(request.getParameter("mes")!=null)?request.getParameter("mes"):""%>" name="mes">
+				<input type='hidden' value='<%=(request.getParameter("tipo")!=null)?request.getParameter("tipo"):""%>' name='tipo'>
 				<input type="hidden" value="2" name="op">
+				<% if(request.getParameter("tipo").equals("G")){ %>
 				<div class="row">
 					<div class="col-md-12 mt-4 ml-2">
 						<table id="tablaGastos" class="table" style="border-top: none;">
@@ -124,7 +132,6 @@
 											${gasto.gastoMesId.idCompra == 0?'-':gasto.gastoMesId.idCompra}
 											<br><small>${gasto.gastoMesId.gastoId.codCuenta}</small>
 											<small class="text-muted"> - $${gasto.gastoMesId.importe}</small><br>
-											${gasto.gastoMesId.id}
 										</th>
 									<c:forEach items="${requestScope.newCols}" var="col">
 										<td><c:choose><c:when test="${col == 'TIPO_DOCUMENTO'}"><select class="form-control" name="${gasto.gastoMesId.id}-${col}"><option value="0" selected disabled>--Seleccione Tipo Doc--</option><option value="1">Víatico</option><option value="2">Remuneración</option><option value="3">Factura</option><option value="4">Boleta De Honorarios</option><option value="5">Comprobante</option></select></c:when><c:when test="${col != 'TIPO_DOCUMENTO'}"><input type='<c:choose><c:when test = "${fn:containsIgnoreCase(col, 'fecha_')}">datetime-local</c:when><c:when test = "${fn:containsIgnoreCase(col, 'num_')}">number</c:when></c:choose>' name="${gasto.gastoMesId.id}-${col}" class="form-control " <c:if test = "${fn:containsIgnoreCase(col, 'fecha_')}"> min='2000-01-01'</c:if>></c:when></c:choose></td>
@@ -138,8 +145,9 @@
 						</c:forEach>
 					</div>
 				</div>
-			</div>
-		</form>
+				<% } %>
+			</form>
+		</div>
 	</div>
 						
 	<!-- Bootstrap core JavaScript-->

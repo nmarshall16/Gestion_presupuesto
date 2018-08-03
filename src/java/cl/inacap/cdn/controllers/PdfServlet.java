@@ -9,6 +9,7 @@ import cl.inacap.cdn.entities.AnhoProyect;
 import cl.inacap.cdn.entities.Cuenta;
 import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.Homologar;
+import cl.inacap.cdn.entities.Presupuesto;
 import cl.inacap.cdn.entities.Usuario;
 import com.google.gson.Gson;
 import com.itextpdf.text.BaseColor;
@@ -24,8 +25,11 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -45,6 +49,21 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.util.HSSFColor;
+
+// Librerias de Excel
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 
 /**
  *
@@ -82,13 +101,18 @@ public class PdfServlet extends HttpServlet {
 						break;
 						case "2":
 							// Escribir PDF!
-							writePDF(request, response);
+							if(request.getParameter("btn") != null){
+								if(request.getParameter("btn").equals("PDF")){
+									writePDF(request, response);
+								}else{
+									writeEXCEL(request, response);
+								}
+							}
 						break;
 					}
 				}else{
 				// Peticion mediante formulario en "generarPDF.jsp"
 					if(request.getMethod().equals("POST")){
-
 					// Comprobar nuevas columnas agregadas a documento
 						try{
 						// Comparar encabezados Fijos Con Nuevos Encabezados Agregados En Formulario
@@ -150,7 +174,9 @@ public class PdfServlet extends HttpServlet {
 						toGenerarPDF(request, response);
 					}
 				}
-			}catch(NullPointerException ex){
+			}catch(IOException ex){
+				System.out.println("Error: "+ex);
+				System.out.println("Error: "+ex.getCause().toString());
 				request.setAttribute("mensaje", "No Existe Opcion Indicada");
 				toGenerarPDF(request, response);
 			}
@@ -195,6 +221,223 @@ public class PdfServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+	
+	
+	public void writeEXCEL(HttpServletRequest request, HttpServletResponse response) 
+			throws IOException, ServletException{
+		/***************** Variables *****************/
+			String titulo;												// Variable De Título De Parrafo De Documento
+			DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+			Cuenta cuenta		= Cuenta.findById(new BigInteger(request.getParameter("cuenta")));
+			AnhoProyect anho	= AnhoProyect.findById(Integer.parseInt(request.getParameter("anho")));
+			List<String[]> gastosMes = new ArrayList<>();				// Lista final con gastosMes
+			Map<Integer, Map<String, String>> values = new HashMap<>();	// Arreglo multidimensional con Id Cuenta ,[ NombreCol , Valor Col]
+			int mes				= Integer.parseInt(request.getParameter("mes"));
+			FuenteF centro		= null;
+			titulo = cuenta.getNombre();
+			if(!request.getParameter("centro").equals("")){
+				centro  = FuenteF.findById(new BigDecimal(request.getParameter("centro")));
+				titulo += " - "+centro.getNombre();
+			}
+		/***************** Variables *****************/
+			
+		// Ordenar Nuevas Columnas, Con sus respectivos valores para cada Gasto
+		// Retorna HashMap<Integer, HashMap<String, String>>
+		try{
+			// Obtener gastos de documento
+			List<Homologar> gastos = Homologar.findHomologacionesV(cuenta, centro, anho, mes);
+			values = sortColumns(request, response);					// ORDENAR COLUMNAS!
+			System.out.println("NAMES INPUTS DE GASTOS OBTENIDOS : "+values.toString());
+			gastosMes = sortGastos(gastos, values, columns);			// ORDENAR GASTOS MES CON RESPECTIVOS VALORES
+		}catch(NullPointerException ex){
+			System.out.println("Problema!: "+ex.getMessage());
+		}
+		try{
+			System.out.println("");
+			// Crear Libro
+			Workbook libro = new XSSFWorkbook();
+			CreationHelper createHelper = libro.getCreationHelper();
+			Sheet sheet = libro.createSheet("Mayor Contable");
+			
+			CellStyle backgroundStyle = libro.createCellStyle();
+			//backgroundStyle.setBorderBottom(CellStyle.BORDER_THICK);
+			backgroundStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+			//backgroundStyle.setBorderLeft(CellStyle.BORDER_THICK);
+			backgroundStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+			//backgroundStyle.setBorderRight(CellStyle.BORDER_THICK);
+			backgroundStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+			//backgroundStyle.setBorderTop(CellStyle.BORDER_THICK);
+			backgroundStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+
+			CellRangeAddress region = CellRangeAddress.valueOf("A1:U500");
+			
+			// Crear Estilos De Fuentes
+			org.apache.poi.ss.usermodel.Font headerFont = libro.createFont();
+			headerFont.setBold(true);
+			headerFont.setFontHeightInPoints((short) 10);
+			headerFont.setColor(IndexedColors.BLACK.getIndex());
+			
+			// Estilos de fuente para celda
+			CellStyle headerCellStyle = libro.createCellStyle();
+			headerCellStyle.setFont(headerFont);
+			headerCellStyle.setFillBackgroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+			
+			// Añadir parrafo con Infomación
+			String[] cabecera = {"Libro Mayor: "+titulo,"Fecha: "+(formatter.format(new Date())),"Sociedad: Universidad Tecnologica de Chile INACAP","Rut: 72.012.000-3","Periodo: Noviembre"};
+			for(int i = 0 ; i < cabecera.length ; i++){
+				String[] cab = cabecera[i].split(":");
+				Row cabec  = sheet.createRow(i);
+				Cell cell  = cabec.createCell(0);
+				cell.setCellValue(cab[0]);
+				Cell cell2 = cabec.createCell(1);
+				cell2.setCellValue(cab[1]);
+			}
+			/*******************/
+			CellStyle style = libro.createCellStyle();
+			style.setBorderBottom(BorderStyle.MEDIUM);
+			style.setBorderTop(BorderStyle.MEDIUM);
+			style.setBorderRight(BorderStyle.MEDIUM);
+			style.setBorderLeft(BorderStyle.MEDIUM);
+			style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+			/*******************/
+			
+			CellStyle estiloFondo = libro.createCellStyle();
+			backgroundStyle.setFillBackgroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+			
+			Row encabezados = sheet.createRow(6);
+			System.out.println("Columnas "+columns);
+			
+			// Create cells
+			for(int i = 0; i <= columns.toArray().length-1 ; i++) {
+				// Separar Columnas De Posición
+				String[] val = columns.get(i).split("-");
+				Cell cell = encabezados.createCell(i);
+				cell.setCellValue(val[1]);
+				cell.setCellStyle(headerCellStyle);
+				cell.setCellStyle(style);
+			}
+			
+			int colDebe		= -1;
+			int colSaldo	= -1;
+			int debe		= 0;
+			int haber		= 0;
+			int saldo		= calculateSaldo(centro, cuenta, anho);
+			int deb = 0;
+			
+			int[] saldos = new int[gastosMes.size()];
+			saldos[0] = saldo;
+			saldos[1] = saldo;
+			
+			try{
+				int numRow = 8;
+				for(int i = 0 ; i <= gastosMes.size()-1 ; i++ ){
+					String[] gasto = gastosMes.get(i);
+					Row row = sheet.createRow(numRow++);			// Se crea Fila
+					for(int j = 1 ; j <= gasto.length-1 ; j++){
+						String[] cols = gasto;
+						Cell celda = null;
+						celda = row.createCell(j-1);
+						celda.setCellValue(cols[j]);
+						celda.setCellStyle(style);
+					}
+				}
+			}catch(Exception ex){
+				System.out.println("Error: "+ex.getMessage());
+			}
+			
+			/*
+			for(int i = gastosMes.size()-1 ; i >= 0 ; i-- ){
+				String[] gasto = gastosMes.get(i);
+				for(int j = 1 ; j <= gasto.length-1 ; j++){
+					String[] cols = gasto;
+					for(int k = 0 ; k <= cols.length-1 ; k++){
+						String col = cols[k];
+						System.out.println(col);
+					}
+				}
+			}
+			*/
+			// DATOS DE GASTOS
+			
+			// TITULOS!
+			Row rowAdd = sheet.createRow(7);
+			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
+				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
+					Cell celdaMsj = rowAdd.createCell(i-3);
+					celdaMsj.setCellValue("Saldo Inicial");
+					celdaMsj.setCellStyle(headerCellStyle);
+					celdaMsj.setCellStyle(style);
+					Cell celda = rowAdd.createCell(i);
+					celda.setCellValue("'Aquí Saldo'");
+					celda.setCellStyle(headerCellStyle);
+					celda.setCellStyle(style);
+					colSaldo = i;
+				}if(columns.get(i).contains("Debe") || columns.get(i).contains("DEBE") || columns.get(i).contains("debe")){
+					colDebe = i;
+				}
+			}
+			/*
+			ORIGINAL
+			try{
+				int numRow = 8;
+				for(int i = 0 ; i <= gastosMes.size()-1 ; i++ ){
+					String[] gasto = gastosMes.get(i);
+					Row row = sheet.createRow(numRow++);			// Se crea Fila
+					for(int j = 1 ; j <= gasto.length-1 ; j++){
+						String[] cols = gasto;
+						Cell celda = null;
+						celda = row.createCell(j-1);
+						celda.setCellValue(cols[j]);
+						celda.setCellStyle(style);
+					}
+				}
+			}catch(Exception ex){
+				System.out.println("Error: "+ex.getMessage());
+			}
+			*/
+			System.out.println("Debe"+ debe);
+			
+			System.out.println("Fin "+gastosMes.size()+8);
+			int fin = (gastosMes.size() + 8);
+			Row newRow = sheet.createRow(fin);
+			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
+				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
+					Cell celda0 = newRow.createCell(i-3);
+					celda0.setCellValue("Saldo Final");
+					Cell celda1 = newRow.createCell(i-2);
+					celda1.setCellValue(debe);
+					Cell celda2 = newRow.createCell(i-1);
+					celda2.setCellValue("Aquí Haber");
+					Cell celda3 = newRow.createCell(i);
+					celda3.setCellValue(saldo);
+					celda0.setCellStyle(style);
+					celda1.setCellStyle(style);
+					celda2.setCellStyle(style);
+					celda3.setCellStyle(style);
+				}
+			}
+
+			// Resize all columns to fit the content size
+			for(int i = 0; i < columns.size() ; i++) {
+				sheet.autoSizeColumn(i);
+			}
+			
+			SimpleDateFormat sf = new SimpleDateFormat("dd-MM-yyyy");
+			String fileName = "MayorContable_"+sf.format(new Date());
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+			
+			// Write the output to a file
+			//FileOutputStream fileOut = new FileOutputStream("poi-generated-file.xlsx");
+			libro.write(response.getOutputStream());
+			// Closing the workbook
+			libro.close();
+			
+		}catch(IOException ex){
+			request.setAttribute("mensaje", "Problemas al Crear Documento Excel");
+			request.getRequestDispatcher("completePDF.jsp").forward(request, response);
+		}
+	}
 	
 	
 	public void writePDF(HttpServletRequest request, HttpServletResponse response) 
@@ -264,7 +507,7 @@ public class PdfServlet extends HttpServlet {
 				// Fin Configuración de Parrafo y Logo
 				
 				// Configuración de Tabla
-                PdfPTable tabla = new PdfPTable(100);
+                PdfPTable tabla = new PdfPTable(300);
                 tabla.setWidthPercentage(100);
                 tabla.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
                 tabla.getDefaultCell().setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -272,50 +515,59 @@ public class PdfServlet extends HttpServlet {
 				
 				//Se establece la cabecera de la tabla
                 Font titulos = new Font(Font.FontFamily.COURIER,8,Font.BOLD,BaseColor.BLACK);
-                String[] enca = {"ID_COMP","COD_CUENTA","NOM_CUENTA","DEBE","HABER",
+                /*
+				String[] enca = {"ID_COMP","COD_CUENTA","NOM_CUENTA","DEBE","HABER",
                 "SALDO","IMPORTE","FECHA_CONTABLE","NUM_ORDEN_COMPRA","COD_PROYECTO",
                 "PROYECTO","COD_CENTRO_RESP","NUM_FACTURA","RUT_PROVEEDOR","NOMBRE_PROVEEDOR",
                 "ATRIBUTOS_DEL_PAGO","ASIENTO","HOMOLOGACION"};
-                PdfPCell cell;
+                */
+				String[] enca = new String[columns.size()];
+				int cont = 0;
+				for(String col : columns){
+					String[] cols = col.split("-");
+					enca[cont] = cols[1];
+					cont++;
+				}
 				
-                int[] largo = new int[18];
+				PdfPCell cell;
+				
+                int[] largo = new int[columns.size()];
                 int total = 0;
                 for(int i=0; i<enca.length; i++){
                     cell = new PdfPCell(new Paragraph(enca[i],titulos));
                     cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     if(enca[i].length() <= 6){
-						total += 3;
-						largo[i] = 3;
-						cell.setColspan(3);
-					}else if (enca[i].length() <= 8) {
-						total += 4;
-						largo[i] = 4;
-						cell.setColspan(4);
-					}else if (enca[i].length() <= 10) {
-						total += 5;
-						largo[i] = 5;
-						cell.setColspan(5);
-					}else if (enca[i].length() <= 12) {
-						total += 6;
-						largo[i] = 6;
-						cell.setColspan(6);
-					}else if (enca[i].length() <= 14) {
-						total += 7;
-						largo[i] = 7;
-						cell.setColspan(7);
-					}else if (enca[i].length() <= 16) {
-						total += 8;
-						largo[i] = 8;
-						cell.setColspan(8);
-					}else if (enca[i].length() <= 18) {
 						total += 9;
 						largo[i] = 9;
 						cell.setColspan(9);
+					}else if (enca[i].length() <= 8) {
+						total += 10;
+						largo[i] = 10;
+						cell.setColspan(10);
+					}else if (enca[i].length() <= 10) {
+						total += 12;
+						largo[i] = 12;
+						cell.setColspan(12);
+					}else if (enca[i].length() <= 12) {
+						total += 15;
+						largo[i] = 15;
+						cell.setColspan(15);
+					}else if (enca[i].length() <= 14) {
+						total += 18;
+						largo[i] = 18;
+						cell.setColspan(18);
+					}else if (enca[i].length() <= 16) {
+						total += 20;
+						largo[i] = 20;
+						cell.setColspan(20);
+					}else if (enca[i].length() <= 18) {
+						total += 25;
+						largo[i] = 25;
+						cell.setColspan(25);
 					}
 					tabla.addCell(cell);
 				}
 				System.out.print(total);
-				
 				
 				// Se agregan los gastos a la tabla
 				String[] filasG1 = {"1081642","5011080","ASESORIAS ADMINISTRATIVAS","555.556","-",
@@ -348,6 +600,20 @@ public class PdfServlet extends HttpServlet {
         }catch(Exception ex){
 			System.out.println(ex);
         }
+	}
+	
+	public int calculateSaldo(FuenteF fuente, Cuenta cuenta, AnhoProyect anho){
+		int saldo = 0;
+		List<Presupuesto> presu  = null;
+		if(fuente == null){
+			presu = Presupuesto.findByFuenteAndCuentaAndAnho(null, cuenta, anho);
+		}else{
+			presu = Presupuesto.findByFuenteAndCuentaAndAnho(fuente, cuenta, anho);
+		}
+		for(Presupuesto pre : presu){
+			saldo += pre.getMontoDis().intValueExact();
+		}
+		return saldo;
 	}
 	
 	public LinkedHashMap<Integer, String> cargarColumnas(){
@@ -416,31 +682,19 @@ public class PdfServlet extends HttpServlet {
 	public static List<String[]> sortGastos(List<Homologar> gastos, Map<Integer, Map<String, String>> values, List<String> columnas){
 		DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 		List<String[]> gastosM = new ArrayList<>();
-		String[] gasto = null;
-		
-		System.out.println("VALORES : "+values.toString());
-		System.out.println("GASTOS  : "+gastos.toString());
-		System.out.println("COLUMNAS :"+columnas.toString());
+		String[] gasto;
+
 		for(Homologar gst : gastos){
-			System.out.println("GASTO :"+gst);
-			System.out.println("Id Compra "+gst.getGastoMesId().getIdCompra().toString());
-			System.out.println("Id Compra "+gst.getGastoMesId().getImporte().toString());
-			int index = 1;
 			gasto = new String[columnas.size()+1];
 			for(String cols : columnas){
 				String[] col = cols.split("-");
-				System.out.println("cols :"+ cols);
-				System.out.println("COL[0]: "+col[0]);
-				//gasto[0] = gst.getGastoMesId().getId().toString();
-				System.out.println("CONT"+index);
-				System.out.println("Nombre Col: "+col[1]);
-				System.out.println("GASTO:"+ gst.getGastoMesId().getId());
+				gasto[0] = gst.getGastoMesId().getId().toString();
 				switch(col[1]){
-					case "ID_COMP": gasto[0]									= gst.getGastoMesId().getId().toString(); break;//gst.getGastoMesId().getIdCompra().toString() ;break;
+					case "ID_COMP": gasto[Integer.parseInt(col[0])]				= gst.getGastoMesId().getIdCompra().toString(); break;//gst.getGastoMesId().getIdCompra().toString() ;break;
 					case "COD_CUENTA": gasto[Integer.parseInt(col[0])]			= gst.getGastoMesId().getGastoId().getCodCuenta().toString() ;break;
 					case "NOM_CUENTA": gasto[Integer.parseInt(col[0])]			= gst.getCuentaId().getNombre() ;break;
-					case "DEBE":  ;break;
-					case "HABER":  ;break;
+					case "DEBE":  gasto[Integer.parseInt(col[0])]				= gst.getGastoMesId().getImporte().toString() ;break;
+					case "HABER":  gasto[Integer.parseInt(col[0])]				= "0" ;break;
 					case "SALDO":  ;break;
 					case "IMPORTE":  gasto[Integer.parseInt(col[0])]            = gst.getGastoMesId().getImporte().toString() ;break;
 					case "FECHA_CONTABLE": gasto[Integer.parseInt(col[0])]		= formatter.format(gst.getGastoMesId().getFecha()) ;break;
@@ -455,17 +709,30 @@ public class PdfServlet extends HttpServlet {
 					case "ASIENTO": gasto[Integer.parseInt(col[0])]				= gst.getGastoMesId().getAsiento() ;break;
 					case "HOMOLOGACION": gasto[Integer.parseInt(col[0])]		= gst.getCuentaId().getNombre() ;break;
 					default:
-						System.out.println("Entra a Default!");
 						for(Map.Entry<Integer, Map<String, String>> val : values.entrySet()){
 							if(gst.getGastoMesId().getId().intValueExact() == (val.getKey())){
 								for(Map.Entry<String, String> valu : val.getValue().entrySet()){
-									gasto[Integer.parseInt(col[0])] = valu.getValue();
+									if(valu.getKey().equals(col[1])){
+										if(col[1].equals("TIPO_DOCUMENTO")){
+											String tipo = "";
+											switch(Integer.parseInt(valu.getValue())){
+												case 1: tipo = "Viático" ;break;
+												case 2: tipo = "Remuneración" ;break;
+												case 3: tipo = "Factura" ;break;
+												case 4: tipo = "Boleta De Honorarios" ;break;
+												case 5: tipo = "Comprobante" ;break;
+											}
+											gasto[Integer.parseInt(col[0])] = tipo;
+										}else{
+											System.out.println("Valores "+valu.toString());
+											gasto[Integer.parseInt(col[0])] = valu.getValue();
+										}
+									}
 								}
 							}
 						}
 					break;
 				}
-				index++;
 			}
 			System.out.println("GASTO COMPLETO: "+Arrays.toString(gasto));
 			gastosM.add(gasto);

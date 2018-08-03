@@ -176,7 +176,7 @@
             <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
           </div>
           <div class="col-md-2">
-              <a href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>" style="text-decoration: none;">
+              <a href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>&mes=<%=request.getParameter("mes")%>&tipo=<%=request.getParameter("tipo")%>" style="text-decoration: none;">
                 <p align="center"><i class="fa fa-file-text fa-2x"></i><br>Generar Documento</p>
               </a>
           </div>

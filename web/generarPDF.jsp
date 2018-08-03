@@ -99,11 +99,12 @@
 		</div>
 		<% } %>
       <!-- CARTA -->
-      <h3>El Documento A Generar Contendrá Las Siguientes Columnas:</h3><br>
+      <h3><%=(request.getParameter("tipo").equals("G")) ? "Crear Mayor Contable De Gastos" :"Crear Mayor Contable De Gastos No Pecuniarios"%></h3><br>
       <!-- Example DataTables Card-->
       <form action="PDF" method="POST">
 		  <input type='hidden' value='<%=request.getParameter("mes")%>' name='mes'>
 		  <input type='hidden' value='<%=request.getParameter("anho")%>' name='anho'>
+		  <input type='hidden' value='<%=request.getParameter("tipo")%>' name='tipo'>
 		<div class="row">
 			<div class="col-md-6 col-sm-12">
 				<table id="tablaColumnas" class="table table-hover">
@@ -148,7 +149,6 @@
 					  </div>
 					</div>
 				</div>
-				
 			</div>
 		</div>
       <br>
