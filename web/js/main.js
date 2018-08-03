@@ -44,7 +44,7 @@ $(document).ready(function() {
             $("#row-"+$(this).val()).remove();
             var filas = $(".filaGasto");
             if(filas.length <= 0){
-                $(location).attr('href', 'Year.do?idAnho='+$("#idAnho").val()+'&mes='+$("#mes").val()+'&op=3');
+                $(location).attr('href', 'Year.do?idAnho='+$("#idAnho").val()+'&mes='+$("#mes").val()+'&op=3&tipo='+$("#tipoG").val());
             }
             return true;
         }else{

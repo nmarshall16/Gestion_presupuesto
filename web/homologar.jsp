@@ -184,7 +184,7 @@
                 <input type="hidden" name="op" value="homologar">
                 <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>" id="mes">
                 <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>" id="idAnho">
-                <input type="hidden" name="tipo" value="<%=tipo%>">
+                <input type="hidden" name="tipo" value="<%=tipo%>" id="tipoG">
                 <div class="row" id="contentException">
                   <%
                   List<GastoMes> excepciones = (List<GastoMes>)request.getAttribute("excepciones");
