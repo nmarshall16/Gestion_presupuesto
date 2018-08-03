@@ -260,7 +260,7 @@ public class GastoMes implements Serializable {
 
 	public String actualizarAtributoPago(FuenteF fuente, String atributo, Presupuesto presupuesto){
 		String error = "";
-		error = presupuesto.aumentarPresupuesto(this.getImporte().longValue());
+		error = presupuesto.aumentarPresupuesto(this.getImporte().longValue(),true);
 		if(error.equals("")){
 			try{
 				Gasto gastoG = Gasto.findGasto(fuente.getCodCentro(), this.getGastoId().getCodCuenta());

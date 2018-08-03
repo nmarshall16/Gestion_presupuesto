@@ -100,6 +100,7 @@
       </div>
       <% 
         ArrayList<String> advertencias = (ArrayList<String>)request.getAttribute("advertencias");
+        char tipo = request.getAttribute("tipo").toString().charAt(0);
         if(advertencias.size()>0){
       %>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -121,10 +122,11 @@
         <input type="hidden" name="op" value="homologar">
         <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>" id="mes">
         <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>" id="idAnho">
+        <input type="hidden" name="tipo" value="<%=tipo%>">
         <div class="row" id="contentException">
           <%
           List<GastoMes> excepciones = (List<GastoMes>)request.getAttribute("excepciones");
-          if(excepciones.size()>0){   
+          if(excepciones.size()>0){
           %>
           <div class="col-md-5">
             <div class="card">
@@ -146,8 +148,9 @@
                   <tr id="exc-<% out.print(gasto.getId()); %>" class="filaExcepcion">
                       <th scope="row">
                       <label style="font-size: 13px;">
-                      <% 
-                        if(!gasto.getIdCompra().equals(new BigInteger("0"))){
+                      <%
+                        
+                        if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
                             out.print(gasto.getIdCompra());
                         }else{
                             out.print("-");
@@ -156,7 +159,7 @@
                       </label>
                       <input type="hidden" name="gastosExc" value="<% out.print(gasto.getId()); %>" >
                       </th>
-                      <td><label style="font-size: 13px;"><% out.print(gasto.getGastoId().getNombre().toUpperCase()); %></label></td>
+                      <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
                     <td><button type="button" class="btn btn-outline-primary deleteExcepcion" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                   </tr>
                   <%
@@ -213,7 +216,7 @@
                       <th scope="row">
                       <label style="font-size: 13px;">
                       <% 
-                        if(!gasto.getIdCompra().equals(new BigInteger("0"))){
+                        if(gasto.getIdCompra()!=null && !gasto.getIdCompra().equals(new BigInteger("0")) && tipo!='A'){
                             out.print(gasto.getIdCompra());
                         }else{
                             out.print("-");
@@ -222,7 +225,7 @@
                       </label>
                       <input type="hidden" value="<% out.print(gasto.getId()); %>" name="gastos">
                       </th>
-                      <td><label style="font-size: 13px;"><% out.print(gasto.getGastoId().getNombre().toUpperCase()); %></label></td>
+                      <td><label style="font-size: 13px;"><%=(tipo != 'A')?gasto.getGastoId().getNombre().toUpperCase():gasto.getDescripcion()%></label></td>
                       <td><button type="button" class="btn btn-outline-primary deleteGasto" value="<% out.print(gasto.getId()); %>"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                   </tr>
                   <%

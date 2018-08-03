@@ -68,7 +68,8 @@ public class Homologar implements Serializable {
 		return homol;
 	}
         
-	public String addHomologacion(){
+	public String addHomologacion(char tipo){
+                String error = "";
 		try{
 			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
 			EntityManager em = emf.createEntityManager();
@@ -78,10 +79,21 @@ public class Homologar implements Serializable {
 			trans.commit();
 			em.close();
 		}catch(Exception ex){
-			System.out.print(ex);
+                    error = ex.getMessage();
 		}
-		Presupuesto presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
-		String error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+                Presupuesto presupuesto;
+                if(tipo!='A'){
+                    presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                }else{
+                    FuenteF noPecuniario = FuenteF.findNoPecuniario();
+                    System.out.println(noPecuniario);
+                    presupuesto = Presupuesto.findByFuenteAndCuenta(noPecuniario, this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                }
+                if(this.getGastoMesId().getImporte().longValue()>0){
+                    error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+                }else{
+                    error = presupuesto.aumentarPresupuesto(this.getGastoMesId().getImporte().longValue()*-1,false);
+                }
 		return error;
 	}
         
@@ -142,19 +154,53 @@ public class Homologar implements Serializable {
 		return homologacion;
 	}
 
-	public void actualizarHomologacion(Cuenta cuenta){
+	public String actualizarHomologacion(Cuenta cuenta){
+                String error = "";
+                Presupuesto presupuesto;
 		try{
-			EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
-			EntityManager em = emf.createEntityManager();
-			EntityTransaction trans = em.getTransaction();
-			trans.begin();
-			Homologar homologacion = em.merge(this);
-			homologacion.setCuentaId(cuenta);
-			trans.commit();
-			em.close();
+                    // Se obtiene el presupuesto de la cuenta afectada actualmente 
+                    if(this.getGastoMesId().getTipo()!='A'){
+                        presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                    }else{
+                        FuenteF noPecuniario = FuenteF.findNoPecuniario();
+                        presupuesto = Presupuesto.findByFuenteAndCuenta(noPecuniario, this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                    }
+                    // Se aumenta el monto disponible 
+                    error = presupuesto.aumentarPresupuesto(this.getGastoMesId().getImporte().longValue(), true);
+                    if(error.equals("")){
+                        // Se obtiene el presupuesto de la nueva cuenta que se afectara
+                        if(this.getGastoMesId().getTipo()!='A'){
+                            presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), cuenta, this.getGastoMesId().getAnhoProyectId());
+                        }else{
+                            FuenteF noPecuniario = FuenteF.findNoPecuniario();
+                            presupuesto = Presupuesto.findByFuenteAndCuenta(noPecuniario, cuenta, this.getGastoMesId().getAnhoProyectId());
+                        }
+                        // Se resta el monto disponible
+                        error = presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+                        if(error.equals("")){
+                            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                            EntityManager em = emf.createEntityManager();
+                            EntityTransaction trans = em.getTransaction();
+                            trans.begin();
+                            Homologar homologacion = em.merge(this);
+                            homologacion.setCuentaId(cuenta);
+                            trans.commit();
+                            em.close();
+                        }else{
+                            // En caso de error se vuelve a dejar el presupuesto de la cuenta actual afectada tal como estaba
+                            if(this.getGastoMesId().getTipo()!='A'){
+                                presupuesto = Presupuesto.findByFuenteAndCuenta(this.getGastoMesId().getGastoId().getFuenteFCodCentro(), this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                            }else{
+                                FuenteF noPecuniario = FuenteF.findNoPecuniario();
+                                presupuesto = Presupuesto.findByFuenteAndCuenta(noPecuniario, this.getCuentaId(), this.getGastoMesId().getAnhoProyectId());
+                            }
+                            presupuesto.restarPresupuesto(this.getGastoMesId().getImporte().longValue());
+                        }                        
+                    }
 		}catch(Exception ex){
-			System.out.print(ex);
+                    error = ex.getMessage();
 		}
+                return error;
 	}
         
 	public void actualizarEstado(char estado){

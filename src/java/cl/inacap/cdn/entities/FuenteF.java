@@ -72,7 +72,7 @@ public class FuenteF implements Serializable {
         this.gastoList = gastosList;
     }
 	
-	public static FuenteF findById(BigDecimal codigo){
+    public static FuenteF findById(BigDecimal codigo){
         FuenteF fuenteF;
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
         EntityManager em = emf.createEntityManager();
@@ -85,7 +85,21 @@ public class FuenteF implements Serializable {
         emf.close();
         return fuenteF;
     }
-     
+    
+    public static FuenteF findNoPecuniario(){
+        FuenteF fuenteF;
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<FuenteF> result = em.createNamedQuery("FuenteF.findByTipo", FuenteF.class);
+        result.setParameter("tipo", 'A');
+        fuenteF = result.getSingleResult();
+        em.getTransaction().commit();
+        em.close();
+        emf.close();
+        return fuenteF;
+    }
+    
     public static List<FuenteF> findAll(){
         List<FuenteF> ff;
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");

@@ -158,6 +158,7 @@
               <input type="hidden" value="marcarGastos" name="op">
               <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
               <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
+              <input type="hidden" name="tipo" value="<%=tipo%>">
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <%
                 switch(tipo){

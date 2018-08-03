@@ -67,7 +67,8 @@ public class GastoServlet extends HttpServlet {
             String opcion = request.getParameter("op");
             switch(opcion){
                 case "homologar":
-                    // Homologar gastos 
+                    // Homologar gastos
+                    char tipo = request.getParameter("tipo").charAt(0);
                     ArrayList<String> errorH = new ArrayList<>();
                     try{ 
                         String[] gast = request.getParameterValues("gastos");
@@ -76,20 +77,28 @@ public class GastoServlet extends HttpServlet {
                         String errorHom = "";
                         for (String resultado : gast) {
                             GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                            tipo = gasto.getTipo();
                             if(Gastoexc.validarGastoExc(gasto.getGastoId())){ // Se valida si el gasto es un gasto excepcional 
                                 List<Homologar> homExc = Homologar.findHomologaciones(gasto); // Se busca alguna homologación asociada al gasto
                                 if(homExc.size()>0){ 
-                                    homExc.get(0).actualizarHomologacion(cuenta);
+                                    errorHom = homExc.get(0).actualizarHomologacion(cuenta);
+                                   if(!errorHom.equals("")){
+                                       errorH.add(errorHom);
+                                   }
                                 }else{
                                     Homologar homologar = new Homologar();
                                     homologar.setCuentaId(cuenta);
                                     homologar.setGastoMesId(gasto);
-                                    if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
-                                        homologar.setEstado('V'); 
+                                    if(tipo!='A'){
+                                        if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                            homologar.setEstado('V'); 
+                                        }else{
+                                            homologar.setEstado('P');
+                                        }
                                     }else{
-                                        homologar.setEstado('P');
+                                        homologar.setEstado('V'); 
                                     }
-                                    errorHom = homologar.addHomologacion(); // Se homologa el gasto y se modifica el presupuesto
+                                    errorHom = homologar.addHomologacion(tipo); // Se homologa el gasto y se modifica el presupuesto
                                     if(errorHom.equals("")){
                                             gasto.actualizarEstado('R'); // Se actualiza el estado del gasto para identificarse en la tabla de gastos.jsp
                                     }else{
@@ -101,17 +110,24 @@ public class GastoServlet extends HttpServlet {
                                 // En caso de no ser un gasto excepcional se realiza el siguiente proceso
                                 Homologar hom = Homologar.findHomologacion(gasto);
                                 if(hom!=null){
-                                   hom.actualizarHomologacion(cuenta);
+                                   errorHom = hom.actualizarHomologacion(cuenta);
+                                   if(!errorHom.equals("")){
+                                       errorH.add(errorHom);
+                                   }
                                 }else{
                                     Homologar homologar = new Homologar();
                                     homologar.setCuentaId(cuenta);
                                     homologar.setGastoMesId(gasto);
-                                    if(GastoMes.validaCuenta(gasto)){
-                                        homologar.setEstado('V');
+                                    if(tipo!='A'){
+                                        if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                            homologar.setEstado('V'); 
+                                        }else{
+                                            homologar.setEstado('P');
+                                        }
                                     }else{
-                                        homologar.setEstado('P');
+                                        homologar.setEstado('V'); 
                                     }
-                                    errorHom = homologar.addHomologacion();
+                                    errorHom = homologar.addHomologacion(tipo);
                                     if(errorHom.equals("")){
                                             gasto.actualizarEstado('R');
                                     }else{
@@ -129,20 +145,28 @@ public class GastoServlet extends HttpServlet {
                             // Se realiza el mismo proceso que se realizo anteriormente
                             for (String resultado : gast) {
                                 GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                                tipo = gasto.getTipo();
                                 if(Gastoexc.validarGastoExc(gasto.getGastoId())){
                                     List<Homologar> homExc = Homologar.findHomologaciones(gasto);
                                     if(homExc.size()>1){
-                                        homExc.get(1).actualizarHomologacion(cuenta);
+                                        errorHom = homExc.get(1).actualizarHomologacion(cuenta);
+                                        if(!errorHom.equals("")){
+                                            errorH.add(errorHom);
+                                        }
                                     }else{
                                         Homologar homologar = new Homologar();
                                         homologar.setCuentaId(cuenta);
                                         homologar.setGastoMesId(gasto);
-                                        if(GastoMes.validaCuenta(gasto)){
-                                            homologar.setEstado('V');
+                                        if(tipo!='A'){
+                                            if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                                homologar.setEstado('V'); 
+                                            }else{
+                                                homologar.setEstado('P');
+                                            }
                                         }else{
-                                            homologar.setEstado('P');
+                                            homologar.setEstado('V'); 
                                         }
-                                        errorHom = homologar.addHomologacion();
+                                        errorHom = homologar.addHomologacion(tipo);
                                         if(errorHom.equals("")){
                                             gasto.actualizarEstado('R');
                                         }else{
@@ -164,7 +188,7 @@ public class GastoServlet extends HttpServlet {
                     request.setAttribute("anho", anhoPend.getId());
                     request.setAttribute("gastos", gastosPend);
                     request.setAttribute("estado", GastoMes.validaEstadoGastos(gastosPend));
-                    request.setAttribute("tipo", "G");
+                    request.setAttribute("tipo", tipo);
                     request.getRequestDispatcher("gastos.jsp").forward(request, response);
                 break;
                 case "marcarGastos":
@@ -187,6 +211,7 @@ public class GastoServlet extends HttpServlet {
                     List<Cuenta> cuentas = Cuenta.findAll();
                     BigInteger mesHo = new BigInteger(request.getParameter("mes"));
                     AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                    request.setAttribute("tipo", request.getParameter("tipo"));
                     request.setAttribute("mes", mesHo);
                     request.setAttribute("anho", anhoHo.getId());
                     request.setAttribute("gastos", gastos);

@@ -175,12 +175,15 @@ public class Presupuesto implements Serializable {
 		return error;
 	}
 
-	public String aumentarPresupuesto(long monto){
+	public String aumentarPresupuesto(long monto, boolean restar){
 		long disponible = this.getMontoDis().longValue();
 		long gastado = this.getTotalGasta().longValue();
 		String error = "";
 		disponible = disponible + monto;
-		gastado = gastado - monto;
+                if(restar){
+                    gastado = gastado - monto;
+                }
+                System.out.println(disponible);
 		if(disponible > this.getMontoTot().longValue()){
 			error = "El monto disponible no puede ser mayor al disponible valide su presupuesto disponible";
 		}else{
