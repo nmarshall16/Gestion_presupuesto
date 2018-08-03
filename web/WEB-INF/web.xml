@@ -32,6 +32,10 @@
         <servlet-name>UsuarioServlet</servlet-name>
         <servlet-class>cl.inacap.cdn.controllers.UsuarioServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>TipoUsuarioServlet</servlet-name>
+        <servlet-class>cl.inacap.cdn.controllers.TipoUsuarioServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/Login.do</url-pattern>
@@ -63,6 +67,10 @@
     <servlet-mapping>
         <servlet-name>UsuarioServlet</servlet-name>
         <url-pattern>/Usuario.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TipoUsuarioServlet</servlet-name>
+        <url-pattern>/TipoUsu.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

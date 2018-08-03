@@ -1,10 +1,12 @@
 <%-- 
-    Document   : usuarios
-    Created on : 01-08-2018, 2:39:04
+    Document   : newUsuario
+    Created on : 01-08-2018, 16:32:23
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Permiso"%>
 <%@page import="cl.inacap.cdn.entities.Usuario"%>
+<%@page import="cl.inacap.cdn.entities.TipoUsuario"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -85,11 +87,17 @@
         </li>
         <li class="breadcrumb-item active">Tables</li>
       </ol>
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" id="claveError" style="display: none;">
+          <p>Las contraseñas no coinciden por favor valide de que ambas contraseñas sean iguales</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <% 
-        if(request.getAttribute("notificacion")!=null){
+        if(request.getAttribute("alerta")!=null){
       %>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=request.getAttribute("notificacion")%></p>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=request.getAttribute("alerta")%></p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -99,74 +107,52 @@
       %>
       <div class="card">
         <div class="row card-body">
-          <div class="col-md-10">
-            <h3>Usuarios</h3>
-            <label>Administrar usuarios del sistema</label>
-          </div>
-          <div class="col-md-2">
-            <a href="Usuario.do?op=2" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Usuario</p></a>
+          <div class="col-md-12">
+              <h3>Asignar Proyecto</h3>
           </div>
         </div>
       </div>
       <br>
-      <!-- Example DataTables Card-->
-      <div class="card mb-3">
-        <div class="card-header">
-          <i class="fa fa-table"></i> Usuarios Registrados</div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Correo Electronico</th>
-                  <th>Tipo de usuario</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tfoot>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Rut</th>
-                  <th>Tipo de usuario</th>
-                  <th></th>
-                </tr>
-              </tfoot>
-              <tbody>
-            <%
-                if(request.getAttribute("usuarios")!=null){
-                    List<Usuario> usuarios = (List<Usuario>)request.getAttribute("usuarios");
-                    if(usuarios.size()>0){
-                        for(Usuario usuario:usuarios){
-            %>
-                        <tr>
-                          <td><%=usuario.getNombre()%></td>
-                          <td><%=usuario.getApellido()%></td>
-                          <td><%=usuario.getRut()%>-<%=usuario.getDv()%></td>
-                          <td><%=usuario.getTipoUsuarioId().getNombre()%></td>
-                          <td width="100">
-                              <a href="Usuario.do?idUsuario=<%=usuario.getRut()%>&op=2">
-                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="top" title="Modificar">
-                                    <i class="fa fa-pencil fa-lg" aria-hidden="true"></i>
-                                </button>   
-                              </a>
-                              <button type="button" class="btn btn-outline-danger deleteUsuario" data-toggle="tooltip" data-placement="top" title="Eliminar" value="<%=usuario.getRut()%>">
-                                    <i class="fa fa-trash fa-lg" aria-hidden="true"></i>
-                              </button>
-                          </td>
-                        </tr>
-            <%
-                        }
-                    }
-                }
-            %>
-              </tbody>
-            </table>
+      <div class="card">
+        <div class="row card-body">
+          <div class="col-md-12">
+            <form>
+              <div class="row">
+                <div class="col-5">
+                  <div class="list-group">
+                    <button type="button" class="list-group-item list-group-item-action active">
+                      Cras justo odio
+                    </button>
+                    <button type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>
+                  </div>
+                </div>
+                <div class="col-1">
+                </div>
+                <div class="col-6">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        <label class="custom-control-label" for="customCheck1">Nicolas Marshall <small class="text-muted">(19702068-7)</small></label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <br><hr>
+              <div class="form-row">
+                <div class="form-group col-md-11">
+                  <button type="button" class="btn btn-outline-primary"><i class="fa fa-times fa-lg"></i><br>Cancelar</button>
+                </div>
+                <div class="form-group col-md-1">
+                  <button type="submit" class="btn btn-outline-primary"><i class="fa fa-floppy-o fa-lg"></i><br>Guardar</button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
+      <br>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->
@@ -181,25 +167,6 @@
     <a class="scroll-to-top rounded" href="#page-top">
       <i class="fa fa-angle-up"></i>
     </a>
-    <div class="modal fade" id="eliminarUsuario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">¿Desea Eliminar este Usuario?</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                        </button>
-                </div>
-                <div class="modal-body">
-                        <p id="pModal">Esta seguro/a de que desea eliminar este usuario</p>
-                </div>
-                <div class="modal-footer">
-                        <a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
-                        <a href="#" id="modalEliminar" class="btn btn-danger">Eliminar Usuario</a>
-                </div>
-            </div>
-        </div>
-	</div>
     <!-- Logout Modal-->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -218,6 +185,26 @@
         </div>
       </div>
     </div>
+    <script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+    </script>
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/jquery/jquery.form.min.js"></script>
@@ -235,5 +222,5 @@
     <script src="js/main.js"></script>
   </div>
 </body>
-
 </html>
+

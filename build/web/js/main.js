@@ -101,6 +101,12 @@ $(document).ready(function() {
         $("#modalEliminar").attr('href', 'Usuario.do?idUsuario='+rutUsu+'&op=5');
         $('#eliminarUsuario').modal('show'); 
     });
+    
+    $(document).on('click', '.deleteTipo', function(){
+        var idTipo = $(this).val();
+        $("#modalEliminar").attr('href', 'TipoUsu.do?idTipo='+idTipo+'&op=5');
+        $('#eliminarTipo').modal('show'); 
+    });
 });
 
 function cargarCuenta(){

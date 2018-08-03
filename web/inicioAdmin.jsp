@@ -45,8 +45,14 @@
             <span class="nav-link-text">Proyectos Eliminados</span>
           </a>
         </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Proyectos Eliminados">
+          <a class="nav-link" href="asignarProyect.jsp">
+            <i class="fa fa-fw fa-archive"></i>
+            <span class="nav-link-text">Asignar Proyecto</span>
+          </a>
+        </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Tipos de usuarios">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="TipoUsu.do?op=1">
             <i class="fa fa-fw fa-sitemap"></i>
             <span class="nav-link-text">Tipos de usuarios</span>
           </a>

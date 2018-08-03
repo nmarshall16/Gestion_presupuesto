@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.TipoUsuario"%>
 <%@page import="cl.inacap.cdn.entities.Usuario"%>
 <%@page import="java.util.List"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -100,11 +101,11 @@
       <div class="card">
         <div class="row card-body">
           <div class="col-md-10">
-            <h3>Usuarios</h3>
-            <label>Administrar usuarios del sistema</label>
+            <h3>Tipos de Usuario</h3>
+            <label>Administrar Tipos de usuario del sistema</label>
           </div>
           <div class="col-md-2">
-            <a href="Usuario.do?op=2" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir Usuario</p></a>
+            <a href="TipoUsu.do?op=2" style="text-decoration: none;"><p align="center"><i class="fa fa-plus-square fa-2x"></i><br>Añadir</p></a>
           </div>
         </div>
       </div>
@@ -112,47 +113,38 @@
       <!-- Example DataTables Card-->
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fa fa-table"></i> Usuarios Registrados</div>
+          <i class="fa fa-table"></i> Tipos de Usuario Registrados</div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
                   <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Correo Electronico</th>
-                  <th>Tipo de usuario</th>
                   <th></th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>Rut</th>
-                  <th>Tipo de usuario</th>
                   <th></th>
                 </tr>
               </tfoot>
               <tbody>
             <%
-                if(request.getAttribute("usuarios")!=null){
-                    List<Usuario> usuarios = (List<Usuario>)request.getAttribute("usuarios");
-                    if(usuarios.size()>0){
-                        for(Usuario usuario:usuarios){
+                if(request.getAttribute("tUsuarios")!=null){
+                    List<TipoUsuario> tipos = (List<TipoUsuario>)request.getAttribute("tUsuarios");
+                    if(tipos.size()>0){
+                        for(TipoUsuario tipo:tipos){
             %>
                         <tr>
-                          <td><%=usuario.getNombre()%></td>
-                          <td><%=usuario.getApellido()%></td>
-                          <td><%=usuario.getRut()%>-<%=usuario.getDv()%></td>
-                          <td><%=usuario.getTipoUsuarioId().getNombre()%></td>
+                          <td><%=tipo.getNombre()%></td>
                           <td width="100">
-                              <a href="Usuario.do?idUsuario=<%=usuario.getRut()%>&op=2">
+                              <a href="TipoUsu.do?idTipo=<%=tipo.getId()%>&op=2">
                                 <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="top" title="Modificar">
                                     <i class="fa fa-pencil fa-lg" aria-hidden="true"></i>
                                 </button>   
                               </a>
-                              <button type="button" class="btn btn-outline-danger deleteUsuario" data-toggle="tooltip" data-placement="top" title="Eliminar" value="<%=usuario.getRut()%>">
+                              <button type="button" class="btn btn-outline-danger deleteTipo" data-toggle="tooltip" data-placement="top" title="Eliminar" value="<%=tipo.getId()%>">
                                     <i class="fa fa-trash fa-lg" aria-hidden="true"></i>
                               </button>
                           </td>
@@ -181,21 +173,21 @@
     <a class="scroll-to-top rounded" href="#page-top">
       <i class="fa fa-angle-up"></i>
     </a>
-    <div class="modal fade" id="eliminarUsuario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal fade" id="eliminarTipo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: none;">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">¿Desea Eliminar este Usuario?</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">¿Desea Eliminar este Tipo de Usuario?</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">×</span>
                         </button>
                 </div>
                 <div class="modal-body">
-                        <p id="pModal">Esta seguro/a de que desea eliminar este usuario</p>
+                        <p id="pModal">Esta seguro/a de que desea eliminar este tipo de usuario</p>
                 </div>
                 <div class="modal-footer">
                         <a href="#" class="btn btn-secondary" data-dismiss="modal">Cancelar</a>
-                        <a href="#" id="modalEliminar" class="btn btn-danger">Eliminar Usuario</a>
+                        <a href="#" id="modalEliminar" class="btn btn-danger">Eliminar</a>
                 </div>
             </div>
         </div>

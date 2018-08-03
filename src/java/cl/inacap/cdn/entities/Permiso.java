@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ import javax.xml.bind.annotation.XmlTransient;
 	@NamedQuery(name = "Permiso.findAll", query = "SELECT p FROM Permiso p")
 	, @NamedQuery(name = "Permiso.findById", query = "SELECT p FROM Permiso p WHERE p.id = :id")
 	, @NamedQuery(name = "Permiso.findByNombre", query = "SELECT p FROM Permiso p WHERE p.nombre = :nombre")})
+
 public class Permiso implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -43,15 +45,54 @@ public class Permiso implements Serializable {
     	@JoinColumn(name = "PERMISO_ID", referencedColumnName = "ID")}, inverseJoinColumns = {
     	@JoinColumn(name = "TIPO_USUARIO_ID", referencedColumnName = "ID")})
     @ManyToMany
-	private List<TipoUsuario> tipoUsuarioList;
-
+	private List<TipoUsuario> tipoUsuarioList = new ArrayList<>();
 	public Permiso() {
 	}
 
 	public Permiso(BigDecimal id) {
 		this.id = id;
 	}
-
+        
+        public static List<Permiso> findAll(){
+            List<Permiso> permisos;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            TypedQuery<Permiso> result =  em.createNamedQuery("Permiso.findAll", Permiso.class);
+            permisos = result.getResultList();
+            em.close();
+            emf.close();
+            if(permisos.isEmpty()){
+                return null;
+            }else{
+                return permisos;
+            }
+        }
+        
+        public static Permiso findById(BigDecimal id){
+            Permiso permiso;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            permiso = em.find(Permiso.class, id);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            return permiso;
+        }
+        
+        public static List<Permiso> findByTipoU(TipoUsuario u){
+            List<Permiso> permiso = new ArrayList();
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            TypedQuery<Permiso> result = em.createQuery("SELECT p FROM permiso p INNER JOIN permisosu pe INNER JOIN tipo_usuario t ON p.id = pe.permiso_id AND pe.tipo_usuario_id = t.id WHERE pe.tipo_usuario_id = :tipo", Permiso.class);
+            result.setParameter("tipo", u);
+            permiso = result.getResultList();
+            em.close();
+            emf.close();
+            return permiso;
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}

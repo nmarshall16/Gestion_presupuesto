@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -51,6 +52,15 @@ public class TipoUsuario implements Serializable {
 		this.id = id;
 	}
         
+        public TipoUsuario(String nombre) {
+                this.nombre = nombre;
+	}
+        
+        public TipoUsuario(String nombre, List<Permiso> permisos) {
+                this.nombre = nombre;
+                this.permisoList = permisos;
+	}
+        
         public static TipoUsuario findById(BigDecimal id){
             TipoUsuario tUsuario;
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
@@ -76,6 +86,75 @@ public class TipoUsuario implements Serializable {
             }else{
                 return tipos;
             }
+        }
+        
+        public void addTipoUsuario(List<Permiso> permisos){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            this.permisoList = new ArrayList();
+            trans.begin();
+            for(Permiso permiso:permisos){
+                this.getPermisoList().add(permiso);
+                Permiso permi = em.merge(permiso);
+                permi.getTipoUsuarioList().add(this);
+            }
+            em.persist(this);
+            trans.commit();
+            em.close();
+        }
+        
+        public void modificarTipoUsu(TipoUsuario newTipo, List<Permiso> permisos){
+            try{
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+                EntityManager em = emf.createEntityManager();
+                EntityTransaction trans = em.getTransaction();
+                trans.begin();
+                TipoUsuario tipo = em.merge(this);
+                List<Permiso> oldPermisos = this.getPermisoList();
+                tipo.setNombre(newTipo.getNombre());
+                tipo.setPermisoList(permisos);
+                tipo.permisoList = new ArrayList();
+                boolean validacion = false;
+                for(Permiso permiso:permisos){
+                    validacion = false;
+                    for(TipoUsuario tU:permiso.getTipoUsuarioList()){
+                        if(tU.equals(tipo)){
+                            validacion = true;
+                        }
+                    }
+                    if(!validacion){
+                        Permiso permi = em.merge(permiso);
+                        permi.getTipoUsuarioList().add(tipo);
+                    }
+                    validacion = false;
+                    for(Permiso permi:oldPermisos){
+                        if(permi.equals(permiso)){
+                            validacion = true;
+                        }
+                    }
+                    if(!validacion){
+                        Permiso permi = em.merge(permiso);
+                        permi.getTipoUsuarioList().remove(tipo);
+                    }
+                    tipo.getPermisoList().add(permiso);
+                }
+                trans.commit();
+                em.close();
+            }catch(Exception ex){
+                    System.out.print(ex);
+            }
+	}
+        
+        public void removeTipoUsu(){
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            TipoUsuario tipo = em.find(TipoUsuario.class, this.getId());
+            em.remove(tipo);
+            trans.commit();
+            em.close();
         }
         
 	public BigDecimal getId() {
