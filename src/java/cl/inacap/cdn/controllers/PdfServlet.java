@@ -25,11 +25,8 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -39,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +45,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 
 // Librerias de Excel
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -63,7 +58,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.RegionUtil;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 
 /**
  *
@@ -94,6 +92,7 @@ public class PdfServlet extends HttpServlet {
 		Usuario u = (Usuario)request.getSession(true).getAttribute("user");
 		if (u != null) {
 			try{
+				// Actuar bajo Opcion en caso que exista!
 				if(request.getParameter("op") != null ){
 					switch(request.getParameter("op")){
 						case "1":
@@ -104,7 +103,7 @@ public class PdfServlet extends HttpServlet {
 							if(request.getParameter("btn") != null){
 								if(request.getParameter("btn").equals("PDF")){
 									writePDF(request, response);
-								}else{
+								}else if(request.getParameter("btn").equals("EXCEL")){
 									writeEXCEL(request, response);
 								}
 							}
@@ -142,8 +141,7 @@ public class PdfServlet extends HttpServlet {
 									}
 									sortColumns.put(Integer.parseInt(co[0]), co[1]);
 								});
-								System.out.println("Nuevas Columnas : "+newCol.size()+" - "+newCol.toString());
-								System.out.println("Columnas Existentes : "+colFij.toString());
+								
 								request.setAttribute("newCols", newCol);
 								request.setAttribute("columnas", columns);
 								FuenteF fuente = null;
@@ -222,24 +220,29 @@ public class PdfServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 	
-	
+	//******************************************************************* FUNCIONES *******************************************************************
+
+	/*
+	*	Metodo para escribir EXCEL
+	*/
 	public void writeEXCEL(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException{
-		/***************** Variables *****************/
-			String titulo;												// Variable De Título De Parrafo De Documento
-			DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-			Cuenta cuenta		= Cuenta.findById(new BigInteger(request.getParameter("cuenta")));
-			AnhoProyect anho	= AnhoProyect.findById(Integer.parseInt(request.getParameter("anho")));
-			List<String[]> gastosMes = new ArrayList<>();				// Lista final con gastosMes
-			Map<Integer, Map<String, String>> values = new HashMap<>();	// Arreglo multidimensional con Id Cuenta ,[ NombreCol , Valor Col]
-			int mes				= Integer.parseInt(request.getParameter("mes"));
-			FuenteF centro		= null;
-			titulo = cuenta.getNombre();
-			if(!request.getParameter("centro").equals("")){
-				centro  = FuenteF.findById(new BigDecimal(request.getParameter("centro")));
-				titulo += " - "+centro.getNombre();
-			}
-		/***************** Variables *****************/
+	/***************** Variables *****************/
+		FuenteF centro								= null;
+		String titulo;														// Variable De Título De Parrafo De Documento
+		DateFormat formatter						= new SimpleDateFormat("dd-MM-yyyy");
+		Cuenta cuenta								= Cuenta.findById(new BigInteger(request.getParameter("cuenta")));
+		AnhoProyect anho							= AnhoProyect.findById(Integer.parseInt(request.getParameter("anho")));
+		List<String[]> gastosMes					= new ArrayList<>();						// Lista final con gastosMes
+		Map<Integer, Map<String, String>> values	= new HashMap<>();			// Arreglo multidimensional con Id Cuenta ,[ NombreCol , Valor Col]
+		int mes										= Integer.parseInt(request.getParameter("mes"));
+		titulo										= cuenta.getNombre();
+		
+		if(!request.getParameter("centro").equals("")){
+			centro  = FuenteF.findById(new BigDecimal(request.getParameter("centro")));
+			titulo += " - "+centro.getNombre();
+		}
+	/***************** Variables *****************/
 			
 		// Ordenar Nuevas Columnas, Con sus respectivos valores para cada Gasto
 		// Retorna HashMap<Integer, HashMap<String, String>>
@@ -252,185 +255,215 @@ public class PdfServlet extends HttpServlet {
 		}catch(NullPointerException ex){
 			System.out.println("Problema!: "+ex.getMessage());
 		}
-		try{
-			System.out.println("");
+		
+		try{			
 			// Crear Libro
-			Workbook libro = new XSSFWorkbook();
+			XSSFWorkbook libro = new XSSFWorkbook();
 			CreationHelper createHelper = libro.getCreationHelper();
 			Sheet sheet = libro.createSheet("Mayor Contable");
+			sheet.setDisplayGridlines(false);
 			
-			CellStyle backgroundStyle = libro.createCellStyle();
-			//backgroundStyle.setBorderBottom(CellStyle.BORDER_THICK);
-			backgroundStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-			//backgroundStyle.setBorderLeft(CellStyle.BORDER_THICK);
-			backgroundStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-			//backgroundStyle.setBorderRight(CellStyle.BORDER_THICK);
-			backgroundStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
-			//backgroundStyle.setBorderTop(CellStyle.BORDER_THICK);
-			backgroundStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
-
-			CellRangeAddress region = CellRangeAddress.valueOf("A1:U500");
+			/***************************************/			
+			/************* ESTILO BASE *************/
+			org.apache.poi.ss.usermodel.Font font = libro.createFont();
+			font.setFontHeightInPoints((short) 10);
+			font.setColor(IndexedColors.BLACK.getIndex());
+						
+			CellStyle style = libro.createCellStyle();
+			style.setBorderBottom(BorderStyle.THIN);
+			style.setBorderTop(BorderStyle.THIN);
+			style.setBorderRight(BorderStyle.THIN);
+			style.setBorderLeft(BorderStyle.THIN);
+			style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+			style.setFont(font);
+			/***************************************/
 			
-			// Crear Estilos De Fuentes
-			org.apache.poi.ss.usermodel.Font headerFont = libro.createFont();
-			headerFont.setBold(true);
-			headerFont.setFontHeightInPoints((short) 10);
-			headerFont.setColor(IndexedColors.BLACK.getIndex());
+			// Estilos de celdas de Header
+			XSSFCellStyle headerCellStyle	= libro.createCellStyle();
+			XSSFColor fondo = new XSSFColor(new java.awt.Color(207,207,207));
+			headerCellStyle.cloneStyleFrom(style);
+			headerCellStyle.setFillForegroundColor(fondo);
+			headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+			headerCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 			
-			// Estilos de fuente para celda
-			CellStyle headerCellStyle = libro.createCellStyle();
-			headerCellStyle.setFont(headerFont);
-			headerCellStyle.setFillBackgroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+			// Formato de celda en Moneda
+			XSSFDataFormat formatCLP = libro.createDataFormat();
+			XSSFCellStyle currencyCell	= libro.createCellStyle();
+			currencyCell.cloneStyleFrom(style);
+			currencyCell.setDataFormat(formatCLP.getFormat("$###,###;$-###,###"));
 			
-			// Añadir parrafo con Infomación
-			String[] cabecera = {"Libro Mayor: "+titulo,"Fecha: "+(formatter.format(new Date())),"Sociedad: Universidad Tecnologica de Chile INACAP","Rut: 72.012.000-3","Periodo: Noviembre"};
+			// Estilo de Cabecera
+			XSSFCellStyle fontCab = libro.createCellStyle();
+			fontCab.setFont(font);
+			fontCab.setWrapText(true);
+			
+			// Infomación De Cabecera
+			String[] cabecera = {
+				"Libro Mayor: "+titulo,
+				"Fecha: "+(formatter.format(new Date())),
+				"Sociedad: Universidad Tecnologica de Chile INACAP",
+				"Rut: 72.012.000-3",
+				"Periodo: Noviembre"
+			};
 			for(int i = 0 ; i < cabecera.length ; i++){
 				String[] cab = cabecera[i].split(":");
 				Row cabec  = sheet.createRow(i);
 				Cell cell  = cabec.createCell(0);
+				cell.setCellStyle(fontCab);
 				cell.setCellValue(cab[0]);
-				Cell cell2 = cabec.createCell(1);
+				Cell cell2 = cabec.createCell(2);
 				cell2.setCellValue(cab[1]);
-			}
-			/*******************/
-			CellStyle style = libro.createCellStyle();
-			style.setBorderBottom(BorderStyle.MEDIUM);
-			style.setBorderTop(BorderStyle.MEDIUM);
-			style.setBorderRight(BorderStyle.MEDIUM);
-			style.setBorderLeft(BorderStyle.MEDIUM);
-			style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-			/*******************/
-			
-			CellStyle estiloFondo = libro.createCellStyle();
-			backgroundStyle.setFillBackgroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
-			
-			Row encabezados = sheet.createRow(6);
-			System.out.println("Columnas "+columns);
-			
-			// Create cells
-			for(int i = 0; i <= columns.toArray().length-1 ; i++) {
-				// Separar Columnas De Posición
-				String[] val = columns.get(i).split("-");
-				Cell cell = encabezados.createCell(i);
-				cell.setCellValue(val[1]);
-				cell.setCellStyle(headerCellStyle);
-				cell.setCellStyle(style);
+				cell2.setCellStyle(fontCab);
+				sheet.addMergedRegion(new CellRangeAddress(i, i, 0, 1));				
 			}
 			
+			/* ------ Variables ------ */
 			int colDebe		= -1;
+			int colHaber	= -1;
 			int colSaldo	= -1;
+			int colImporte	= -1;
 			int debe		= 0;
 			int haber		= 0;
 			int saldo		= calculateSaldo(centro, cuenta, anho);
-			int deb = 0;
+			int saldoIni	= -1;
+			//int saldoInicial= 0;
+			/* ------ Variables ------ */
+
+			/*******************************************************************/
+			// Fila(7) Con Titulos De Columnas 
+			Row encabezados = sheet.createRow(6);
+			encabezados.setHeight((short)1100);
+			for(int i = 0; i <= columns.toArray().length-1 ; i++) {
+				String[] val = columns.get(i).split("-");						// Separar Columnas De Posición
+				Cell cell = encabezados.createCell(i);
+				cell.setCellValue(val[1]);
+				cell.setCellStyle(headerCellStyle);
+				if(containsIgnoreCase(val[1], "debe")){colDebe = i;}
+				if(containsIgnoreCase(val[1], "haber")){colHaber = i;}
+				if(containsIgnoreCase(val[1], "saldo")){colSaldo = i;}
+				if(containsIgnoreCase(val[1], "importe")){colImporte = i;}
+			}
+			if(colDebe > -1 && colHaber > -1 && colSaldo > -1){
+				saldoIni = calculateSaldoIni(saldo, gastosMes, colDebe, colHaber);	// Obtener Saldo Inicial
+				//saldoInicial = saldoIni;
+			}
 			
-			int[] saldos = new int[gastosMes.size()];
-			saldos[0] = saldo;
-			saldos[1] = saldo;
-			
+			/************************* FILAS CON GASTOS *************************/
+			/********************************************************************/
 			try{
+				List<Cell> celdas = new ArrayList();
 				int numRow = 8;
 				for(int i = 0 ; i <= gastosMes.size()-1 ; i++ ){
 					String[] gasto = gastosMes.get(i);
 					Row row = sheet.createRow(numRow++);			// Se crea Fila
+					
+					// CREAR PRIMERO LAS CELDAS PARA LUEGO OBTENERLAS
+					
 					for(int j = 1 ; j <= gasto.length-1 ; j++){
 						String[] cols = gasto;
-						Cell celda = null;
+						Cell celda;
 						celda = row.createCell(j-1);
-						celda.setCellValue(cols[j]);
 						celda.setCellStyle(style);
+						
+						// Si es la columna "Debe"
+						if(j == (colDebe+1)){
+							celda.setCellValue(Integer.parseInt(cols[j]));
+							//celda.setCellFormula("=+"+row.getCell(colImporte+1).getAddress().formatAsString());
+							debe += Integer.parseInt(cols[j]);
+							celda.setCellStyle(currencyCell);
+						}else{
+							// Si es la columna "Haber"
+							if(j == (colHaber+1)){
+								celda.setCellValue(Integer.parseInt(cols[j]));
+								haber += Integer.parseInt(cols[j]);
+								celda.setCellStyle(currencyCell);
+							}else{
+								// Si es la columna "Saldo"
+								if(j == (colSaldo+1)){
+									celda.setCellValue(saldoIni-=(Integer.parseInt(cols[colDebe+1]))+(Integer.parseInt(cols[colHaber+1])));
+									celda.setCellStyle(currencyCell);
+								}else{
+									if(j == (colImporte+1)){
+										System.out.println("Llega aqui! "+row.getCell(colImporte));
+										celda.setCellValue(Integer.parseInt(cols[j]));
+										celda.setCellStyle(currencyCell);
+									}else{
+										if(tryParseInt(cols[j])){
+											celda.setCellValue(Integer.parseInt(cols[j]));
+										}else{
+											celda.setCellValue(cols[j]);
+										}	
+									}
+								}
+							}
+						}
 					}
 				}
-			}catch(Exception ex){
+			}catch(NumberFormatException ex){
 				System.out.println("Error: "+ex.getMessage());
 			}
 			
-			/*
-			for(int i = gastosMes.size()-1 ; i >= 0 ; i-- ){
-				String[] gasto = gastosMes.get(i);
-				for(int j = 1 ; j <= gasto.length-1 ; j++){
-					String[] cols = gasto;
-					for(int k = 0 ; k <= cols.length-1 ; k++){
-						String col = cols[k];
-						System.out.println(col);
-					}
-				}
-			}
-			*/
-			// DATOS DE GASTOS
-			
-			// TITULOS!
+			// Fuente Negrita
+			CellStyle negrita   = libro.createCellStyle();
+			org.apache.poi.ss.usermodel.Font	negri	=	libro.createFont();
+			negri.setBold(true);
+			negri.setFontHeightInPoints((short) 10);
+			negrita.cloneStyleFrom(style);
+			negrita.setFont(negri);
+
+			/********************************************************************/
+			// Primera Fila Con textos (DEBE, HABER Y SALDO)
 			Row rowAdd = sheet.createRow(7);
 			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
 				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
 					Cell celdaMsj = rowAdd.createCell(i-3);
 					celdaMsj.setCellValue("Saldo Inicial");
-					celdaMsj.setCellStyle(headerCellStyle);
-					celdaMsj.setCellStyle(style);
+					celdaMsj.setCellStyle(negrita);
 					Cell celda = rowAdd.createCell(i);
-					celda.setCellValue("'Aquí Saldo'");
-					celda.setCellStyle(headerCellStyle);
-					celda.setCellStyle(style);
-					colSaldo = i;
-				}if(columns.get(i).contains("Debe") || columns.get(i).contains("DEBE") || columns.get(i).contains("debe")){
-					colDebe = i;
+					celda.setCellValue(saldo+debe-haber);
+					celda.setCellStyle(currencyCell);
 				}
 			}
-			/*
-			ORIGINAL
-			try{
-				int numRow = 8;
-				for(int i = 0 ; i <= gastosMes.size()-1 ; i++ ){
-					String[] gasto = gastosMes.get(i);
-					Row row = sheet.createRow(numRow++);			// Se crea Fila
-					for(int j = 1 ; j <= gasto.length-1 ; j++){
-						String[] cols = gasto;
-						Cell celda = null;
-						celda = row.createCell(j-1);
-						celda.setCellValue(cols[j]);
-						celda.setCellStyle(style);
-					}
-				}
-			}catch(Exception ex){
-				System.out.println("Error: "+ex.getMessage());
-			}
-			*/
-			System.out.println("Debe"+ debe);
 			
-			System.out.println("Fin "+gastosMes.size()+8);
+			// Ultima Fila Con Datos Totales (Debe, Haber, Saldo)
 			int fin = (gastosMes.size() + 8);
 			Row newRow = sheet.createRow(fin);
 			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
 				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
+				// Celda Con Texto "Sando Final"
 					Cell celda0 = newRow.createCell(i-3);
 					celda0.setCellValue("Saldo Final");
+					celda0.setCellStyle(negrita);
+					
+				// Celda Con Total De "Debe"
 					Cell celda1 = newRow.createCell(i-2);
 					celda1.setCellValue(debe);
+					celda1.setCellStyle(currencyCell);
+					
+				// Celda Con Total De "Haber"
 					Cell celda2 = newRow.createCell(i-1);
-					celda2.setCellValue("Aquí Haber");
+					celda2.setCellValue(haber);
+					celda2.setCellStyle(currencyCell);
+					
+				// Celda Con Saldo Final
 					Cell celda3 = newRow.createCell(i);
 					celda3.setCellValue(saldo);
-					celda0.setCellStyle(style);
-					celda1.setCellStyle(style);
-					celda2.setCellStyle(style);
-					celda3.setCellStyle(style);
+					celda3.setCellStyle(currencyCell);
 				}
 			}
 
-			// Resize all columns to fit the content size
+			// Auto-Ajustar Columnas a contenido
 			for(int i = 0; i < columns.size() ; i++) {
 				sheet.autoSizeColumn(i);
 			}
 			
-			SimpleDateFormat sf = new SimpleDateFormat("dd-MM-yyyy");
-			String fileName = "MayorContable_"+sf.format(new Date());
 			response.setContentType("application/vnd.ms-excel");
-			response.setHeader("Content-Disposition", "attachment; filename="+fileName+".xlsx");
+			response.setHeader("Content-Disposition", "attachment; filename=MayorContable_"+formatter.format(new Date())+".xlsx");
 			
-			// Write the output to a file
-			//FileOutputStream fileOut = new FileOutputStream("poi-generated-file.xlsx");
+			// Escribir Excel Y Descargar
 			libro.write(response.getOutputStream());
-			// Closing the workbook
+			// Cerrar Libro
 			libro.close();
 			
 		}catch(IOException ex){
@@ -439,7 +472,9 @@ public class PdfServlet extends HttpServlet {
 		}
 	}
 	
-	
+	/*
+	*	Método para Escribir PDF
+	*/
 	public void writePDF(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException{
 		try{
@@ -515,12 +550,7 @@ public class PdfServlet extends HttpServlet {
 				
 				//Se establece la cabecera de la tabla
                 Font titulos = new Font(Font.FontFamily.COURIER,8,Font.BOLD,BaseColor.BLACK);
-                /*
-				String[] enca = {"ID_COMP","COD_CUENTA","NOM_CUENTA","DEBE","HABER",
-                "SALDO","IMPORTE","FECHA_CONTABLE","NUM_ORDEN_COMPRA","COD_PROYECTO",
-                "PROYECTO","COD_CENTRO_RESP","NUM_FACTURA","RUT_PROVEEDOR","NOMBRE_PROVEEDOR",
-                "ATRIBUTOS_DEL_PAGO","ASIENTO","HOMOLOGACION"};
-                */
+               
 				String[] enca = new String[columns.size()];
 				int cont = 0;
 				for(String col : columns){
@@ -602,6 +632,25 @@ public class PdfServlet extends HttpServlet {
         }
 	}
 	
+	// Calcular Saldo Inicial
+	public int calculateSaldoIni(int saldo, List<String[]> gastos, int colDebe, int colHaber){
+		int saldoIni = 0;
+		int debe	 = 0;
+		int haber	 = 0;
+
+		for(int i = 0 ; i <= gastos.size()-1 ; i++){
+			String[] gasto = gastos.get(i);
+			debe  += Integer.parseInt(gasto[colDebe+1]);
+			System.out.println("DEBE: "+debe+" - HABER: "+haber);
+			haber += Integer.parseInt(gasto[colHaber+1]);
+		}
+		
+		saldoIni = saldo+debe-haber;
+		
+		return saldoIni;
+	}
+	
+	// Calcular saldo Final De Documento
 	public int calculateSaldo(FuenteF fuente, Cuenta cuenta, AnhoProyect anho){
 		int saldo = 0;
 		List<Presupuesto> presu  = null;
@@ -616,6 +665,7 @@ public class PdfServlet extends HttpServlet {
 		return saldo;
 	}
 	
+	// Cargar Columas De Documentos
 	public LinkedHashMap<Integer, String> cargarColumnas(){
 		String[] enca = {"ID_COMP","COD_CUENTA","NOM_CUENTA","DEBE","HABER",
 			"SALDO","IMPORTE","FECHA_CONTABLE","NUM_ORDEN_COMPRA","COD_PROYECTO",
@@ -630,6 +680,7 @@ public class PdfServlet extends HttpServlet {
 		return columnas;
 	}
 	
+	// Dirigir a vista "generarPDF.jsp"
 	public void toGenerarPDF(HttpServletRequest request, HttpServletResponse response) 
 			throws ServletException, IOException{
 		request.setAttribute("columnas", cargarColumnas());
@@ -642,6 +693,7 @@ public class PdfServlet extends HttpServlet {
 	*	**Se omiten los Valores en Blanco
 	*/
 	public Map<Integer, Map<String, String>> sortColumns(HttpServletRequest request, HttpServletResponse response){
+		
 		Map<Integer, Map<String, String>> values = new HashMap<>();	// Arreglo multidimensional con Id Cuenta ,[ NombreCol , Valor Col]
 		List<String> inNam  = Collections.list(request.getParameterNames());  // Nombres De Inputs De Nuevas Columnas Agregadas
 
@@ -652,7 +704,7 @@ public class PdfServlet extends HttpServlet {
 		inNam.forEach((String col) -> {
 			String[] colm = col.split("-");
 			System.out.println("Name Obtenido "+col);
-			// Si El input contiene id de gasto en la primera posición
+			// Si El Input contiene int en la Primera Posición
 			if(tryParseInt(colm[0])){
 				String val = request.getParameter(col);
 				if(!val.equals("")){
@@ -689,12 +741,31 @@ public class PdfServlet extends HttpServlet {
 			for(String cols : columnas){
 				String[] col = cols.split("-");
 				gasto[0] = gst.getGastoMesId().getId().toString();
+				int importe = Integer.parseInt(gst.getGastoMesId().getImporte().toString());
 				switch(col[1]){
 					case "ID_COMP": gasto[Integer.parseInt(col[0])]				= gst.getGastoMesId().getIdCompra().toString(); break;//gst.getGastoMesId().getIdCompra().toString() ;break;
 					case "COD_CUENTA": gasto[Integer.parseInt(col[0])]			= gst.getGastoMesId().getGastoId().getCodCuenta().toString() ;break;
 					case "NOM_CUENTA": gasto[Integer.parseInt(col[0])]			= gst.getCuentaId().getNombre() ;break;
-					case "DEBE":  gasto[Integer.parseInt(col[0])]				= gst.getGastoMesId().getImporte().toString() ;break;
-					case "HABER":  gasto[Integer.parseInt(col[0])]				= "0" ;break;
+					case "DEBE":  
+						if(importe > 0){
+							gasto[Integer.parseInt(col[0])]						= gst.getGastoMesId().getImporte().toString() ;break;
+						}else{
+							if (importe < 0) {
+								gasto[Integer.parseInt(col[0])]					= "0" ;break;
+							}else{
+								gasto[Integer.parseInt(col[0])]					= "0" ;break;
+							}
+						}
+					case "HABER": 
+						if(importe < 0){
+							gasto[Integer.parseInt(col[0])]						= gst.getGastoMesId().getImporte().toString() ;break;
+						}else{
+							if (importe > 0) {
+								gasto[Integer.parseInt(col[0])]					= "0" ;break;
+							}else{
+								gasto[Integer.parseInt(col[0])]					= "0" ;break;
+							}
+						}
 					case "SALDO":  ;break;
 					case "IMPORTE":  gasto[Integer.parseInt(col[0])]            = gst.getGastoMesId().getImporte().toString() ;break;
 					case "FECHA_CONTABLE": gasto[Integer.parseInt(col[0])]		= formatter.format(gst.getGastoMesId().getFecha()) ;break;
@@ -741,18 +812,6 @@ public class PdfServlet extends HttpServlet {
 	}
 	
 	/*
-	*	Método tryParse
-	*/
-	public static boolean tryParseInt(String value) {  
-		try {  
-			Integer.parseInt(value);  
-			return true;  
-		} catch (NumberFormatException e) {  
-			return false;  
-		}  
-	}
-	
-	/*
 	* Metodo getFuentes Utilizado por AJAX
 	*/
 	public void getFuentes(HttpServletRequest request, HttpServletResponse response) throws IOException{
@@ -773,5 +832,28 @@ public class PdfServlet extends HttpServlet {
 				response.getWriter().print(ex);
 			}
 		}
+	}
+	
+	public static boolean tryParseInt(String value) {  
+		try {  
+			Integer.parseInt(value);  
+			return true;  
+		} catch (NumberFormatException e) {  
+			return false;  
+		}  
+	}
+	
+	public static boolean containsIgnoreCase(String str, String searchStr) {
+		if(str == null || searchStr == null) return false;
+
+		final int length = searchStr.length();
+		if (length == 0)
+			return true;
+
+		for (int i = str.length() - length; i >= 0; i--) {
+			if (str.regionMatches(true, i, searchStr, 0, length))
+				return true;
+		}
+		return false;
 	}
 }

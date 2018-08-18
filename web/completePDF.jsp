@@ -140,9 +140,6 @@
 								</c:forEach>
 							</tbody>
 						</table>
-						<c:forEach items="${requestScope.columnas}" var="colu">
-							<h6>${colu}</h6>
-						</c:forEach>
 					</div>
 				</div>
 				<% } %>
