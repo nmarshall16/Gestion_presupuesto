@@ -54,7 +54,7 @@
               <a href="Proyect.do?op=1">Proyectos Eliminados</a>
             </li>
             <li>
-              <a href="asignarProyect.jsp">Asignar Proyecto</a>
+              <a href="Usuario.do?op=6">Asignar Proyecto</a>
             </li>
           </ul>
         </li>

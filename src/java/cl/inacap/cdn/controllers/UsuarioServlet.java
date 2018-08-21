@@ -6,6 +6,7 @@
 package cl.inacap.cdn.controllers;
 
 import cl.inacap.cdn.entities.MD5;
+import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.TipoUsuario;
 import cl.inacap.cdn.entities.Usuario;
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class UsuarioServlet extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
            if(request.getParameter("op")!=null){
                List<Usuario> usuarios;
+               List<Proyecto> proyectos;
                List<TipoUsuario> tUsuarios;
                int op = Integer.parseInt(request.getParameter("op"));
                switch(op){
@@ -131,6 +133,14 @@ public class UsuarioServlet extends HttpServlet {
                        usuarios = Usuario.findAll();
                        request.setAttribute("usuarios", usuarios);
                        request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                   break;
+                   
+                   case 6:
+                       usuarios = Usuario.findAll();
+                       proyectos = Proyecto.findByEstado('1');
+                       request.setAttribute("usuarios", usuarios);
+                       request.setAttribute("proyectos", proyectos);
+                       request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
                    break;
                }
            }

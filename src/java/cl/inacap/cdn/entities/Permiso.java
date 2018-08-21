@@ -85,8 +85,7 @@ public class Permiso implements Serializable {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
-            TypedQuery<Permiso> result = em.createQuery("SELECT p FROM permiso p INNER JOIN permisosu pe INNER JOIN tipo_usuario t ON p.id = pe.permiso_id AND pe.tipo_usuario_id = t.id WHERE pe.tipo_usuario_id = :tipo", Permiso.class);
-            result.setParameter("tipo", u);
+            Query result = em.createNativeQuery("SELECT p.id, p.nombre FROM permiso p LEFT JOIN permisosu u ON p.id = u.permiso_id WHERE u.tipo_usuario_id = "+u.getId(), Permiso.class);
             permiso = result.getResultList();
             em.close();
             emf.close();

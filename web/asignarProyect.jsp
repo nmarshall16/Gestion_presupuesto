@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page import="cl.inacap.cdn.entities.Homologar"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
 <%@page import="java.math.BigDecimal"%>
@@ -158,6 +159,7 @@
             </div>
       <%
         }
+        if(request.getAttribute("usuarios")!=null && request.getAttribute("proyectos")!=null){
       %>
       <div class="card">
         <div class="row card-body">
@@ -173,24 +175,54 @@
             <form>
               <div class="row">
                 <div class="col-5">
-                  <div class="list-group">
-                    <button type="button" class="list-group-item list-group-item-action active">
-                      Cras justo odio
-                    </button>
-                    <button type="button" class="list-group-item list-group-item-action">Dapibus ac facilisis in</button>
+                  <div class="card">
+                    <div class="card-header">
+                      <i class="fa fa-fw fa-university"></i> Proyectos
+                    </div>
+                    <div class="list-group">
+                    <%
+                        List<Proyecto> proyectos = (List<Proyecto>)request.getAttribute("proyectos");
+                        if(proyectos.size()>0){
+                            for(Proyecto proyecto:proyectos){  
+                    %>
+                    
+                                <button type="button" class="list-group-item list-group-item-action btn-proyectos" value="<%=proyecto.getId()%>">
+                                    <%=proyecto.getNombre()%>
+                                </button>
+                    <%
+                            }
+                        }
+                    %>
+                    </div>
                   </div>
                 </div>
                 <div class="col-1">
                 </div>
                 <div class="col-6">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
-                        <label class="custom-control-label" for="customCheck1">Nicolas Marshall <small class="text-muted">(19702068-7)</small></label>
-                      </div>
-                    </li>
-                  </ul>
+                    <div class="card">
+                        <div class="card-header">
+                        <i class="fa fa-fw fa-users"></i> Usuarios
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <div style="overflow-y:auto;  max-height: 300px;">
+                                <%
+                                    List<Usuario> usuarios = (List<Usuario>)request.getAttribute("usuarios");
+                                    if(usuarios.size()>0){
+                                        for(Usuario usuario:usuarios){  
+                                %>
+                                <li class="list-group-item">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="usuario-<%=usuario.getRut()%>" name="usuarios">
+                                        <label class="custom-control-label" for="usuario-<%=usuario.getRut()%>"><%=usuario.getNombre()%> <%=usuario.getApellido()%> <small class="text-muted">(<%=usuario.getRut()%>-<%=usuario.getDv()%>)</small></label>
+                                    </div>
+                                </li>
+                                <%
+                                        }
+                                    }
+                                %>
+                            </div>
+                        </ul>
+                    </div>
                 </div>
               </div>
               <br><hr>
@@ -207,6 +239,9 @@
         </div>
       </div>
       <br>
+      <%
+        }
+      %>
     </div>
     <!-- /.container-fluid-->
     <!-- /.content-wrapper-->

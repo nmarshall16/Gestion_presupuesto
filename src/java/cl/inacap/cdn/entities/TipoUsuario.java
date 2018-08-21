@@ -111,7 +111,7 @@ public class TipoUsuario implements Serializable {
                 EntityTransaction trans = em.getTransaction();
                 trans.begin();
                 TipoUsuario tipo = em.merge(this);
-                List<Permiso> oldPermisos = this.getPermisoList();
+                List<Permiso> oldPermisos = Permiso.findByTipoU(tipo);
                 tipo.setNombre(newTipo.getNombre());
                 tipo.setPermisoList(permisos);
                 tipo.permisoList = new ArrayList();
@@ -127,17 +127,20 @@ public class TipoUsuario implements Serializable {
                         Permiso permi = em.merge(permiso);
                         permi.getTipoUsuarioList().add(tipo);
                     }
+                    tipo.getPermisoList().add(permiso);
+                }
+                for(Permiso permi:oldPermisos){
                     validacion = false;
-                    for(Permiso permi:oldPermisos){
+                    for(Permiso permiso:permisos){
                         if(permi.equals(permiso)){
                             validacion = true;
                         }
                     }
                     if(!validacion){
-                        Permiso permi = em.merge(permiso);
-                        permi.getTipoUsuarioList().remove(tipo);
+                        Permiso permis = em.merge(permi);
+                        permis.getTipoUsuarioList().remove(tipo);
+                        tipo.getPermisoList().remove(permis);
                     }
-                    tipo.getPermisoList().add(permiso);
                 }
                 trans.commit();
                 em.close();
