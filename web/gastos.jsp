@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.math.BigDecimal"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
@@ -136,12 +137,13 @@
     </div>
   </nav> 
   <div class="content-wrapper">
+	  <% Proyecto pro = Proyecto.findById(new BigDecimal(request.getParameter("idAnho"))); %>
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="Proyect.do">Inicio</a></li>
         <li class="breadcrumb-item">
-            <a href="Proyect.do">Proyecto</a>
+            <a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=pro.getId()%>&op=8"><%=pro.getNombre()%></a>
         </li>
         <li class="breadcrumb-item active">Gastos</li>
       </ol>
@@ -176,7 +178,7 @@
             <p>Estado de documento : <%=((Boolean)request.getAttribute("estado"))?"<strong class='text-success'>Terminado</strong>":"<strong class='text-danger'>En Proceso</strong>"%></p>
           </div>
           <div class="col-md-2">
-              <a href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>&mes=<%=request.getParameter("mes")%>&tipo=<%=request.getParameter("tipo")%>" style="text-decoration: none;">
+              <a href="PDF?mes=<%=request.getAttribute("mes").toString()%>&anho=<%=request.getAttribute("anho")%>&tipo=<%=request.getParameter("tipo")%>" style="text-decoration: none;">
                 <p align="center"><i class="fa fa-file-text fa-2x"></i><br>Generar Documento</p>
               </a>
           </div>

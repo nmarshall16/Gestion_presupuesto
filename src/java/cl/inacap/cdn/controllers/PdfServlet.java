@@ -45,13 +45,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFPalette;
+import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.formula.FormulaParseException;
 
 // Librerias de Excel
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Cell;
@@ -61,7 +60,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFDataFormat;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 
 /**
  *
@@ -155,9 +153,13 @@ public class PdfServlet extends HttpServlet {
 								if(anho != null){request.setAttribute("anho", anho);}
 								if(mes  > 0 && mes < 13){request.setAttribute("mes", mes);}
 
-								request.setAttribute("gastos", Homologar.findHomologacionesV(cuenta, fuente, anho, mes));
-								request.getRequestDispatcher("completePDF.jsp").forward(request, response);
-								
+								if(Homologar.findHomologacionesV(cuenta, fuente, anho, mes).size() > 0){
+									request.setAttribute("gastos", Homologar.findHomologacionesV(cuenta, fuente, anho, mes));
+									request.getRequestDispatcher("completePDF.jsp").forward(request, response);
+								}else{
+									request.setAttribute("mensaje", "No Se Han Encontrado Gastos Asociados A Parametros Seleccionados\n<b>Por Favor Seleccione Nuevos Parametros</b>");
+									toGenerarPDF(request, response);
+								}
 							}catch(IOException | ServletException | NullPointerException ex){
 								request.setAttribute("mensaje","Debe Ingresar Al Menos Una Columna");
 								toGenerarPDF(request, response);
@@ -168,7 +170,7 @@ public class PdfServlet extends HttpServlet {
 						}
 					}else{
 					// Cargar vista de generación de PDF
-						request.setAttribute("mensaje", "Algo");
+						request.setAttribute("mensaje", null);
 						toGenerarPDF(request, response);
 					}
 				}
@@ -223,7 +225,7 @@ public class PdfServlet extends HttpServlet {
 	//******************************************************************* FUNCIONES *******************************************************************
 
 	/*
-	*	Metodo para escribir EXCEL
+	*	Metodo para escribir archivo EXCEL Con gastos Asociados a cuenta
 	*/
 	public void writeEXCEL(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException{
@@ -346,20 +348,105 @@ public class PdfServlet extends HttpServlet {
 			}
 			if(colDebe > -1 && colHaber > -1 && colSaldo > -1){
 				saldoIni = calculateSaldoIni(saldo, gastosMes, colDebe, colHaber);	// Obtener Saldo Inicial
-				//saldoInicial = saldoIni;
+			}
+	
+			// Crear Fila Con Información de Montos
+			List<Cell> clds = new ArrayList();
+			Row rowAdd = sheet.createRow(7);
+			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
+				clds.add(rowAdd.createCell(i));
 			}
 			
 			/************************* FILAS CON GASTOS *************************/
 			/********************************************************************/
 			try{
-				List<Cell> celdas = new ArrayList();
 				int numRow = 8;
 				for(int i = 0 ; i <= gastosMes.size()-1 ; i++ ){
 					String[] gasto = gastosMes.get(i);
 					Row row = sheet.createRow(numRow++);			// Se crea Fila
+					Cell celda;
 					
-					// CREAR PRIMERO LAS CELDAS PARA LUEGO OBTENERLAS
+					/********************* Codigo Nuevo De Prueba *********************/
+
+					List<Cell> celdas = new ArrayList();
+					int importe = 0;
+					// Crear todas las Celdas De la Fila
+					for(int j = 1 ; j <= gasto.length-1 ; j++){
+						celdas.add(row.createCell(j-1));
+						if(j == colImporte+1){
+							importe = Integer.parseInt(gasto[j]);
+						}
+					}
 					
+					// Recorrer celdas y asignar valor correspondiente
+					for(int j = 1 ; j <= celdas.size() ; j++){
+						String[] cols = gasto;
+						//int importe = Integer.parseInt(cols[j]);
+						celda = celdas.get(j-1);
+						celda.setCellStyle(style);
+						
+						if(tryParseInt(cols[j])){
+							// Si es la columna "Debe"
+							if(j == (colDebe+1)){
+								if(importe > 0){
+									celda.setCellFormula("+"+row.getCell(colImporte).getAddress().formatAsString());
+									debe += Integer.parseInt(cols[j]);
+								}else if(importe < 0){
+									celda.setCellValue(0);
+								}else{
+									celda.setCellValue(0);
+								}
+								celda.setCellStyle(currencyCell);
+							}else{
+								// Si es la columna "Haber"
+								if(j == (colHaber+1)){
+									if(importe < 0){
+										celda.setCellFormula("+"+row.getCell(colImporte).getAddress().formatAsString());
+										haber += Integer.parseInt(cols[j]);
+									}else if(importe > 0){
+										celda.setCellValue(0);
+									}else{
+										celda.setCellValue(0);
+									}
+									celda.setCellStyle(currencyCell);
+								}else{
+									// Si es la columna "Importe"
+									if(j == (colImporte+1)){
+										celda.setCellValue(Integer.parseInt(cols[j]));
+										celda.setCellStyle(currencyCell);
+									}else{
+										celda.setCellValue(Integer.parseInt(cols[j]));
+										celda.setCellStyle(style);
+									}
+								}
+							}
+						}else{
+							// Si es la columna "Saldo"
+							if(j == (colSaldo+1)){
+								CellReference cr = new CellReference(celda.getAddress().toString());
+								Row fila = sheet.getRow(celda.getRowIndex()-1);
+								Cell cel = null;
+								String formula = "+"+fila.getCell(colSaldo).getAddress().toString();
+								if(importe > 0){
+									formula += "-"+celda.getRow().getCell(colDebe).getAddress().toString();
+								}else if(importe < 0){
+									formula += "-"+celda.getRow().getCell(colDebe).getAddress().toString();
+								}else{
+									celda.setCellValue(0);
+								}
+								System.out.println("Formula "+formula);
+								celda.setCellFormula(formula);
+								celda.setCellStyle(currencyCell);
+							}else{
+								// Columna Normal
+								celda.setCellValue(cols[j]);
+								celda.setCellStyle(style);
+							}
+						}
+					}
+					
+					/********************* Codigo Nuevo De Prueba *********************/
+					/*
 					for(int j = 1 ; j <= gasto.length-1 ; j++){
 						String[] cols = gasto;
 						Cell celda;
@@ -384,6 +471,7 @@ public class PdfServlet extends HttpServlet {
 									celda.setCellValue(saldoIni-=(Integer.parseInt(cols[colDebe+1]))+(Integer.parseInt(cols[colHaber+1])));
 									celda.setCellStyle(currencyCell);
 								}else{
+									// Si es la columna "Saldo"
 									if(j == (colImporte+1)){
 										System.out.println("Llega aqui! "+row.getCell(colImporte));
 										celda.setCellValue(Integer.parseInt(cols[j]));
@@ -399,25 +487,27 @@ public class PdfServlet extends HttpServlet {
 							}
 						}
 					}
+					*/
+
 				}
-			}catch(NumberFormatException ex){
-				System.out.println("Error: "+ex.getMessage());
+			}catch(NumberFormatException | FormulaParseException ex){
+				System.out.println("Error: "+ex.getMessage()+" \n "+ex.initCause(ex.getCause()));
 			}
 			
 			// Fuente Negrita
 			CellStyle negrita   = libro.createCellStyle();
-			org.apache.poi.ss.usermodel.Font	negri	=	libro.createFont();
-			negri.setBold(true);
-			negri.setFontHeightInPoints((short) 10);
+			org.apache.poi.ss.usermodel.Font negra = libro.createFont();
+			negra.setBold(true);
+			negra.setFontHeightInPoints((short) 10);
 			negrita.cloneStyleFrom(style);
-			negrita.setFont(negri);
+			negrita.setFont(negra);
 
 			/********************************************************************/
 			// Primera Fila Con textos (DEBE, HABER Y SALDO)
-			Row rowAdd = sheet.createRow(7);
+			rowAdd = sheet.getRow(7);
 			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
-				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
-					Cell celdaMsj = rowAdd.createCell(i-3);
+				if(containsIgnoreCase(columns.get(i), "saldo")){
+					Cell celdaMsj = rowAdd.getCell(i-3);
 					celdaMsj.setCellValue("Saldo Inicial");
 					celdaMsj.setCellStyle(negrita);
 					Cell celda = rowAdd.createCell(i);
@@ -427,10 +517,11 @@ public class PdfServlet extends HttpServlet {
 			}
 			
 			// Ultima Fila Con Datos Totales (Debe, Haber, Saldo)
+			String formula;
 			int fin = (gastosMes.size() + 8);
 			Row newRow = sheet.createRow(fin);
 			for(int i = 0 ; i <= columns.toArray().length-1 ; i++){
-				if(columns.get(i).contains("SALDO") || columns.get(i).contains("saldo") || columns.get(i).contains("Saldo")){
+				if(containsIgnoreCase(columns.get(i), "saldo")){
 				// Celda Con Texto "Sando Final"
 					Cell celda0 = newRow.createCell(i-3);
 					celda0.setCellValue("Saldo Final");
@@ -438,7 +529,12 @@ public class PdfServlet extends HttpServlet {
 					
 				// Celda Con Total De "Debe"
 					Cell celda1 = newRow.createCell(i-2);
-					celda1.setCellValue(debe);
+					formula = "SUM("
+							+ sheet.getRow(8).getCell(colDebe).getAddress().toString() 
+							+":"
+							+ sheet.getRow(gastosMes.size()+7).getCell(colDebe).getAddress().toString()
+							+")";
+					celda1.setCellFormula(formula);
 					celda1.setCellStyle(currencyCell);
 					
 				// Celda Con Total De "Haber"
@@ -448,14 +544,18 @@ public class PdfServlet extends HttpServlet {
 					
 				// Celda Con Saldo Final
 					Cell celda3 = newRow.createCell(i);
-					celda3.setCellValue(saldo);
+					formula = sheet.getRow(7).getCell(colSaldo).getAddress().toString()+"-"+newRow.getCell(colDebe).getAddress().toString();
+					celda3.setCellFormula(formula);
+					//celda3.setCellValue(saldo);
 					celda3.setCellStyle(currencyCell);
 				}
 			}
 
 			// Auto-Ajustar Columnas a contenido
 			for(int i = 0; i < columns.size() ; i++) {
-				sheet.autoSizeColumn(i);
+				if(i != colDebe){
+					sheet.autoSizeColumn(i);
+				}
 			}
 			
 			response.setContentType("application/vnd.ms-excel");
@@ -855,5 +955,27 @@ public class PdfServlet extends HttpServlet {
 				return true;
 		}
 		return false;
+	}
+	
+	public String getMonthName(int month){
+		String mes = "";
+		
+		switch(month){
+			case 0: ;break;
+			case 1: ;break;
+			case 2: ;break;
+			case 3: ;break;
+			case 4: ;break;
+			case 5: ;break;
+			case 6: ;break;
+			case 7: ;break;
+			case 8: ;break;
+			case 9: ;break;
+			case 10: ;break;
+			case 11: ;break;
+			case 12: ;break;
+			default: ;break;
+		}
+		return mes;
 	}
 }

@@ -4,6 +4,9 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.math.BigDecimal"%>
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
+<%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
 <%@page import="cl.inacap.cdn.entities.FuenteF"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.util.List"%>
@@ -80,18 +83,29 @@
       </ul>
     </div>
   </nav>
+  
+  <%
+	  Proyecto proyecto = Proyecto.findById(new BigDecimal(request.getParameter("anho")));
+  %>
+  
   <div class="content-wrapper">
     <div class="container-fluid">
       <!-- Breadcrumbs-->
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="#">Dashboard</a>
+          <a href="<%=request.getContextPath()%>/Proyect.do">Inicio</a>
         </li>
-        <li class="breadcrumb-item active">Tables</li>
+		<li class="breadcrumb-item">
+			<a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=proyecto.getId()%>&op=8"><%=proyecto.getNombre()%></a>
+        </li>
+		<li class="breadcrumb-item">
+			<a href="<%=request.getContextPath()%>/Year.do?idAnho=<%=request.getParameter("anho")%>&mes=<%=request.getParameter("mes")%>&tipo=<%=request.getParameter("tipo")%>&op=3">Gastos</a>
+        </li>
+        <li class="breadcrumb-item active">Configurar</li>
       </ol>
 
 		<% String mensaje = (String)request.getAttribute("mensaje");
-			if(mensaje != null && mensaje.contains("Existe")){ %>
+			if(mensaje != null && mensaje.contains("Existe") || mensaje != null){ %>
 		<div class="row">
 			<div class="col-md-2"></div>
 			<div class="alert alert-danger col-md-8 text-center"><%=mensaje%></div>

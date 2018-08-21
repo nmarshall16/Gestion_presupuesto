@@ -4,6 +4,10 @@
     Author     : dell
 --%>
 
+<%@page import="cl.inacap.cdn.entities.Proyecto"%>
+<%@page import="java.math.BigDecimal"%>
+<%@page import="cl.inacap.cdn.entities.Homologar"%>
+<%@page import="java.util.List"%>
 <%@page import="java.util.Locale"%>
 <%@page import="java.text.NumberFormat"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -78,6 +82,8 @@
 	</nav>
 	<div class="content-wrapper">
 		<div class="container-fluid">
+			
+			
 			<% if(request.getAttribute("mensaje")!= null){ %>
 			<div class="row">
 				<div class="col-md-3"></div>
@@ -87,6 +93,26 @@
 				<div class="col-md-3"></div>
 			</div>
 			<% } %>
+			<%	List<Homologar> gastos = (List<Homologar>)request.getAttribute("gastos");
+				Proyecto pro = Proyecto.findById(new BigDecimal(request.getParameter("anho")));
+
+				if(gastos.size() > 0) {%>
+			<!-- Breadcrumbs-->
+			<ol class="breadcrumb">
+			  <li class="breadcrumb-item">
+				<a href="<%=request.getContextPath()%>/Proyect.do">Inicio</a>
+			  </li>
+			  <li class="breadcrumb-item">
+				  <a href="<%=request.getContextPath()%>/Proyect.do?idProyect=<%=pro.getId()%>&op=8"><%=pro.getNombre()%></a>
+			  </li>
+			  <li class="breadcrumb-item">
+				  <a href="<%=request.getContextPath()%>/Year.do?idAnho=<%=request.getParameter("anho")%>&mes=<%=request.getParameter("mes")%>&tipo=<%=request.getParameter("tipo")%>&op=3">Gastos</a>
+			  </li>
+			  <li class="breadcrumb-item">
+				  <a href="<%=request.getContextPath()%>/PDF?mes=<%=request.getParameter("mes")%>&anho=<%=request.getParameter("anho")%>&tipo=<%=request.getParameter("tipo")%>">Configurar</a>
+			  </li>
+			  <li class="breadcrumb-item active">Generar</li>
+			</ol>
 			<form action="" method="POST">
 				<div class="row mt-4 ml-2">
 					<div class="col-lg-8 col-sm-8">
@@ -144,6 +170,7 @@
 				</div>
 				<% } %>
 			</form>
+			<% } %>
 		</div>
 	</div>
 						
