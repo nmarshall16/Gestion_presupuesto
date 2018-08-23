@@ -7,6 +7,7 @@ package cl.inacap.cdn.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
@@ -210,7 +211,49 @@ public class Proyecto implements Serializable {
         cuenta = CBanco.findCuenta(sercotec, this);
         return cuenta;
     }    
-        
+    
+    public void asignarUsuarios(List<Usuario> usuarios){
+        try{
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            Proyecto proyecto = em.merge(this);
+            List<Usuario> oldUsuario = this.getUsuarioList();
+            boolean validacion = false;
+            for(Usuario usuario:usuarios){
+                validacion = false;
+                for(Proyecto proyect:usuario.getProyectoList()){
+                    if(proyect.equals(proyecto)){
+                        validacion = true;
+                    }
+                }
+                if(!validacion){
+                    proyecto.getUsuarioList().add(usuario);
+                    Usuario usu = em.merge(usuario);
+                    usu.getProyectoList().add(proyecto);
+                }
+            }
+            for(Usuario usuarioOld:oldUsuario){
+                validacion = false;
+                for(Usuario usuarioNew:usuarios){
+                    if(usuarioOld.equals(usuarioNew)){
+                        validacion = true;
+                    }
+                }
+                if(!validacion){
+                    Usuario usuario = em.merge(usuarioOld);
+                    usuario.getProyectoList().remove(proyecto);
+                    proyecto.getUsuarioList().remove(usuario);
+                }
+            }
+            trans.commit();
+            em.close();
+        }catch(Exception ex){
+                System.out.print(ex);
+        }
+    }
+    
 	public BigDecimal getId() {
 		return id;
 	}
@@ -261,7 +304,15 @@ public class Proyecto implements Serializable {
 
 	@XmlTransient
 	public List<Usuario> getUsuarioList() {
-		return usuarioList;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            Query result = em.createNativeQuery("SELECT u.rut, u.dv, u.nombre, u.apellido, u.clave, u.tipo_usuario_id FROM usuario u LEFT JOIN proyect_asig a ON u.rut = a.usuario_rut WHERE a.proyecto_id = "+this.id, Usuario.class);
+            this.usuarioList = result.getResultList();
+            em.close();
+            emf.close();
+            
+            return usuarioList;
 	}
 
 	public void setUsuarioList(List<Usuario> usuarioList) {

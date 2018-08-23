@@ -4,6 +4,7 @@
     Author     : Nicolas
 --%>
 
+<%@page import="java.util.ArrayList"%>
 <%@page import="cl.inacap.cdn.entities.Proyecto"%>
 <%@page import="cl.inacap.cdn.entities.Homologar"%>
 <%@page import="cl.inacap.cdn.entities.AnhoProyect"%>
@@ -152,7 +153,14 @@
         if(request.getAttribute("alerta")!=null){
       %>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=request.getAttribute("alerta")%></p>
+            <% 
+                ArrayList<String> alertas = (ArrayList<String>)request.getAttribute("alerta");
+                for(String alerta:alertas){
+            %>
+                <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=alerta%></p>
+            <%
+                }
+            %>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -172,68 +180,70 @@
       <div class="card">
         <div class="row card-body">
           <div class="col-md-12">
-            <form>
-              <div class="row">
-                <div class="col-5">
-                  <div class="card">
-                    <div class="card-header">
-                      <i class="fa fa-fw fa-university"></i> Proyectos
-                    </div>
-                    <div class="list-group">
-                    <%
-                        List<Proyecto> proyectos = (List<Proyecto>)request.getAttribute("proyectos");
-                        if(proyectos.size()>0){
-                            for(Proyecto proyecto:proyectos){  
-                    %>
-                    
-                                <button type="button" class="list-group-item list-group-item-action btn-proyectos" value="<%=proyecto.getId()%>">
-                                    <%=proyecto.getNombre()%>
-                                </button>
-                    <%
-                            }
-                        }
-                    %>
+              <form action="Usuario.do" method="post">
+                <input type="hidden" name="op" value="8">
+                <input type="hidden" id="idProyect" value="" name="id_proyecto">
+                <div class="row">
+                  <div class="col-5">
+                    <div class="card">
+                      <div class="card-header">
+                        <i class="fa fa-fw fa-university"></i> Proyectos
+                      </div>
+                      <div class="list-group">
+                      <%
+                          List<Proyecto> proyectos = (List<Proyecto>)request.getAttribute("proyectos");
+                          if(proyectos.size()>0){
+                              for(Proyecto proyecto:proyectos){  
+                      %>
+
+                                  <button type="button" class="list-group-item list-group-item-action btn-proyectos" value="<%=proyecto.getId()%>">
+                                      <%=proyecto.getNombre()%>
+                                  </button>
+                      <%
+                              }
+                          }
+                      %>
+                      </div>
                     </div>
                   </div>
+                  <div class="col-1">
+                  </div>
+                  <div class="col-6">
+                      <div class="card">
+                          <div class="card-header">
+                          <i class="fa fa-fw fa-users"></i> Usuarios
+                          </div>
+                          <ul class="list-group list-group-flush">
+                              <div style="overflow-y:auto;  max-height: 300px;">
+                                  <%
+                                      List<Usuario> usuarios = (List<Usuario>)request.getAttribute("usuarios");
+                                      if(usuarios.size()>0){
+                                          for(Usuario usuario:usuarios){  
+                                  %>
+                                  <li class="list-group-item">
+                                      <div class="custom-control custom-checkbox">
+                                          <input type="checkbox" class="custom-control-input btn-usuarios" id="usuario-<%=usuario.getRut()%>" name="usuarios" value="<%=usuario.getRut()%>">
+                                          <label class="custom-control-label" for="usuario-<%=usuario.getRut()%>"><%=usuario.getNombre()%> <%=usuario.getApellido()%> <small class="text-muted">(<%=usuario.getRut()%>-<%=usuario.getDv()%>)</small></label>
+                                      </div>
+                                  </li>
+                                  <%
+                                          }
+                                      }
+                                  %>
+                              </div>
+                          </ul>
+                      </div>
+                  </div>
                 </div>
-                <div class="col-1">
+                <br><hr>
+                <div class="form-row">
+                  <div class="form-group col-md-11">
+                    <button type="button" class="btn btn-outline-primary"><i class="fa fa-times fa-lg"></i><br>Cancelar</button>
+                  </div>
+                  <div class="form-group col-md-1">
+                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-floppy-o fa-lg"></i><br>Guardar</button>
+                  </div>
                 </div>
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                        <i class="fa fa-fw fa-users"></i> Usuarios
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <div style="overflow-y:auto;  max-height: 300px;">
-                                <%
-                                    List<Usuario> usuarios = (List<Usuario>)request.getAttribute("usuarios");
-                                    if(usuarios.size()>0){
-                                        for(Usuario usuario:usuarios){  
-                                %>
-                                <li class="list-group-item">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="usuario-<%=usuario.getRut()%>" name="usuarios">
-                                        <label class="custom-control-label" for="usuario-<%=usuario.getRut()%>"><%=usuario.getNombre()%> <%=usuario.getApellido()%> <small class="text-muted">(<%=usuario.getRut()%>-<%=usuario.getDv()%>)</small></label>
-                                    </div>
-                                </li>
-                                <%
-                                        }
-                                    }
-                                %>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-              </div>
-              <br><hr>
-              <div class="form-row">
-                <div class="form-group col-md-11">
-                  <button type="button" class="btn btn-outline-primary"><i class="fa fa-times fa-lg"></i><br>Cancelar</button>
-                </div>
-                <div class="form-group col-md-1">
-                  <button type="submit" class="btn btn-outline-primary"><i class="fa fa-floppy-o fa-lg"></i><br>Guardar</button>
-                </div>
-              </div>
             </form>
           </div>
         </div>

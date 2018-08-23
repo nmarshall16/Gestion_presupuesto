@@ -5,14 +5,20 @@
  */
 package cl.inacap.cdn.controllers;
 
+import cl.inacap.cdn.entities.CBanco;
+import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.MD5;
 import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.TipoUsuario;
 import cl.inacap.cdn.entities.Usuario;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -142,6 +148,67 @@ public class UsuarioServlet extends HttpServlet {
                        request.setAttribute("proyectos", proyectos);
                        request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
                    break;
+                   
+                   // Llamada ajax para obtener los usuarios de un proyecto
+                    case 7: 
+                        Gson gson = new Gson();
+                        Map <String, Object> map = new HashMap<>();
+                        if (request.getParameter("id_proyecto")!=null) {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            try{
+                                ArrayList<String> users = new ArrayList<>();
+                                Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
+                                proyect.getUsuarioList().forEach((u) -> {
+                                    users.add(u.getRut().toString());
+                                });
+                                map.put("usuarios" , users);
+                                out.print(gson.toJson(map));
+                                out.flush();
+                                out.close();
+                            }catch(java.lang.StackOverflowError ex){
+                                map.put("error" , ex.toString());
+                                out.print(ex);
+                            }
+                        }else{
+                            map.put("error" , "Parametros equivocados");
+                            out.print(gson.toJson(map));
+                            out.flush();
+                            out.close();
+                        }
+                    break;
+                    
+                    case 8:
+                        ArrayList<String> errores = new ArrayList<>();
+                        String[] users = request.getParameterValues("usuarios");
+                        ArrayList<Usuario> listUsuarios = new ArrayList<>();
+                        String proyectName = "-";
+                        if(request.getParameter("id_proyecto").equals("")){
+                            errores.add("Por favor seleccione el proyecto al cual desea asociar a los usuarios");
+                        }else if(users==null){
+                            errores.add("Debe asignar al menos un usuario");
+                        }else{
+                            for(String user:users){
+                                Usuario u = Usuario.findById(new BigDecimal(user));
+                                listUsuarios.add(u);
+                            }
+                            Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
+                            proyectName = proyect.getNombre();
+                            proyect.asignarUsuarios(listUsuarios);
+                        }
+                        usuarios = Usuario.findAll();
+                        if(errores.size()>0){
+                            proyectos = Proyecto.findByEstado('1');
+                            request.setAttribute("usuarios", usuarios);
+                            request.setAttribute("proyectos", proyectos);
+                            request.setAttribute("alerta", errores);
+                            request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
+                        }else{
+                            request.setAttribute("usuarios", usuarios);
+                            request.setAttribute("notificacion", "Se a asignado correctamente a los usuarios al proyecto "+proyectName);
+                            request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                        }
+                    break;
                }
            }
         }

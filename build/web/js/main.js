@@ -107,6 +107,44 @@ $(document).ready(function() {
         $("#modalEliminar").attr('href', 'TipoUsu.do?idTipo='+idTipo+'&op=5');
         $('#eliminarTipo').modal('show'); 
     });
+    
+    $(document).on('click', '.btn-proyectos', function(){
+        $( "input[type='checkbox']" ).prop({checked: false});
+        var idProyect = $(this).val();
+        var proyectos = document.getElementsByClassName('btn-proyectos');
+        $.each(proyectos, function(index, value) {
+            if($(value).hasClass('active') && $(value).val()!==idProyect){
+                $(value).removeClass('active');
+            }
+        });
+        if(!$(this).hasClass('active')){
+            $(this).addClass('active');
+            $("#idProyect").val(idProyect);
+        }
+        $.ajax({
+            url : 'Usuario.do',
+            data : {
+                op: 7,
+                id_proyecto: idProyect,
+            },
+            type : 'POST',
+            dataType : 'json',
+            success : function(data) {
+                if(data.error !== undefined){
+                    console.log(data.error);
+                }else{
+                    $.each(data.usuarios, function(i, rut){
+                        $("#usuario-"+rut).prop({checked: true});
+                        $("#usuario-"+rut).attr('checked', true);
+                    });
+                }
+            },
+            error : function(xhr, status, detalle) {
+                console.log(xhr);
+            }
+        });
+    });
+    
 });
 
 function cargarCuenta(){

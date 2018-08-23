@@ -209,11 +209,15 @@ public class ProyectServlet extends HttpServlet {
                         break;
                     }
                 }else{
-                    List<Proyecto> proyectos = Proyecto.findByEstado('1');
+                    List<Proyecto> proyectos = u.getProyectoList();
                     if(proyectos.size()>1){
                         request.setAttribute("tipoP", "Proyectos Activos");
-                        request.setAttribute("proyectos", Proyecto.findByEstado('1'));
+                        request.setAttribute("proyectos", proyectos);
                         request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                    }else if(proyectos.size()>0){
+                        response.sendRedirect("Proyect.do?idProyect="+proyectos.get(0).getId()+"&op=4");
+                    }else{
+                        request.getRequestDispatcher("login.jsp").forward(request, response);
                     }
                 }
             }else{

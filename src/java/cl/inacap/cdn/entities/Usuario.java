@@ -204,7 +204,14 @@ public class Usuario implements Serializable {
 
 	@XmlTransient
 	public List<Proyecto> getProyectoList() {
-		return proyectoList;
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            Query result = em.createNativeQuery("SELECT p.id, p.nombre, p.estado FROM proyecto p LEFT JOIN proyect_asig a ON p.id = a.proyecto_id WHERE a.usuario_rut = "+this.rut+" AND p.estado = 1", Proyecto.class);
+            this.proyectoList = result.getResultList();
+            em.close();
+            emf.close();
+            return proyectoList;
 	}
 
 	public void setProyectoList(List<Proyecto> proyectoList) {

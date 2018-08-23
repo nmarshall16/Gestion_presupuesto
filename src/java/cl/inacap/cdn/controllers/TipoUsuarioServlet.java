@@ -5,14 +5,20 @@
  */
 package cl.inacap.cdn.controllers;
 
+import cl.inacap.cdn.entities.CBanco;
+import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.Permiso;
+import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.TipoUsuario;
 import cl.inacap.cdn.entities.Usuario;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
