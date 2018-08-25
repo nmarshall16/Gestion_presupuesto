@@ -15,6 +15,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -65,6 +66,46 @@ public class Cuenta implements Serializable {
 
     public Cuenta(BigDecimal id) {
         this.id = id;
+    }
+    
+    public Cuenta(String nombre) {
+        this.nombre = nombre;
+    }
+    
+    public void addCuenta(){
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        trans.begin();
+        em.persist(this);
+        trans.commit();
+        em.close();
+    }
+    
+    public void removeCuenta(){
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        trans.begin();
+        Cuenta cuenta = em.find(Cuenta.class, this.getId());
+        em.remove(cuenta);
+        trans.commit();
+        em.close();
+    }
+    
+    public void modificarCuenta(String nombre){
+        try{
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            Cuenta cuenta = em.merge(this);
+            cuenta.setNombre(nombre);
+            trans.commit();
+            em.close();
+        }catch(Exception ex){
+            System.out.print(ex);
+        }
     }
     
     public static List<Cuenta> findAll(){

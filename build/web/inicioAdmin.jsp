@@ -94,7 +94,7 @@
           </ul>
         </li>
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Cuentas">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="Cuenta.do">
             <i class="fa fa-fw fa-suitcase"></i>
             <span class="nav-link-text">Cuentas</span>
           </a>

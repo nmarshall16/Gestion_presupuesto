@@ -6,7 +6,7 @@
     </servlet>
     <servlet>
         <servlet-name>ProyectServlet</servlet-name>
-        <servlet-class>cl.inacap.cdn.controllers.ProyectServlet</servlet-class>    
+        <servlet-class>cl.inacap.cdn.controllers.ProyectServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>YearServlet</servlet-name>
@@ -35,6 +35,10 @@
     <servlet>
         <servlet-name>TipoUsuarioServlet</servlet-name>
         <servlet-class>cl.inacap.cdn.controllers.TipoUsuarioServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CuentaServlet</servlet-name>
+        <servlet-class>cl.inacap.cdn.controllers.CuentaServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -71,6 +75,10 @@
     <servlet-mapping>
         <servlet-name>TipoUsuarioServlet</servlet-name>
         <url-pattern>/TipoUsu.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CuentaServlet</servlet-name>
+        <url-pattern>/Cuenta.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

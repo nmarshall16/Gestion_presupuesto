@@ -108,6 +108,23 @@ $(document).ready(function() {
         $('#eliminarTipo').modal('show'); 
     });
     
+    $(document).on('click', '#btn-add-cuenta', function(){
+        $('#nuevaCuenta').modal('show'); 
+    });
+    
+    $(document).on('click', '.btn-delete-cuenta', function(){
+        var idCuenta = $(this).val();
+        $("#a-delete-cuenta").attr('href', 'Cuenta.do?id_cuenta='+idCuenta+'&op=2');
+        $('#borrarCuenta').modal('show'); 
+    });
+    
+    $(document).on('click', '.btn-edit-cuenta', function(){
+        $("#id-cuenta").val($(this).val());
+        $("#name-cuenta").val($(this).attr('nombre'));
+        $('#editCuenta').modal('show'); 
+    });
+    
+    
     $(document).on('click', '.btn-proyectos', function(){
         $( "input[type='checkbox']" ).prop({checked: false});
         var idProyect = $(this).val();
