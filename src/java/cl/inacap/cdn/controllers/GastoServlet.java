@@ -12,7 +12,9 @@ import cl.inacap.cdn.entities.Gasto;
 import cl.inacap.cdn.entities.GastoMes;
 import cl.inacap.cdn.entities.Gastoexc;
 import cl.inacap.cdn.entities.Homologar;
+import cl.inacap.cdn.entities.Permiso;
 import cl.inacap.cdn.entities.Proyecto;
+import cl.inacap.cdn.entities.Usuario;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,7 +51,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @WebServlet(name = "GastoServlet", urlPatterns = {"/Gasto.do"})
 @MultipartConfig
 public class GastoServlet extends HttpServlet {
-
+    List<String> errores = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -64,369 +66,282 @@ public class GastoServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            String opcion = request.getParameter("op");
-            switch(opcion){
-                case "homologar":
-                    // Homologar gastos
-                    char tipo = request.getParameter("tipo").charAt(0);
-                    ArrayList<String> errorH = new ArrayList<>();
-                    try{ 
-                        String[] gast = request.getParameterValues("gastos");
-                        String cuen = request.getParameter("cuentas");
-                        Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
-                        String errorHom = "";
-                        for (String resultado : gast) {
-                            GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                            tipo = gasto.getTipo();
-                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){ // Se valida si el gasto es un gasto excepcional 
-                                List<Homologar> homExc = Homologar.findHomologaciones(gasto); // Se busca alguna homologación asociada al gasto
-                                if(homExc.size()>0){ 
-                                    errorHom = homExc.get(0).actualizarHomologacion(cuenta);
-                                   if(!errorHom.equals("")){
-                                       errorH.add(errorHom);
-                                   }
-                                }else{
-                                    Homologar homologar = new Homologar();
-                                    homologar.setCuentaId(cuenta);
-                                    homologar.setGastoMesId(gasto);
-                                    if(tipo!='A'){
-                                        if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
-                                            homologar.setEstado('V'); 
+            errores.clear();
+            Usuario u = (Usuario)request.getSession(true).getAttribute("user");
+            if (u != null) {
+                int opcion = Integer.parseInt(request.getParameter("op"));
+                switch(opcion){
+                    case 1:
+                        // Homologar gastos
+                        if(Permiso.validarPermiso(u.getTipoUsuarioId(), "25")){
+                            char tipo = request.getParameter("tipo").charAt(0);
+                            ArrayList<String> errorH = new ArrayList<>();
+                            try{ 
+                                String[] gast = request.getParameterValues("gastos");
+                                String cuen = request.getParameter("cuentas");
+                                Cuenta cuenta = Cuenta.findById(new BigInteger(cuen));
+                                String errorHom = "";
+                                for (String resultado : gast) {
+                                    GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                                    tipo = gasto.getTipo();
+                                    if(Gastoexc.validarGastoExc(gasto.getGastoId())){ // Se valida si el gasto es un gasto excepcional 
+                                        List<Homologar> homExc = Homologar.findHomologaciones(gasto); // Se busca alguna homologación asociada al gasto
+                                        if(homExc.size()>0){ 
+                                            errorHom = homExc.get(0).actualizarHomologacion(cuenta);
+                                           if(!errorHom.equals("")){
+                                               errorH.add(errorHom);
+                                           }
                                         }else{
-                                            homologar.setEstado('P');
-                                        }
-                                    }else{
-                                        homologar.setEstado('V'); 
-                                    }
-                                    errorHom = homologar.addHomologacion(tipo); // Se homologa el gasto y se modifica el presupuesto
-                                    if(errorHom.equals("")){
-                                            gasto.actualizarEstado('R'); // Se actualiza el estado del gasto para identificarse en la tabla de gastos.jsp
-                                    }else{
-                                        errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
-                                        homologar.removeHomologacion(); // En caso de que exista error se borrara la homologacion realizada para evitar problemas
-                                    }
-                                }
-                            }else{
-                                // En caso de no ser un gasto excepcional se realiza el siguiente proceso
-                                Homologar hom = Homologar.findHomologacion(gasto);
-                                if(hom!=null){
-                                   errorHom = hom.actualizarHomologacion(cuenta);
-                                   if(!errorHom.equals("")){
-                                       errorH.add(errorHom);
-                                   }
-                                }else{
-                                    Homologar homologar = new Homologar();
-                                    homologar.setCuentaId(cuenta);
-                                    homologar.setGastoMesId(gasto);
-                                    if(tipo!='A'){
-                                        if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
-                                            homologar.setEstado('V'); 
-                                        }else{
-                                            homologar.setEstado('P');
-                                        }
-                                    }else{
-                                        homologar.setEstado('V'); 
-                                    }
-                                    errorHom = homologar.addHomologacion(tipo);
-                                    if(errorHom.equals("")){
-                                            gasto.actualizarEstado('R');
-                                    }else{
-                                        errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
-                                        homologar.removeHomologacion();
-                                    }
-                                }
-                            }
-                        }
-                        gast = request.getParameterValues("gastosExc");
-                        // Se optienen los gastos excepcionales en caso de que existan 
-                        if(gast != null){
-                            cuen = request.getParameter("cuentasExc");
-                            cuenta = Cuenta.findById(new BigInteger(cuen));
-                            // Se realiza el mismo proceso que se realizo anteriormente
-                            for (String resultado : gast) {
-                                GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                                tipo = gasto.getTipo();
-                                if(Gastoexc.validarGastoExc(gasto.getGastoId())){
-                                    List<Homologar> homExc = Homologar.findHomologaciones(gasto);
-                                    if(homExc.size()>1){
-                                        errorHom = homExc.get(1).actualizarHomologacion(cuenta);
-                                        if(!errorHom.equals("")){
-                                            errorH.add(errorHom);
-                                        }
-                                    }else{
-                                        Homologar homologar = new Homologar();
-                                        homologar.setCuentaId(cuenta);
-                                        homologar.setGastoMesId(gasto);
-                                        if(tipo!='A'){
-                                            if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
-                                                homologar.setEstado('V'); 
-                                            }else{
-                                                homologar.setEstado('P');
-                                            }
-                                        }else{
-                                            homologar.setEstado('V'); 
-                                        }
-                                        errorHom = homologar.addHomologacion(tipo);
-                                        if(errorHom.equals("")){
-                                            gasto.actualizarEstado('R');
-                                        }else{
-                                            errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
-                                            homologar.removeHomologacion();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }catch(Exception ex){
-                        errorH.add("Error: "+ex.getMessage()+" "+ex.toString());
-                    }
-                    BigInteger mesPend = new BigInteger(request.getParameter("mes"));
-                    AnhoProyect anhoPend = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                    List<GastoMes> gastosPend = GastoMes.findGastos(mesPend, anhoPend);
-                    request.setAttribute("error", errorH);
-                    request.setAttribute("mes", mesPend);
-                    request.setAttribute("anho", anhoPend.getId());
-                    request.setAttribute("gastos", gastosPend);
-                    request.setAttribute("estado", GastoMes.validaEstadoGastos(gastosPend));
-                    request.setAttribute("tipo", tipo);
-                    request.getRequestDispatcher("gastos.jsp").forward(request, response);
-                break;
-                case "marcarGastos":
-                    // Se carga el formulario para homologar los gastos 
-                    String[] result = request.getParameterValues("gastos");
-                    ArrayList<GastoMes> gastos = new ArrayList<>();
-                    ArrayList<GastoMes> excepciones = new ArrayList<>();
-                    ArrayList<String> advertencias = new ArrayList<>();
-                    if(result!=null){
-                        for (String resultado : result) {
-                            GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
-                            if(gasto.getStatus()!='P'){
-                                advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
-                            }
-                            if(Gastoexc.validarGastoExc(gasto.getGastoId())){
-                               excepciones.add(gasto);
-                               advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
-                            }
-                            gastos.add(gasto);
-                        }
-                        List<Cuenta> cuentas = Cuenta.findAll();
-                        BigInteger mesHo = new BigInteger(request.getParameter("mes"));
-                        AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                        request.setAttribute("tipo", request.getParameter("tipo"));
-                        request.setAttribute("mes", mesHo);
-                        request.setAttribute("anho", anhoHo.getId());
-                        request.setAttribute("gastos", gastos);
-                        request.setAttribute("excepciones", excepciones);
-                        request.setAttribute("advertencias", advertencias);
-                        request.setAttribute("cuentas", cuentas);
-                        request.getRequestDispatcher("homologar.jsp").forward(request, response);
-                    }else{
-                        ArrayList<String> errorG = new ArrayList<>();
-                        errorG.add("Debe Seleccionar al menos un gasto antes de homologar");
-                        BigInteger mes = new BigInteger(request.getParameter("mes"));
-                        AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                        char tipoD = request.getParameter("tipo").charAt(0);
-                        List<GastoMes> gastoz = GastoMes.findGastos(mes, anho,tipoD);
-                        if(gastoz.size() > 0){
-                            request.setAttribute("error", errorG);
-                            request.setAttribute("mes", mes);
-                            request.setAttribute("anho", anho.getId());
-                            request.setAttribute("gastos", gastoz);
-                            request.setAttribute("estado", GastoMes.validaEstadoGastos(gastoz));
-                            request.setAttribute("tipo", tipoD);
-                            request.getRequestDispatcher("gastos.jsp").forward(request, response);
-                        }
-                    }
-                    
-                break;
-                case "cargarGastos":
-                    try{
-                    final Part filePart = request.getPart("archivo"); // Obtiene el archivo
-                    String name = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // el nombre del archivo
-                    String ext = name.substring(name.length()-4); // Obtiene a extencion
-                    if(ext.equals("xlsx")){ // Se valida la extencion
-                        ServletContext context = request.getServletContext();
-                        final String path= context.getRealPath("/")+"files"; // Se obtiene la ruta del proyecto
-                        AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                        Proyecto proyecto = anho.getProyectoId();
-                        BigInteger mes = new BigInteger(request.getParameter("mes"));
-                        char tipoG = request.getParameter("tipo").charAt(0);
-                        final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+mes+"_"+tipoG+"."+ext; // Se genera el nombre del archivo
-                        OutputStream salida = null;
-                        InputStream filecontent = null;
-                        final PrintWriter writer = response.getWriter();
-                        try {
-                        // Se guarda el archivo en la ruta se indicada 
-                            salida = new FileOutputStream(new File(path + File.separator
-                            + fileName));
-                            filecontent = filePart.getInputStream();
-                            int read = 0;
-                            final byte[] bytes = new byte[1024];
-                            while ((read = filecontent.read(bytes)) != -1) {
-                                salida.write(bytes, 0, read);
-                            }
-                            FileInputStream file = new FileInputStream(new File(path+"\\"+fileName)); // Se indica el archivo
-                            XSSFWorkbook wb = new XSSFWorkbook(file);
-                            XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
-                            Row validacion;
-                            boolean error = false;
-                            String detalleError = "No error"; 
-                            switch(tipoG){
-                                case 'G':
-                                    validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
-                                    // Se valida el encabezado del archivo
-                                    if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
-                                    && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
-                                    && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
-                                    && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
-                                    && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
-                                    && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
-                                    && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
-                                    && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
-                                    && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
-                                    && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
-                                    && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
-                                    && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
-                                    && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
-                                    && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
-                                    ){
-                                        int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
-                                        ArrayList<GastoMes> gastosAdd = new ArrayList<>();
-                                        Date fecha;
-                                        int fi = 0;
-                                        for(int i = 6; i <= numFilas; i++){
-                                            Row fila = sheet.getRow(i);
-                                            if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
-                                                // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
-                                                GastoMes gastoMes = new GastoMes();
-                                                gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
-                                                gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
-                                                try{
-                                                fecha = fila.getCell(6).getDateCellValue();
-                                                }catch(Exception e){
-                                                    fecha= null;
-                                                }
-                                                if(fecha!=null){
-                                                    gastoMes.setFecha(fecha);
-                                                }
-                                                gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
-                                                gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
-                                                gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
-                                                gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
-                                                gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
-                                                gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
-                                                gastoMes.setAnhoProyectId(anho);
-                                                gastoMes.setMes(mes);
-                                                gastoMes.setStatus('P');
-                                                gastoMes.setTipo('G');
-                                                Gasto gasto = new Gasto();
-                                                gasto = gasto.findGasto(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()), BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()));
-                                                // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
-                                                if(gasto != null){
-                                                    gastoMes.setGastoId(gasto);
+                                            Homologar homologar = new Homologar();
+                                            homologar.setCuentaId(cuenta);
+                                            homologar.setGastoMesId(gasto);
+                                            if(tipo!='A'){
+                                                if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                                    homologar.setEstado('V'); 
                                                 }else{
-                                                    FuenteF financiamiento = FuenteF.findById(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()));
-                                                    Gasto newGasto = new Gasto(
-                                                    BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()),
-                                                    fila.getCell(4).getStringCellValue().toUpperCase(),
-                                                    financiamiento
-                                                    );
-                                                    newGasto.addGasto();
-                                                    gastoMes.setGastoId(newGasto);
+                                                    homologar.setEstado('P');
                                                 }
-                                                gastoMes.addGastoMes(); // Se añade a la base de datos
-                                                gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
                                             }else{
-                                                error = true;
-                                                fi = i;
-                                                break;
+                                                homologar.setEstado('V'); 
+                                            }
+                                            errorHom = homologar.addHomologacion(tipo); // Se homologa el gasto y se modifica el presupuesto
+                                            if(errorHom.equals("")){
+                                                    gasto.actualizarEstado('R'); // Se actualiza el estado del gasto para identificarse en la tabla de gastos.jsp
+                                            }else{
+                                                errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                                homologar.removeHomologacion(); // En caso de que exista error se borrara la homologacion realizada para evitar problemas
                                             }
                                         }
-                                        if(error){
-                                            GastoMes gastosB = new GastoMes();
-                                            gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
-                                            detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
-                                        }
                                     }else{
-                                        error = true;
-                                        detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
+                                        // En caso de no ser un gasto excepcional se realiza el siguiente proceso
+                                        Homologar hom = Homologar.findHomologacion(gasto);
+                                        if(hom!=null){
+                                           errorHom = hom.actualizarHomologacion(cuenta);
+                                           if(!errorHom.equals("")){
+                                               errorH.add(errorHom);
+                                           }
+                                        }else{
+                                            Homologar homologar = new Homologar();
+                                            homologar.setCuentaId(cuenta);
+                                            homologar.setGastoMesId(gasto);
+                                            if(tipo!='A'){
+                                                if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                                    homologar.setEstado('V'); 
+                                                }else{
+                                                    homologar.setEstado('P');
+                                                }
+                                            }else{
+                                                homologar.setEstado('V'); 
+                                            }
+                                            errorHom = homologar.addHomologacion(tipo);
+                                            if(errorHom.equals("")){
+                                                    gasto.actualizarEstado('R');
+                                            }else{
+                                                errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                                homologar.removeHomologacion();
+                                            }
+                                        }
                                     }
-                                break;
-                                
-                                case 'A':
-                                    validacion = sheet.getRow(1); // Se obtiene la Secta fila del archivo
-                                    // Se valida el encabezado del archivo
-                                    if(validacion.getCell(0).getStringCellValue().toLowerCase().equals("un")
-                                    && validacion.getCell(1).getStringCellValue().toLowerCase().equals("asiento")
-                                    && validacion.getCell(2).getStringCellValue().toLowerCase().equals("cuenta")
-                                    && validacion.getCell(3).getStringCellValue().toLowerCase().equals("descr")
-                                    && validacion.getCell(4).getStringCellValue().toLowerCase().equals("centro resp")
-                                    && validacion.getCell(5).getStringCellValue().toLowerCase().equals("sede")
-                                    && validacion.getCell(6).getStringCellValue().toLowerCase().equals("producto")
-                                    && validacion.getCell(7).getStringCellValue().toLowerCase().equals("filial")
-                                    && validacion.getCell(8).getStringCellValue().toLowerCase().equals("cta banco")
-                                    && validacion.getCell(9).getStringCellValue().toLowerCase().equals("impte")
-                                    && validacion.getCell(10).getStringCellValue().toLowerCase().equals("ref")
-                                    && validacion.getCell(11).getStringCellValue().toLowerCase().equals("descr línea")
-                                    && validacion.getCell(12).getStringCellValue().toLowerCase().equals("estado")
-                                    && validacion.getCell(14).getStringCellValue().toLowerCase().equals("f asnto")
-                                    && validacion.getCell(15).getStringCellValue().toLowerCase().equals("orig")
-                                    && validacion.getCell(22).getStringCellValue().toLowerCase().equals("proy")
-                                    ){
-                                        int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
-                                        ArrayList<GastoMes> gastosAdd = new ArrayList<>();
-                                        Date fecha;
-                                        BigInteger sede;
-                                        BigDecimal fuenteG;
-                                        BigInteger codCuent;
-                                        int fi = 0;
-                                        for(int i = 2; i <= numFilas; i++){
-                                            Row fila = sheet.getRow(i);
-                                            if(!fila.getCell(22).getStringCellValue().equals("")){
-                                                if(fila.getCell(22).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
-                                                    // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
-                                                    System.out.println("Si entro");
-                                                    GastoMes gastoMes = new GastoMes();
-                                                    gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(9).getNumericCellValue()));
-                                                    try{
-                                                    fecha = fila.getCell(14).getDateCellValue();
-                                                    sede = new BigInteger(fila.getCell(5).getStringCellValue());
-                                                    fuenteG = new BigDecimal(fila.getCell(4).getStringCellValue());
-                                                    codCuent = new BigInteger(fila.getCell(2).getStringCellValue());
-                                                    }catch(Exception e){
-                                                        System.out.println(e.toString());
-                                                        fecha = null;
-                                                        sede = null;
-                                                        codCuent = null;
-                                                        fuenteG = null;
-                                                        error = true;
-                                                        break;
+                                }
+                                gast = request.getParameterValues("gastosExc");
+                                // Se optienen los gastos excepcionales en caso de que existan 
+                                if(gast != null){
+                                    cuen = request.getParameter("cuentasExc");
+                                    cuenta = Cuenta.findById(new BigInteger(cuen));
+                                    // Se realiza el mismo proceso que se realizo anteriormente
+                                    for (String resultado : gast) {
+                                        GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                                        tipo = gasto.getTipo();
+                                        if(Gastoexc.validarGastoExc(gasto.getGastoId())){
+                                            List<Homologar> homExc = Homologar.findHomologaciones(gasto);
+                                            if(homExc.size()>1){
+                                                errorHom = homExc.get(1).actualizarHomologacion(cuenta);
+                                                if(!errorHom.equals("")){
+                                                    errorH.add(errorHom);
+                                                }
+                                            }else{
+                                                Homologar homologar = new Homologar();
+                                                homologar.setCuentaId(cuenta);
+                                                homologar.setGastoMesId(gasto);
+                                                if(tipo!='A'){
+                                                    if(GastoMes.validaCuenta(gasto)){ // Se valida que el gasto este asociado correctamente
+                                                        homologar.setEstado('V'); 
+                                                    }else{
+                                                        homologar.setEstado('P');
                                                     }
-                                                    gastoMes.setFecha(fecha);
-                                                    gastoMes.setSede(sede);
-                                                    gastoMes.setUnidadNegocio(fila.getCell(0).getStringCellValue());
-                                                    gastoMes.setAsiento(fila.getCell(1).getStringCellValue());
-                                                    gastoMes.setProducto(fila.getCell(6).getStringCellValue());
-                                                    gastoMes.setFilial(fila.getCell(7).getStringCellValue());
-                                                    gastoMes.setCuentaBanco(fila.getCell(8).getStringCellValue());
-                                                    gastoMes.setReferencia(fila.getCell(10).getStringCellValue());
-                                                    gastoMes.setDescripcion(fila.getCell(11).getStringCellValue());
-                                                    gastoMes.setEstado(fila.getCell(12).getStringCellValue());
-                                                    gastoMes.setOrigen(fila.getCell(15).getStringCellValue());
+                                                }else{
+                                                    homologar.setEstado('V'); 
+                                                }
+                                                errorHom = homologar.addHomologacion(tipo);
+                                                if(errorHom.equals("")){
+                                                    gasto.actualizarEstado('R');
+                                                }else{
+                                                    errorH.add("Error: "+errorHom+" "+gasto.getGastoId().getNombre()+" a la cuenta "+cuenta.getNombre());
+                                                    homologar.removeHomologacion();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }catch(Exception ex){
+                                System.out.println(ex.getCause());
+                                errorH.add("Error: "+ex.getMessage()+" "+ex.toString());
+                            }
+                            BigInteger mesPend = new BigInteger(request.getParameter("mes"));
+                            AnhoProyect anhoPend = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                            List<GastoMes> gastosPend = GastoMes.findGastos(mesPend, anhoPend);
+                            request.setAttribute("error", errorH);
+                            request.setAttribute("mes", mesPend);
+                            request.setAttribute("anho", anhoPend.getId());
+                            request.setAttribute("gastos", gastosPend);
+                            request.setAttribute("estado", GastoMes.validaEstadoGastos(gastosPend));
+                            request.setAttribute("tipo", tipo);
+                            request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                        }else{
+                            accesoDenegado(request, response,u);
+                        }
+                    break;
+                    case 2:
+                        // Se carga el formulario para homologar los gastos 
+                        if(Permiso.validarPermiso(u.getTipoUsuarioId(), "25")){
+                            String[] result = request.getParameterValues("gastos");
+                            ArrayList<GastoMes> gastos = new ArrayList<>();
+                            ArrayList<GastoMes> excepciones = new ArrayList<>();
+                            ArrayList<String> advertencias = new ArrayList<>();
+                            if(result!=null){
+                                for (String resultado : result) {
+                                    GastoMes gasto = GastoMes.findById(new BigInteger(resultado));
+                                    if(gasto.getStatus()!='P'){
+                                        advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' ya a sido homologado");
+                                    }
+                                    if(Gastoexc.validarGastoExc(gasto.getGastoId())){
+                                       excepciones.add(gasto);
+                                       advertencias.add("El gasto '"+gasto.getGastoId().getNombre()+"' es un gasto excepcional por lo cual debe asociarlo a dos cuentas");
+                                    }
+                                    gastos.add(gasto);
+                                }
+                                List<Cuenta> cuentas = Cuenta.findAll();
+                                BigInteger mesHo = new BigInteger(request.getParameter("mes"));
+                                AnhoProyect anhoHo = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                                request.setAttribute("tipo", request.getParameter("tipo"));
+                                request.setAttribute("mes", mesHo);
+                                request.setAttribute("anho", anhoHo.getId());
+                                request.setAttribute("gastos", gastos);
+                                request.setAttribute("excepciones", excepciones);
+                                request.setAttribute("advertencias", advertencias);
+                                request.setAttribute("cuentas", cuentas);
+                                request.getRequestDispatcher("homologar.jsp").forward(request, response);
+                            }else{
+                                ArrayList<String> errorG = new ArrayList<>();
+                                errorG.add("Debe Seleccionar al menos un gasto antes de homologar");
+                                BigInteger mes = new BigInteger(request.getParameter("mes"));
+                                AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                                char tipoD = request.getParameter("tipo").charAt(0);
+                                List<GastoMes> gastoz = GastoMes.findGastos(mes, anho,tipoD);
+                                if(gastoz.size() > 0){
+                                    request.setAttribute("error", errorG);
+                                    request.setAttribute("mes", mes);
+                                    request.setAttribute("anho", anho.getId());
+                                    request.setAttribute("gastos", gastoz);
+                                    request.setAttribute("estado", GastoMes.validaEstadoGastos(gastoz));
+                                    request.setAttribute("tipo", tipoD);
+                                    request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                                }
+                            }
+                        }else{
+                            accesoDenegado(request, response,u);
+                        }
+                    break;
+                    case 3:
+                        try{
+                        final Part filePart = request.getPart("archivo"); // Obtiene el archivo
+                        String name = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // el nombre del archivo
+                        String ext = name.substring(name.length()-4); // Obtiene a extencion
+                        if(ext.equals("xlsx")){ // Se valida la extencion
+                            ServletContext context = request.getServletContext();
+                            final String path= context.getRealPath("/")+"files"; // Se obtiene la ruta del proyecto
+                            AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                            Proyecto proyecto = anho.getProyectoId();
+                            BigInteger mes = new BigInteger(request.getParameter("mes"));
+                            char tipoG = request.getParameter("tipo").charAt(0);
+                            final String fileName = "File_"+proyecto.getId()+"_"+anho.getNum()+"_"+mes+"_"+tipoG+"."+ext; // Se genera el nombre del archivo
+                            OutputStream salida = null;
+                            InputStream filecontent = null;
+                            final PrintWriter writer = response.getWriter();
+                            try {
+                            // Se guarda el archivo en la ruta se indicada 
+                                salida = new FileOutputStream(new File(path + File.separator
+                                + fileName));
+                                filecontent = filePart.getInputStream();
+                                int read = 0;
+                                final byte[] bytes = new byte[1024];
+                                while ((read = filecontent.read(bytes)) != -1) {
+                                    salida.write(bytes, 0, read);
+                                }
+                                FileInputStream file = new FileInputStream(new File(path+"\\"+fileName)); // Se indica el archivo
+                                XSSFWorkbook wb = new XSSFWorkbook(file);
+                                XSSFSheet sheet = wb.getSheetAt(0); // Se obtiene la primera hoja del archivo
+                                Row validacion;
+                                boolean error = false;
+                                String detalleError = "No error"; 
+                                switch(tipoG){
+                                    case 'G':
+                                        validacion = sheet.getRow(5); // Se obtiene la Secta fila del archivo
+                                        // Se valida el encabezado del archivo
+                                        if(validacion.getCell(1).getStringCellValue().toLowerCase().equals("id_comp")
+                                        && validacion.getCell(3).getStringCellValue().toLowerCase().equals("cod_cuenta")
+                                        && validacion.getCell(4).getStringCellValue().toLowerCase().equals("nom_cuenta")
+                                        && validacion.getCell(5).getStringCellValue().toLowerCase().equals("importe")
+                                        && validacion.getCell(6).getStringCellValue().toLowerCase().equals("fecha_contable")
+                                        && validacion.getCell(7).getStringCellValue().toLowerCase().equals("num_orden_compra")
+                                        && validacion.getCell(11).getStringCellValue().toLowerCase().equals("cod_proyecto")
+                                        && validacion.getCell(12).getStringCellValue().toLowerCase().equals("proyecto")
+                                        && validacion.getCell(15).getStringCellValue().toLowerCase().equals("cod_centro_resp")
+                                        && validacion.getCell(17).getStringCellValue().toLowerCase().equals("num_factura")
+                                        && validacion.getCell(18).getStringCellValue().toLowerCase().equals("rut_proveedor")
+                                        && validacion.getCell(19).getStringCellValue().toLowerCase().equals("nombre_proveedor")
+                                        && validacion.getCell(23).getStringCellValue().toLowerCase().equals("atributos_del_pago")
+                                        && validacion.getCell(27).getStringCellValue().toLowerCase().equals("asiento")
+                                        ){
+                                            int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
+                                            ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                            Date fecha;
+                                            int fi = 0;
+                                            for(int i = 6; i <= numFilas; i++){
+                                                Row fila = sheet.getRow(i);
+                                                if(fila.getCell(11).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
+                                                    // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
+                                                    GastoMes gastoMes = new GastoMes();
+                                                    gastoMes.setIdCompra(BigInteger.valueOf((long)fila.getCell(1).getNumericCellValue()));
+                                                    gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(5).getNumericCellValue()));
+                                                    try{
+                                                    fecha = fila.getCell(6).getDateCellValue();
+                                                    }catch(Exception e){
+                                                        fecha= null;
+                                                    }
+                                                    if(fecha!=null){
+                                                        gastoMes.setFecha(fecha);
+                                                    }
+                                                    gastoMes.setOrdenCompra(fila.getCell(7).getStringCellValue());
+                                                    gastoMes.setNumFac(BigInteger.valueOf((long)fila.getCell(17).getNumericCellValue()));
+                                                    gastoMes.setRutProvedor(fila.getCell(18).getStringCellValue());
+                                                    gastoMes.setNombreProvedor(fila.getCell(19).getStringCellValue());
+                                                    gastoMes.setAtributoPago(fila.getCell(23).getStringCellValue());
+                                                    gastoMes.setAsiento(fila.getCell(27).getStringCellValue());
                                                     gastoMes.setAnhoProyectId(anho);
                                                     gastoMes.setMes(mes);
                                                     gastoMes.setStatus('P');
-                                                    gastoMes.setTipo('A');
+                                                    gastoMes.setTipo('G');
                                                     Gasto gasto = new Gasto();
-                                                    gasto = Gasto.findGasto(fuenteG, codCuent);
+                                                    gasto = gasto.findGasto(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()), BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()));
                                                     // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
                                                     if(gasto != null){
                                                         gastoMes.setGastoId(gasto);
                                                     }else{
-                                                        FuenteF financiamiento = FuenteF.findById(fuenteG);
+                                                        FuenteF financiamiento = FuenteF.findById(BigDecimal.valueOf(fila.getCell(15).getNumericCellValue()));
                                                         Gasto newGasto = new Gasto(
-                                                        codCuent,
-                                                        fila.getCell(3).getStringCellValue().toUpperCase(),
+                                                        BigInteger.valueOf((long)fila.getCell(3).getNumericCellValue()),
+                                                        fila.getCell(4).getStringCellValue().toUpperCase(),
                                                         financiamiento
                                                         );
                                                         newGasto.addGasto();
@@ -440,73 +355,183 @@ public class GastoServlet extends HttpServlet {
                                                     break;
                                                 }
                                             }
+                                            if(error){
+                                                GastoMes gastosB = new GastoMes();
+                                                gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
+                                                detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
+                                            }
+                                        }else{
+                                            error = true;
+                                            detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
                                         }
-                                        if(error){
-                                            GastoMes gastosB = new GastoMes();
-                                            gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
-                                            detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
+                                    break;
+
+                                    case 'A':
+                                        validacion = sheet.getRow(1); // Se obtiene la Secta fila del archivo
+                                        // Se valida el encabezado del archivo
+                                        if(validacion.getCell(0).getStringCellValue().toLowerCase().equals("un")
+                                        && validacion.getCell(1).getStringCellValue().toLowerCase().equals("asiento")
+                                        && validacion.getCell(2).getStringCellValue().toLowerCase().equals("cuenta")
+                                        && validacion.getCell(3).getStringCellValue().toLowerCase().equals("descr")
+                                        && validacion.getCell(4).getStringCellValue().toLowerCase().equals("centro resp")
+                                        && validacion.getCell(5).getStringCellValue().toLowerCase().equals("sede")
+                                        && validacion.getCell(6).getStringCellValue().toLowerCase().equals("producto")
+                                        && validacion.getCell(7).getStringCellValue().toLowerCase().equals("filial")
+                                        && validacion.getCell(8).getStringCellValue().toLowerCase().equals("cta banco")
+                                        && validacion.getCell(9).getStringCellValue().toLowerCase().equals("impte")
+                                        && validacion.getCell(10).getStringCellValue().toLowerCase().equals("ref")
+                                        && validacion.getCell(11).getStringCellValue().toLowerCase().equals("descr línea")
+                                        && validacion.getCell(12).getStringCellValue().toLowerCase().equals("estado")
+                                        && validacion.getCell(14).getStringCellValue().toLowerCase().equals("f asnto")
+                                        && validacion.getCell(15).getStringCellValue().toLowerCase().equals("orig")
+                                        && validacion.getCell(22).getStringCellValue().toLowerCase().equals("proy")
+                                        ){
+                                            int numFilas = sheet.getLastRowNum(); // Se obtiene el numero total de filas
+                                            ArrayList<GastoMes> gastosAdd = new ArrayList<>();
+                                            Date fecha;
+                                            BigInteger sede;
+                                            BigDecimal fuenteG;
+                                            BigInteger codCuent;
+                                            int fi = 0;
+                                            for(int i = 2; i <= numFilas; i++){
+                                                Row fila = sheet.getRow(i);
+                                                if(!fila.getCell(22).getStringCellValue().equals("")){
+                                                    if(fila.getCell(22).getStringCellValue().toUpperCase().equals(proyecto.getCodigo().toUpperCase())){ // Se valida que el gasto pertenesca al proyecto seleccionado
+                                                        // Se obtienen los datos del archivo excel y se asignan a un objeto GastoMes
+                                                        System.out.println("Si entro");
+                                                        GastoMes gastoMes = new GastoMes();
+                                                        gastoMes.setImporte(BigInteger.valueOf((long)fila.getCell(9).getNumericCellValue()));
+                                                        try{
+                                                        fecha = fila.getCell(14).getDateCellValue();
+                                                        sede = new BigInteger(fila.getCell(5).getStringCellValue());
+                                                        fuenteG = new BigDecimal(fila.getCell(4).getStringCellValue());
+                                                        codCuent = new BigInteger(fila.getCell(2).getStringCellValue());
+                                                        }catch(Exception e){
+                                                            System.out.println(e.toString());
+                                                            fecha = null;
+                                                            sede = null;
+                                                            codCuent = null;
+                                                            fuenteG = null;
+                                                            error = true;
+                                                            break;
+                                                        }
+                                                        gastoMes.setFecha(fecha);
+                                                        gastoMes.setSede(sede);
+                                                        gastoMes.setUnidadNegocio(fila.getCell(0).getStringCellValue());
+                                                        gastoMes.setAsiento(fila.getCell(1).getStringCellValue());
+                                                        gastoMes.setProducto(fila.getCell(6).getStringCellValue());
+                                                        gastoMes.setFilial(fila.getCell(7).getStringCellValue());
+                                                        gastoMes.setCuentaBanco(fila.getCell(8).getStringCellValue());
+                                                        gastoMes.setReferencia(fila.getCell(10).getStringCellValue());
+                                                        gastoMes.setDescripcion(fila.getCell(11).getStringCellValue());
+                                                        gastoMes.setEstado(fila.getCell(12).getStringCellValue());
+                                                        gastoMes.setOrigen(fila.getCell(15).getStringCellValue());
+                                                        gastoMes.setAnhoProyectId(anho);
+                                                        gastoMes.setMes(mes);
+                                                        gastoMes.setStatus('P');
+                                                        gastoMes.setTipo('A');
+                                                        Gasto gasto = new Gasto();
+                                                        gasto = Gasto.findGasto(fuenteG, codCuent);
+                                                        // Se busca si el gasto ya se encuentra registrado en caso de no estarlo se registra en la base de datos
+                                                        if(gasto != null){
+                                                            gastoMes.setGastoId(gasto);
+                                                        }else{
+                                                            FuenteF financiamiento = FuenteF.findById(fuenteG);
+                                                            Gasto newGasto = new Gasto(
+                                                            codCuent,
+                                                            fila.getCell(3).getStringCellValue().toUpperCase(),
+                                                            financiamiento
+                                                            );
+                                                            newGasto.addGasto();
+                                                            gastoMes.setGastoId(newGasto);
+                                                        }
+                                                        gastoMes.addGastoMes(); // Se añade a la base de datos
+                                                        gastosAdd.add(gastoMes); // Se almacena en un arreglo de los gastos ya insertados a la base de datos
+                                                    }else{
+                                                        error = true;
+                                                        fi = i;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(error){
+                                                GastoMes gastosB = new GastoMes();
+                                                gastosB.removeGastosMes(gastosAdd); // Se borran los gasto insertados 
+                                                detalleError = "Se a detectado un gasto correspondiente a otro proyecto en la fila "+fi+" valide que este asociado al proyecto "+proyecto.getNombre();
+                                            }
+                                        }else{
+                                            error = true;
+                                            detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
                                         }
-                                    }else{
-                                        error = true;
-                                        detalleError = "El archivo que intenta subir no cuenta con el formato correcto";
-                                    }
-                                break;
+                                    break;
+                                }
+                                if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                    // Return ajax response (e.g. write JSON or XML).
+                                    Map <String, Object> map = new HashMap<String, Object>();
+                                    map.put("error", error);
+                                    map.put("detalle", detalleError);
+                                    map.put("anho", request.getParameter("idAnho"));
+                                    map.put("mes", mes);
+                                    map.put("tipo", tipoG);
+                                    response.getWriter().write(new Gson().toJson(map));
+                                }
+                            } catch (FileNotFoundException fne) {
+                                System.out.println(fne);
+                                String detalle = "No se pudo cargar el archivo, por favor cargue "
+                                        + "el archivo nuevamente y verifique que el archivo no "
+                                        + "este protegido.";
+                                detalle+="<br/> ERROR: " + fne.getMessage();
+                                /*LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
+                                new Object[]{fne.getMessage()});
+                                */
+                                if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                    errorAjax(response, detalle);
+                                }
+                            }catch (NullPointerException ex){
+                                if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                    errorAjax(response, ex.toString());
+                                }
+                            } finally {
+                                if (salida != null) {
+                                    salida.close();
+                                }
+                                if (filecontent != null) {
+                                    filecontent.close();
+                                }
+                                if (writer != null) {
+                                    writer.close();
+                                }
                             }
+                        }else{
                             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                                // Return ajax response (e.g. write JSON or XML).
-                                Map <String, Object> map = new HashMap<String, Object>();
-                                map.put("error", error);
-                                map.put("detalle", detalleError);
-                                map.put("anho", request.getParameter("idAnho"));
-                                map.put("mes", mes);
-                                map.put("tipo", tipoG);
-                                response.getWriter().write(new Gson().toJson(map));
-                            }
-                        } catch (FileNotFoundException fne) {
-                            System.out.println(fne);
-                            String detalle = "No se pudo cargar el archivo, por favor cargue "
-                                    + "el archivo nuevamente y verifique que el archivo no "
-                                    + "este protegido.";
-                            detalle+="<br/> ERROR: " + fne.getMessage();
-                            /*LOGGER.log(Level.SEVERE, "Problemas durante la subida del archivo. Error: {0}",
-                            new Object[]{fne.getMessage()});
-                            */
-                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                                errorAjax(response, detalle);
-                            }
-                        }catch (NullPointerException ex){
-                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                                errorAjax(response, ex.toString());
-                            }
-                        } finally {
-                            if (salida != null) {
-                                salida.close();
-                            }
-                            if (filecontent != null) {
-                                filecontent.close();
-                            }
-                            if (writer != null) {
-                                writer.close();
+                                errorAjax(response, "Tipo de archivo incorrecto por favor validar que el archivo cuente con la extencion xlsx");
                             }
                         }
-                    }else{
-                        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                            errorAjax(response, "Tipo de archivo incorrecto por favor validar que el archivo cuente con la extencion xlsx");
+                        }catch(NullPointerException ex){
+                            System.out.println(ex);
+                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+                                errorAjax(response, "No se a cargado ningun archivo");
+                            }
+                        }catch(Exception ex){
+                            System.out.println(ex.toString());
                         }
-                    }
-                    }catch(NullPointerException ex){
-                        System.out.println(ex);
-                        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-                            errorAjax(response, "No se a cargado ningun archivo");
-                        }
-                    }catch(Exception ex){
-                        System.out.println(ex.toString());
-                    }
-                break;
+                    break;
+                }
+            }else{
+            
             }
         }
     }
-
+    
+    public void accesoDenegado(HttpServletRequest requerir, HttpServletResponse responder, Usuario u)
+        throws ServletException, IOException{
+            errores.add("Lo sentimos no tiene acceso a esta funcionalidad");
+            requerir.setAttribute("errores", errores);
+            AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(requerir.getParameter("idAnho")));
+            requerir.setAttribute("proyecto", anho.getProyectoId());
+            requerir.getRequestDispatcher("proyecto.jsp").forward(requerir, responder);
+	}
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

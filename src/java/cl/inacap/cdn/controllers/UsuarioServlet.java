@@ -8,6 +8,7 @@ package cl.inacap.cdn.controllers;
 import cl.inacap.cdn.entities.CBanco;
 import cl.inacap.cdn.entities.FuenteF;
 import cl.inacap.cdn.entities.MD5;
+import cl.inacap.cdn.entities.Permiso;
 import cl.inacap.cdn.entities.Proyecto;
 import cl.inacap.cdn.entities.TipoUsuario;
 import cl.inacap.cdn.entities.Usuario;
@@ -31,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Nicolas
  */
 public class UsuarioServlet extends HttpServlet {
-
+    List<String> errores = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -45,175 +46,236 @@ public class UsuarioServlet extends HttpServlet {
             throws ServletException, IOException, Exception {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-           if(request.getParameter("op")!=null){
-               List<Usuario> usuarios;
-               List<Proyecto> proyectos;
-               List<TipoUsuario> tUsuarios;
-               int op = Integer.parseInt(request.getParameter("op"));
-               switch(op){
-                   case 1:
-                       usuarios = Usuario.findAll();
-                       request.setAttribute("usuarios", usuarios);
-                       request.getRequestDispatcher("usuarios.jsp").forward(request, response);
-                   break;
-                   
-                   case 2:
-                       tUsuarios = TipoUsuario.findAll();
-                       request.setAttribute("tUsuarios", tUsuarios);
-                       if(request.getParameter("idUsuario")!=null){
-                           Usuario usu = Usuario.findById(new BigDecimal(request.getParameter("idUsuario")));
-                           request.setAttribute("usuario", usu);
-                           request.setAttribute("op", 4);
-                       }else{
-                           request.setAttribute("op", 3);
-                       }
-                       request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
-                   break;
-                   
-                   case 3:
-                       String run = request.getParameter("rut");
-                       run = run.replace(".", "");
-                       String[] rutDv = run.split("-");
-                       BigDecimal rut = new BigDecimal(rutDv[0]);
-                       char dv = rutDv[1].charAt(0);
-                       if(!Usuario.validarUsuario(rut)){
-                            TipoUsuario tipo = TipoUsuario.findById((new BigDecimal(request.getParameter("tipo"))));
-                            String clave = MD5.Encriptar(request.getParameter("clave"));
-                            String nombre = request.getParameter("nombre");
-                            String apellido = request.getParameter("apellido");      
-                            Usuario usuario = new Usuario(rut,dv,nombre,apellido,clave,tipo);
-                            usuario.addUsuario();
+            Usuario us = (Usuario)request.getSession(true).getAttribute("user");
+            errores.clear();
+            if (us != null) {
+                if(request.getParameter("op")!=null){
+                List<Usuario> usuarios;
+                List<Proyecto> proyectos;
+                List<TipoUsuario> tUsuarios;
+                int op = Integer.parseInt(request.getParameter("op"));
+                switch(op){
+                    case 1:
+                        // Cargas vista con los usuarios del sistema 
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "11")){
                             usuarios = Usuario.findAll();
                             request.setAttribute("usuarios", usuarios);
-                            request.setAttribute("notificacion", "Se a registrado correctamente al usuario "+nombre+" "+apellido);
                             request.getRequestDispatcher("usuarios.jsp").forward(request, response);
-                       }else{
-                            tUsuarios = TipoUsuario.findAll();
-                            request.setAttribute("op", 3);
-                            request.setAttribute("tUsuarios", tUsuarios);
-                            request.setAttribute("alerta", "Error ya se encuentre registrado un usuario con el rut '"+rut+"-"+dv+"'");
-                            request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
-                       }
-                   break;
-                   
-                   case 4:
-                       String runM = request.getParameter("rut");
-                       runM = runM.replace(".", "");
-                       String[] rutDvM = runM.split("-");
-                       BigDecimal rutM = new BigDecimal(rutDvM[0]);
-                       char dvM = rutDvM[1].charAt(0);
-                       Usuario usuarioM = Usuario.findById(new BigDecimal(request.getParameter("rutUsu")));
-                       if(!Usuario.validarUsuario(rutM) || usuarioM.getRut().equals(rutM)){  
-                            String clave = "";
-                            String nombre = request.getParameter("nombre");
-                            String apellido = request.getParameter("apellido"); 
-                            TipoUsuario tipo = TipoUsuario.findById((new BigDecimal(request.getParameter("tipo"))));
-                            if(!request.getParameter("clave").equals("")){
-                                clave = MD5.Encriptar(request.getParameter("clave"));
-                            }else{
-                                clave = usuarioM.getClave();
-                            }
-                            Usuario usuario = new Usuario(rutM,dvM,nombre,apellido,clave,tipo);
-                            usuarioM.modificarUsuario(usuario);
-                            usuarios = Usuario.findAll();
-                            request.setAttribute("usuarios", usuarios);
-                            request.setAttribute("notificacion", "Se a modificado correctamente al usuario "+nombre+" "+apellido);
-                            request.getRequestDispatcher("usuarios.jsp").forward(request, response);
-                       }else{
-                            tUsuarios = TipoUsuario.findAll();
-                            request.setAttribute("op", 3);
-                            request.setAttribute("tUsuarios", tUsuarios);
-                            request.setAttribute("alerta", "Error ya se encuentre registrado un usuario con el rut '"+rutM+"-"+dvM+"'");
-                            request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
-                       }
-                   break;
-                   
-                   case 5:
-                       if(request.getParameter("idUsuario")!=null){
-                           Usuario usuarioD = Usuario.findById(new BigDecimal(request.getParameter("idUsuario")));
-                           String nombre = usuarioD.getNombre();
-                           String apellido = usuarioD.getApellido();
-                           usuarioD.removeUsuario();          
-                           request.setAttribute("notificacion", "Se a eliminado correctamente al usuario "+nombre+" "+apellido);
-                       }
-                       usuarios = Usuario.findAll();
-                       request.setAttribute("usuarios", usuarios);
-                       request.getRequestDispatcher("usuarios.jsp").forward(request, response);
-                   break;
-                   
-                   case 6:
-                       usuarios = Usuario.findAll();
-                       proyectos = Proyecto.findByEstado('1');
-                       request.setAttribute("usuarios", usuarios);
-                       request.setAttribute("proyectos", proyectos);
-                       request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
-                   break;
-                   
-                   // Llamada ajax para obtener los usuarios de un proyecto
-                    case 7: 
-                        Gson gson = new Gson();
-                        Map <String, Object> map = new HashMap<>();
-                        if (request.getParameter("id_proyecto")!=null) {
-                            response.setContentType("application/json");
-                            response.setCharacterEncoding("UTF-8");
-                            try{
-                                ArrayList<String> users = new ArrayList<>();
-                                Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
-                                proyect.getUsuarioList().forEach((u) -> {
-                                    users.add(u.getRut().toString());
-                                });
-                                map.put("usuarios" , users);
-                                out.print(gson.toJson(map));
-                                out.flush();
-                                out.close();
-                            }catch(java.lang.StackOverflowError ex){
-                                map.put("error" , ex.toString());
-                                out.print(ex);
-                            }
                         }else{
-                            map.put("error" , "Parametros equivocados");
-                            out.print(gson.toJson(map));
-                            out.flush();
-                            out.close();
+                            errores.add("Lo sentimos no tiene acceso a esta funcionalidad");
+                            request.setAttribute("errores", errores);
+                            proyectos = us.getProyectoList();
+                            if(proyectos.size()>1){
+                                request.setAttribute("tipoP", "Proyectos Activos");
+                                request.setAttribute("proyectos", proyectos);
+                                request.getRequestDispatcher("inicioAdmin.jsp").forward(request, response);
+                            }else if(proyectos.size()>0){
+                                response.sendRedirect("Proyect.do?idProyect="+proyectos.get(0).getId()+"&op=4");
+                            }else{
+                                request.getRequestDispatcher("login.jsp").forward(request, response);
+                            }
                         }
                     break;
-                    
-                    case 8:
-                        ArrayList<String> errores = new ArrayList<>();
-                        String[] users = request.getParameterValues("usuarios");
-                        ArrayList<Usuario> listUsuarios = new ArrayList<>();
-                        String proyectName = "-";
-                        if(request.getParameter("id_proyecto").equals("")){
-                            errores.add("Por favor seleccione el proyecto al cual desea asociar a los usuarios");
-                        }else if(users==null){
-                            errores.add("Debe asignar al menos un usuario");
-                        }else{
-                            for(String user:users){
-                                Usuario u = Usuario.findById(new BigDecimal(user));
-                                listUsuarios.add(u);
+
+                    case 2:
+                        // Se carga la vista para editar o crear un nuevo usuario
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "11")){
+                            tUsuarios = TipoUsuario.findAll();
+                            request.setAttribute("tUsuarios", tUsuarios);
+                            if(request.getParameter("idUsuario")!=null){
+                                Usuario usu = Usuario.findById(new BigDecimal(request.getParameter("idUsuario")));
+                                request.setAttribute("usuario", usu);
+                                request.setAttribute("op", 4);
+                            }else{
+                                request.setAttribute("op", 3);
                             }
-                            Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
-                            proyectName = proyect.getNombre();
-                            proyect.asignarUsuarios(listUsuarios);
+                            request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
+                        }else{
+                            accesoDenegado(request, response, us); 
                         }
-                        usuarios = Usuario.findAll();
-                        if(errores.size()>0){
+                    break;
+
+                    case 3:
+                        // Registro de usuario
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "12")){
+                            String run = request.getParameter("rut");
+                            run = run.replace(".", "");
+                            String[] rutDv = run.split("-");
+                            BigDecimal rut = new BigDecimal(rutDv[0]);
+                            char dv = rutDv[1].charAt(0);
+                            if(!Usuario.validarUsuario(rut)){
+                                 TipoUsuario tipo = TipoUsuario.findById((new BigDecimal(request.getParameter("tipo"))));
+                                 String clave = MD5.Encriptar(request.getParameter("clave"));
+                                 String nombre = request.getParameter("nombre");
+                                 String apellido = request.getParameter("apellido");      
+                                 Usuario usuario = new Usuario(rut,dv,nombre,apellido,clave,tipo);
+                                 usuario.addUsuario();
+                                 usuarios = Usuario.findAll();
+                                 request.setAttribute("usuarios", usuarios);
+                                 request.setAttribute("notificacion", "Se a registrado correctamente al usuario "+nombre+" "+apellido);
+                                 request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                            }else{
+                                 tUsuarios = TipoUsuario.findAll();
+                                 request.setAttribute("op", 3);
+                                 request.setAttribute("tUsuarios", tUsuarios);
+                                 request.setAttribute("alerta", "Error ya se encuentre registrado un usuario con el rut '"+rut+"-"+dv+"'");
+                                 request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
+                            }
+                        }else{
+                            accesoDenegado(request, response, us); 
+                        }
+                    break;
+
+                    case 4:
+                        // Modificar usuario
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "13")){
+                            String runM = request.getParameter("rut");
+                            runM = runM.replace(".", "");
+                            String[] rutDvM = runM.split("-");
+                            BigDecimal rutM = new BigDecimal(rutDvM[0]);
+                            char dvM = rutDvM[1].charAt(0);
+                            Usuario usuarioM = Usuario.findById(new BigDecimal(request.getParameter("rutUsu")));
+                            if(!Usuario.validarUsuario(rutM) || usuarioM.getRut().equals(rutM)){  
+                                 String clave = "";
+                                 String nombre = request.getParameter("nombre");
+                                 String apellido = request.getParameter("apellido"); 
+                                 TipoUsuario tipo = TipoUsuario.findById((new BigDecimal(request.getParameter("tipo"))));
+                                 if(!request.getParameter("clave").equals("")){
+                                     clave = MD5.Encriptar(request.getParameter("clave"));
+                                 }else{
+                                     clave = usuarioM.getClave();
+                                 }
+                                 Usuario usuario = new Usuario(rutM,dvM,nombre,apellido,clave,tipo);
+                                 usuarioM.modificarUsuario(usuario);
+                                 usuarios = Usuario.findAll();
+                                 request.setAttribute("usuarios", usuarios);
+                                 request.setAttribute("notificacion", "Se a modificado correctamente al usuario "+nombre+" "+apellido);
+                                 request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                            }else{
+                                 tUsuarios = TipoUsuario.findAll();
+                                 request.setAttribute("op", 3);
+                                 request.setAttribute("tUsuarios", tUsuarios);
+                                 request.setAttribute("alerta", "Error ya se encuentre registrado un usuario con el rut '"+rutM+"-"+dvM+"'");
+                                 request.getRequestDispatcher("infoUsuario.jsp").forward(request, response);
+                            }
+                        }else{
+                            accesoDenegado(request, response, us); 
+                        }
+                    break;
+
+                    case 5:
+                        // Eliminar usuarios
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "14")){
+                            if(request.getParameter("idUsuario")!=null){
+                                Usuario usuarioD = Usuario.findById(new BigDecimal(request.getParameter("idUsuario")));
+                                String nombre = usuarioD.getNombre();
+                                String apellido = usuarioD.getApellido();
+                                usuarioD.removeUsuario();          
+                                request.setAttribute("notificacion", "Se a eliminado correctamente al usuario "+nombre+" "+apellido);
+                            }
+                            usuarios = Usuario.findAll();
+                            request.setAttribute("usuarios", usuarios);
+                            request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                        }else{
+                            accesoDenegado(request, response, us); 
+                        }
+                    break;
+
+                    case 6:
+                        // Cargar vista para asignar usuarios
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "15")){
+                            usuarios = Usuario.findAll();
                             proyectos = Proyecto.findByEstado('1');
                             request.setAttribute("usuarios", usuarios);
                             request.setAttribute("proyectos", proyectos);
-                            request.setAttribute("alerta", errores);
                             request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
                         }else{
-                            request.setAttribute("usuarios", usuarios);
-                            request.setAttribute("notificacion", "Se a asignado correctamente a los usuarios al proyecto "+proyectName);
-                            request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                            accesoDenegado(request, response, us); 
                         }
                     break;
-               }
-           }
+
+                    // Llamada ajax para obtener los usuarios de un proyecto
+                     case 7: 
+                         Gson gson = new Gson();
+                         Map <String, Object> map = new HashMap<>();
+                         if (request.getParameter("id_proyecto")!=null) {
+                             response.setContentType("application/json");
+                             response.setCharacterEncoding("UTF-8");
+                             try{
+                                 ArrayList<String> users = new ArrayList<>();
+                                 Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
+                                 proyect.getUsuarioList().forEach((u) -> {
+                                     users.add(u.getRut().toString());
+                                 });
+                                 map.put("usuarios" , users);
+                                 out.print(gson.toJson(map));
+                                 out.flush();
+                                 out.close();
+                             }catch(java.lang.StackOverflowError ex){
+                                 map.put("error" , ex.toString());
+                                 out.print(ex);
+                             }
+                         }else{
+                             map.put("error" , "Parametros equivocados");
+                             out.print(gson.toJson(map));
+                             out.flush();
+                             out.close();
+                         }
+                     break;
+
+                     case 8:
+                         // Asignar usuarios a un proyecto
+                        if(Permiso.validarPermiso(us.getTipoUsuarioId(), "15")){
+                            ArrayList<String> errores = new ArrayList<>();
+                            String[] users = request.getParameterValues("usuarios");
+                            ArrayList<Usuario> listUsuarios = new ArrayList<>();
+                            String proyectName = "-";
+                            if(request.getParameter("id_proyecto").equals("")){
+                                errores.add("Por favor seleccione el proyecto al cual desea asociar a los usuarios");
+                            }else if(users==null){
+                                errores.add("Debe asignar al menos un usuario");
+                            }else{
+                                for(String user:users){
+                                    Usuario u = Usuario.findById(new BigDecimal(user));
+                                    listUsuarios.add(u);
+                                }
+                                Proyecto proyect = Proyecto.findById(new BigDecimal(request.getParameter("id_proyecto")));
+                                proyectName = proyect.getNombre();
+                                proyect.asignarUsuarios(listUsuarios);
+                            }
+                            usuarios = Usuario.findAll();
+                            if(errores.size()>0){
+                                proyectos = Proyecto.findByEstado('1');
+                                request.setAttribute("usuarios", usuarios);
+                                request.setAttribute("proyectos", proyectos);
+                                request.setAttribute("alerta", errores);
+                                request.getRequestDispatcher("asignarProyect.jsp").forward(request, response);
+                            }else{
+                                request.setAttribute("usuarios", usuarios);
+                                request.setAttribute("notificacion", "Se a asignado correctamente a los usuarios al proyecto "+proyectName);
+                                request.getRequestDispatcher("usuarios.jsp").forward(request, response);
+                            }
+                        }else{
+                            accesoDenegado(request, response, us); 
+                        }
+                     break;
+                }
+            }
+            }else{
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
         }
     }
-
+    
+     public void accesoDenegado(HttpServletRequest requerir, HttpServletResponse responder, Usuario u)
+        throws ServletException, IOException{
+            errores.add("Lo sentimos no tiene acceso a esta funcionalidad");
+            requerir.setAttribute("errores", errores);
+            List<Usuario> usuarios = Usuario.findAll();
+            requerir.setAttribute("usuarios", usuarios);
+            requerir.getRequestDispatcher("usuarios.jsp").forward(requerir, responder);
+	}
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

@@ -181,7 +181,7 @@
         <div class="row card-body">
           <div class="col-md-12">
               <form method="post" action="Gasto.do" id="homologar">
-                <input type="hidden" name="op" value="homologar">
+                <input type="hidden" name="op" value="1">
                 <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>" id="mes">
                 <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>" id="idAnho">
                 <input type="hidden" name="tipo" value="<%=tipo%>" id="tipoG">

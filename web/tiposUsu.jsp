@@ -140,6 +140,27 @@
         <li class="breadcrumb-item active">Tipos de Usuario</li>
       </ol>
       <% 
+        if(request.getAttribute("errores")!=null){
+            List<String> errores = (List<String>)request.getAttribute("errores");
+            if(errores.size()>0){
+      %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%
+                      for(String error:errores){  
+                    %>
+                    <p><i class="fa fa-exclamation-circle" aria-hidden="true"></i> <%=error%></p>
+                    <%
+                      }  
+                    %>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+      <%
+            }
+        }
+      %>
+      <% 
         if(request.getAttribute("notificacion")!=null){
       %>
             <div class="alert alert-success alert-dismissible fade show" role="alert">

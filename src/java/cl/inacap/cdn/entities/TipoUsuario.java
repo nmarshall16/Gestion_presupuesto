@@ -110,11 +110,11 @@ public class TipoUsuario implements Serializable {
                 EntityManager em = emf.createEntityManager();
                 EntityTransaction trans = em.getTransaction();
                 trans.begin();
+                List<Permiso> oldPermisos = this.getPermisos();
                 TipoUsuario tipo = em.merge(this);
-                List<Permiso> oldPermisos = Permiso.findByTipoU(tipo);
                 tipo.setNombre(newTipo.getNombre());
                 tipo.setPermisoList(permisos);
-                tipo.permisoList = new ArrayList();
+                tipo.permisoList = oldPermisos;
                 boolean validacion = false;
                 for(Permiso permiso:permisos){
                     validacion = false;
@@ -124,12 +124,13 @@ public class TipoUsuario implements Serializable {
                         }
                     }
                     if(!validacion){
-                        Permiso permi = em.merge(permiso);
-                        permi.getTipoUsuarioList().add(tipo);
+                        Permiso permis = em.merge(permiso);
+                        permis.getTipoUsuarioList().add(tipo);
+                        tipo.getPermisoList().add(permis);
                     }
-                    tipo.getPermisoList().add(permiso);
                 }
-                for(Permiso permi:oldPermisos){
+                for(int i = 0; i<oldPermisos.size(); i++){
+                    Permiso permi = oldPermisos.get(i);
                     validacion = false;
                     for(Permiso permiso:permisos){
                         if(permi.equals(permiso)){
@@ -137,15 +138,17 @@ public class TipoUsuario implements Serializable {
                         }
                     }
                     if(!validacion){
+                        List<TipoUsuario> tipos = permi.getTiposUsuario();
                         Permiso permis = em.merge(permi);
-                        permis.getTipoUsuarioList().remove(tipo);
+                        permis.setTipoUsuarioList(tipos);
                         tipo.getPermisoList().remove(permis);
+                        permis.getTipoUsuarioList().remove(tipo);
                     }
                 }
                 trans.commit();
                 em.close();
             }catch(Exception ex){
-                    System.out.print(ex);
+                System.out.print(ex);
             }
 	}
         
@@ -175,10 +178,21 @@ public class TipoUsuario implements Serializable {
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-
+        
+        public List<Permiso> getPermisos() {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            Query result = em.createNativeQuery("SELECT p.id, p.nombre FROM permiso p LEFT JOIN permisosu u ON p.id = u.permiso_id WHERE u.tipo_usuario_id = "+this.id, Permiso.class);
+            this.permisoList = result.getResultList();
+            em.close();
+            emf.close();
+            return permisoList;
+	}
+        
 	@XmlTransient
 	public List<Permiso> getPermisoList() {
-		return permisoList;
+            return permisoList;
 	}
 
 	public void setPermisoList(List<Permiso> permisoList) {

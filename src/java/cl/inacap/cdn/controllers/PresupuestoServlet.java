@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Nicolas
  */
 public class PresupuestoServlet extends HttpServlet {
-
+List<String> errores = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -39,35 +39,47 @@ public class PresupuestoServlet extends HttpServlet {
             /* TODO output your page here. You may use following sample code. */
             // Consultar sesión de usuario
             Usuario u = (Usuario)request.getSession(true).getAttribute("user");
-			if (u != null) {
-				int action = Integer.parseInt(request.getParameter("accion"));
-				/* Se recibe el parametro accion enviado desde el jsp si el paremetro
-				es null se cargara el inicio del administrador con todos los proyectos activos */
-				switch(action){
-					case 1:
-						try{
-							// Cargar vista de presupuestos
-							request.setAttribute("ctas", Cuenta.findAll());			
-							request.setAttribute("fuentes", FuenteF.findAll());
-							request.setAttribute("presupuestos", Presupuesto.findAllByAnho(AnhoProyect.findById(Integer.parseInt(request.getParameter("anhoProyecto")))));
-						}catch(Exception ex){
-							request.setAttribute("mensaje", "Problemas Al Cargar Presupuestos Del Año Indicado");			
-						}
-						request.getRequestDispatcher("presupuesto.jsp").forward(request, response);
-					break;
-					case 2:
-						
-					break;
-					default:
-					break;
-				}
-			}
-			
-
-			
-			
+            errores.clear();
+            if (u != null) {
+                int action = Integer.parseInt(request.getParameter("accion"));
+                /* Se recibe el parametro accion enviado desde el jsp si el paremetro
+                es null se cargara el inicio del administrador con todos los proyectos activos */
+                switch(action){
+                    case 1:
+                        if(Permiso.validarPermiso(u.getTipoUsuarioId(), "6")){
+                            try{
+                                // Cargar vista de presupuestos
+                                request.setAttribute("ctas", Cuenta.findAll());			
+                                request.setAttribute("fuentes", FuenteF.findAll());
+                                request.setAttribute("presupuestos", Presupuesto.findAllByAnho(AnhoProyect.findById(Integer.parseInt(request.getParameter("anhoProyecto")))));
+                            }catch(Exception ex){
+                                request.setAttribute("mensaje", "Problemas Al Cargar Presupuestos Del Año Indicado");			
+                            }
+                            request.getRequestDispatcher("presupuesto.jsp").forward(request, response);
+                        }else{
+                            AnhoProyect anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("anhoProyecto")));
+                            request.setAttribute("proyecto", anho.getProyectoId());
+                            accesoDenegado(request, response,u);
+                        }
+                    break;
+                    case 2:
+                            // Modificar Presupuesto
+                    break;
+                    default:
+                    break;
+                }
+            }else{
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
         }
     }
+    
+    public void accesoDenegado(HttpServletRequest requerir, HttpServletResponse responder, Usuario u)
+        throws ServletException, IOException{
+            errores.add("Lo sentimos no tiene acceso a esta funcionalidad");
+            requerir.setAttribute("errores", errores);
+            requerir.getRequestDispatcher("proyecto.jsp").forward(requerir, responder);
+	}
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

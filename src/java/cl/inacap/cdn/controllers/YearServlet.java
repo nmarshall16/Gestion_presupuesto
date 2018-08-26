@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author dell
  */
 public class YearServlet extends HttpServlet {
-	
+	List<String> errores = new ArrayList<>();
 	AnhoProyect anho = null;
 
     /**
@@ -39,77 +39,108 @@ public class YearServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            int op = 1;
-            if (request.getParameter("op") != null ) {
-                op = Integer.parseInt(request.getParameter("op"));
-            }
-            switch(op){
-                case 1: 
-                    // CARGAR VISTA PARA CREACIÓN DE NUEVO AÑO
-                    // Obteniendo cuentas
-                        request.setAttribute("ctas", Cuenta.findAll());
-			request.setAttribute("fuentes", FuenteF.findAll());
-                    // Obteniendo id de proyecto
-                        BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro"))); 
-                    // Setear datos obtenidos y construir vista
-                        request.setAttribute("proyecto", Proyecto.findById(idPro));
-                        request.setAttribute("anho", String.valueOf(AnhoProyect.countYearsOfProyect(Proyecto.findById(idPro))));
-                        request.getRequestDispatcher("newYear.jsp").forward(request, response);
-                    break;
-                case 2: 
-                    // GUARDAR NUEVO AÑO DE PROYECTO
-                    try {
-                    // Guardar Nuevo Año de proyecto
-                        AnhoProyect anho = saveYear(request, response);
-                    // GUARDAR PRESUPUESTOS
-                        savePresupuestos(request, response, anho);
-                        response.sendRedirect("Proyect.do?idProyect="+anho.getProyectoId().getId()+"&op=8");
-                    } catch (NullPointerException | IOException | ServletException e) {
-                    // AGREGAR SENTENCIAS EN CASO DE ERROR!
-                        out.print(e.getClass()+"<br>");
-                    // Imprimiendo detalle de error
-                        StackTraceElement[] stack = e.getStackTrace();
-                        String trace = "";
-                        for(StackTraceElement linea : stack){
-                           trace += linea.toString()+"<br>";
-                        }
-                        out.print(trace);
-                        out.print(e.initCause(e.getCause()));
-                        out.print("<br>");
-                    }
-                    break;
-                case 3:
-                    if(request.getParameter("mes")!=null && request.getParameter("idAnho")!=null && request.getParameter("mes")!=null){
-                        BigInteger mes = new BigInteger(request.getParameter("mes"));
-                        anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-                        char tipoD = request.getParameter("tipo").charAt(0);
-                        List<GastoMes> gastos = GastoMes.findGastos(mes, anho,tipoD);
-                        if(gastos.size() > 0){
-                            request.setAttribute("mes", mes);
-                            request.setAttribute("anho", anho.getId());
-                            request.setAttribute("gastos", gastos);
-                            request.setAttribute("estado", GastoMes.validaEstadoGastos(gastos));
-                            request.setAttribute("tipo", tipoD);
-                            request.getRequestDispatcher("gastos.jsp").forward(request, response);
+            Usuario u = (Usuario)request.getSession(true).getAttribute("user");
+            errores.clear();
+            if (u != null) {
+                int op = 1;
+                if (request.getParameter("op") != null ) {
+                    op = Integer.parseInt(request.getParameter("op"));
+                }
+                switch(op){
+                    case 1:
+                        if(Permiso.validarPermiso(u.getTipoUsuarioId(), "8")){
+                            // CARGAR VISTA PARA CREACIÓN DE NUEVO AÑO
+                            // Obteniendo cuentas
+                                request.setAttribute("ctas", Cuenta.findAll());
+                                request.setAttribute("fuentes", FuenteF.findAll());
+                            // Obteniendo id de proyecto
+                                BigDecimal idPro = BigDecimal.valueOf(Integer.parseInt(request.getParameter("pro"))); 
+                            // Setear datos obtenidos y construir vista
+                                request.setAttribute("proyecto", Proyecto.findById(idPro));
+                                request.setAttribute("anho", String.valueOf(AnhoProyect.countYearsOfProyect(Proyecto.findById(idPro))));
+                                request.getRequestDispatcher("newYear.jsp").forward(request, response);
                         }else{
-                            request.setAttribute("mes", mes);
-                            request.setAttribute("anho", anho.getId());
-                            request.setAttribute("opcion", "cargarGastos");
-                            request.setAttribute("tipo", tipoD);
-                            request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                            accesoDenegado(request, response, u, Proyecto.findById(new BigDecimal(request.getParameter("pro")))); 
                         }
-                    }
-                    break;
-                case 4: 
-                    try{
-						anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
-						savePresupuestos(request, response, anho);
-                    }catch(IOException | NullPointerException | ServletException ex){
+                        break;
+                    case 2: 
+                        // GUARDAR NUEVO AÑO DE PROYECTO
+                        if(Permiso.validarPermiso(u.getTipoUsuarioId(), "8")){
+                            try {
+                            // Guardar Nuevo Año de proyecto
+                                AnhoProyect anho = saveYear(request, response);
+                            // GUARDAR PRESUPUESTOS
+                                savePresupuestos(request, response, anho);
+                                response.sendRedirect("Proyect.do?idProyect="+anho.getProyectoId().getId()+"&op=8");
+                            } catch (NullPointerException | IOException | ServletException e) {
+                            // AGREGAR SENTENCIAS EN CASO DE ERROR!
+                                out.print(e.getClass()+"<br>");
+                            // Imprimiendo detalle de error
+                                StackTraceElement[] stack = e.getStackTrace();
+                                String trace = "";
+                                for(StackTraceElement linea : stack){
+                                   trace += linea.toString()+"<br>";
+                                }
+                                out.print(trace);
+                                out.print(e.initCause(e.getCause()));
+                                out.print("<br>");
+                            }
+                        }else{
+                            accesoDenegado(request, response, u, Proyecto.findById(new BigDecimal(request.getParameter("pro")))); 
+                        }
+                        break;
+                    case 3:
+                        // Ver gastos de un mes
+                        if(request.getParameter("mes")!=null && request.getParameter("idAnho")!=null && request.getParameter("mes")!=null){
+                            BigInteger mes = new BigInteger(request.getParameter("mes"));
+                            anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                            if(Permiso.validarPermiso(u.getTipoUsuarioId(), "9")){
+                                char tipoD = request.getParameter("tipo").charAt(0);
+                                List<GastoMes> gastos = GastoMes.findGastos(mes, anho,tipoD);
+                                /* Si se encuentra un gasto en el mes seleccionado se 
+                                cargan los gasto de lo contrario se redirige a la vista
+                                para cargar los gastos. */
+                                if(gastos.size() > 0){
+                                    request.setAttribute("mes", mes);
+                                    request.setAttribute("anho", anho.getId());
+                                    request.setAttribute("gastos", gastos);
+                                    request.setAttribute("estado", GastoMes.validaEstadoGastos(gastos));
+                                    request.setAttribute("tipo", tipoD);
+                                    request.getRequestDispatcher("gastos.jsp").forward(request, response);
+                                }else{
+                                    if(Permiso.validarPermiso(u.getTipoUsuarioId(), "26")){
+                                        request.setAttribute("mes", mes);
+                                        request.setAttribute("anho", anho.getId());
+                                        request.setAttribute("opcion", "3");
+                                        request.setAttribute("tipo", tipoD);
+                                        request.getRequestDispatcher("cargarArchivo.jsp").forward(request, response);
+                                    }else{
+                                        accesoDenegado(request, response,u, anho.getProyectoId());
+                                    }
+                                }
+                            }else{
+                                accesoDenegado(request, response, u, anho.getProyectoId()); 
+                            }
+                        }else{
+                            errores.add("Error: No se lograr cargar la información correctamente inténtelo nuevamente");
+                            request.setAttribute("errores", errores);
+                            response.sendRedirect(request.getContextPath()+"/Proyect.do");
+                        }
+                        break;
+                    case 4:
+                        // Que hace esta opcion ? 
+                        try{
+                            anho = AnhoProyect.findById(Integer.parseInt(request.getParameter("idAnho")));
+                            savePresupuestos(request, response, anho);
+                        }catch(IOException | NullPointerException | ServletException ex){
 
-                    }
-                    break;
-                default: 
-                    break;
+                        }
+                        break;
+                    default: 
+                        break;
+                }
+            }else{
+                request.getRequestDispatcher("login.jsp").forward(request, response);
             }
         }
     }
@@ -223,6 +254,14 @@ public class YearServlet extends HttpServlet {
                         
         return fechas;
     }
+    
+    public void accesoDenegado(HttpServletRequest requerir, HttpServletResponse responder, Usuario u, Proyecto proyecto)
+        throws ServletException, IOException{
+            errores.add("Lo sentimos no tiene acceso a esta funcionalidad");
+            requerir.setAttribute("errores", errores);
+            requerir.setAttribute("proyecto", proyecto);
+            requerir.getRequestDispatcher("proyecto.jsp").forward(requerir, responder);
+	}
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

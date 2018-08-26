@@ -92,6 +92,23 @@ public class Permiso implements Serializable {
             return permiso;
         }
         
+        public static boolean validarPermiso(TipoUsuario u, String id){
+            boolean validacion = false;
+            try{
+                List<Permiso> permisos = u.getPermisoList();
+                System.out.println(permisos);
+                Permiso permiso = Permiso.findById(new BigDecimal(id));
+                for(Permiso p:permisos){
+                    if(p.equals(permiso)){
+                        validacion = true;
+                    }
+                }
+            }catch(Exception ex){
+                System.out.println(ex.getMessage());
+            }
+            return validacion;
+        }
+        
 	public BigDecimal getId() {
 		return id;
 	}
@@ -107,10 +124,21 @@ public class Permiso implements Serializable {
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-
-	@XmlTransient
+        
+        public List<TipoUsuario> getTiposUsuario() {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("CDNPU");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            Query result = em.createNativeQuery("SELECT t.id, t.nombre FROM tipo_usuario t LEFT JOIN permisosu u ON t.id = u.tipo_usuario_id WHERE u.permiso_id = "+this.id, TipoUsuario.class);
+            this.tipoUsuarioList = result.getResultList();
+            em.close();
+            emf.close();
+            return tipoUsuarioList;
+	}
+        
+        @XmlTransient
 	public List<TipoUsuario> getTipoUsuarioList() {
-		return tipoUsuarioList;
+            return tipoUsuarioList;
 	}
 
 	public void setTipoUsuarioList(List<TipoUsuario> tipoUsuarioList) {

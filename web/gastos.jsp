@@ -203,7 +203,7 @@
         <div class="card-body">
           <div class="table-responsive">
             <form method="post" action="Gasto.do">
-              <input type="hidden" value="marcarGastos" name="op">
+              <input type="hidden" value="2" name="op">
               <input type="hidden" name="mes" value="<%=request.getAttribute("mes")%>">
               <input type="hidden" name="idAnho" value="<%=request.getAttribute("anho")%>">
               <input type="hidden" name="tipo" value="<%=tipo%>">
